@@ -2,7 +2,7 @@
 
 Structured source of truth the AI reads first for the **Cric-Lab Vite + React frontend**.
 
-Sibling backend repo: `../criclab-backend` (FastAPI + CV pipeline + its own memory-bank with full pipeline rules).
+Sibling backend repo: `../criclab-web-backend` (FastAPI + CV pipeline + its own memory-bank with full pipeline rules).
 
 ## Layout
 
@@ -35,7 +35,7 @@ Vague prompts force guessing. The Memory Bank encodes product intent and UI rule
 
 1. Ask: `Read all memory bank files.` — understanding before coding
 2. Implement from a task under `tasks/` while obeying `systemPatterns.md`
-3. Pipeline / CV / PDF internals live in `criclab-backend` — do not reimplement them in React
+3. Pipeline / CV / PDF internals live in `criclab-web-backend` — do not reimplement them in React
 
 ## Not Notera / SpinLab product code
 

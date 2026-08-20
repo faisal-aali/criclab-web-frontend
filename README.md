@@ -2,7 +2,7 @@
 
 Vite + React + TypeScript UI for the AI cricket bowling laboratory: upload → processing → metrics → overlay video → PDF.
 
-Sibling backend: `../criclab-backend` (FastAPI on port 8000).
+Sibling backend: `../criclab-web-backend` (FastAPI on port 8000).
 
 ## Stack
 
@@ -13,12 +13,12 @@ Sibling backend: `../criclab-backend` (FastAPI on port 8000).
 ## Prerequisites
 
 - Node 20+
-- Backend running at http://127.0.0.1:8000 (see `criclab-backend`)
+- Backend running at http://127.0.0.1:8000 (see `criclab-web-backend`)
 
 ## Quick start
 
 ```bash
-cd criclab-frontend
+cd criclab-web-frontend
 npm install
 npm run dev
 ```

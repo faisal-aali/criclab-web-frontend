@@ -1,7 +1,7 @@
 # System Patterns — Cric-Lab (Frontend)
 
 > **Most important Memory Bank file for this UI repo.** Read before writing React code.
-> Full CV / pipeline / PDF / Cloudinary rules live in `../criclab-backend/memory-bank/systemPatterns.md`.
+> Full CV / pipeline / PDF / Cloudinary rules live in `../criclab-web-backend/memory-bank/systemPatterns.md`.
 
 ## Architecture rule #1
 
@@ -45,7 +45,7 @@ All writes go through FastAPI; React does not talk to MongoDB or Ollama directly
 
 ## Pipeline (pointer only)
 
-Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → PDF → MongoDB happens **in criclab-backend**. Do not duplicate stages in React. When adding a new metric:
+Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → PDF → MongoDB happens **in criclab-web-backend**. Do not duplicate stages in React. When adding a new metric:
 
 1. Backend extends metrics JSON (sibling repo)
 2. Frontend adds a card / chart that respects `metricReady`

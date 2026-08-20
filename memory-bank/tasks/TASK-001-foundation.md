@@ -6,7 +6,7 @@
 
 ## Goal
 
-Runnable Vite React frontend that talks to the sibling FastAPI backend (`criclab-backend`).
+Runnable Vite React frontend that talks to the sibling FastAPI backend (`criclab-web-backend`).
 
 ## Acceptance criteria
 

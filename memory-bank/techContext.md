@@ -1,6 +1,6 @@
 # Tech Context — Cric-Lab (Frontend)
 
-Sibling backend: `../criclab-backend` (FastAPI + MediaPipe + MongoDB + Ollama). This repo is the Vite + React UI only.
+Sibling backend: `../criclab-web-backend` (FastAPI + MediaPipe + MongoDB + Ollama). This repo is the Vite + React UI only.
 
 ## Stack
 
@@ -15,7 +15,7 @@ Sibling backend: `../criclab-backend` (FastAPI + MediaPipe + MongoDB + Ollama). 
 
 ```text
 Vite React (upload)
-  → FastAPI /videos + /balltrack + /coaching   [criclab-backend]
+  → FastAPI /videos + /balltrack + /coaching   [criclab-web-backend]
     → job poll → DeliveryResult JSON
       → Results page (overlay, metric cards, AI notes, PDF)
 ```
@@ -23,7 +23,7 @@ Vite React (upload)
 ## Repo layout (this frontend)
 
 ```text
-criclab-frontend/
+criclab-web-frontend/
 ├── src/
 │   ├── pages/            # Upload, BallFlight, Processing, Results, Train, History
 │   ├── components/       # MetricCard, DrillShelf, Layout, Logo
@@ -49,10 +49,10 @@ criclab-frontend/
 
 ```bash
 # backend first (sibling repo)
-cd ../criclab-backend && uvicorn app.main:app --reload --port 8000
+cd ../criclab-web-backend && uvicorn app.main:app --reload --port 8000
 
 # frontend
-cd criclab-frontend && npm install && npm run dev
+cd criclab-web-frontend && npm install && npm run dev
 ```
 
 Open http://localhost:5173.
@@ -69,4 +69,4 @@ Open http://localhost:5173.
 - Frontend is **Vite + React**, not Next.js
 - React does **not** talk to MongoDB or Ollama directly — only FastAPI
 - Do not reimplement pose/metrics/PDF logic in the browser
-- Pipeline internals: see `criclab-backend/memory-bank/systemPatterns.md`
+- Pipeline internals: see `criclab-web-backend/memory-bank/systemPatterns.md`

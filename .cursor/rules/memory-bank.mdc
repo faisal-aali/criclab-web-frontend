@@ -1,0 +1,10 @@
+---
+description: Read the frontend Memory Bank before coding in this repo
+alwaysApply: true
+---
+
+# Memory Bank (this repo)
+
+Before non-trivial work, read `memory-bank/`: `productBrief.md`, `techContext.md`, `systemPatterns.md` (highest priority), `roadmap.md`, relevant `tasks/`, `agent-rules/agent.md`.
+
+Sibling API: `../criclab-web-backend` (pipeline / PDF / CV Memory Bank). Do not add Python sources here. Display API metrics only — never invent km/h or drill IDs.
