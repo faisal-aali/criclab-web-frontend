@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Sora", "Figtree", sans-serif;
+  --font-sans: "Figtree", sans-serif;
+  --color-pitch: #0b3d2e;
+  --color-pitch-deep: #06261c;
+  --color-crease: #e8f5e9;
+  --color-seam: #c45c26;
+  --color-ball: #b91c1c;
+  --color-ink: #14201b;
+  --color-mist: #edf3ef;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(196, 92, 38, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(11, 61, 46, 0.22), transparent 50%),
+    linear-gradient(180deg, #f7faf8 0%, #e8f0ea 45%, #dfeae3 100%);
+  background-attachment: fixed;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-bar {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.55s ease-out both;
+}
+
+.animate-pulse-bar {
+  animation: pulse-bar 1.4s ease-in-out infinite;
+}
