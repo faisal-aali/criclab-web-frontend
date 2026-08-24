@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { assetUrl, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
+import { DeliveryHonesty } from '../components/DeliveryHonesty'
 import { DrillShelf } from '../components/DrillShelf'
 import { MetricCard } from '../components/MetricCard'
 
@@ -12,14 +13,15 @@ function ReliabilityBanner({ data }: { data: Delivery }) {
   const poseFrames = q?.pose_frames ?? 0
   const poseOk = Boolean(trackingOk && poseFrames >= 10)
   const ballOk = metricReady(ball)
-  const view = q?.camera_view
   const viewNote = q?.camera_view_note
+  const fromBall = Boolean(q?.speed_view_from_ball)
+  const slowMo = Boolean(q?.slow_motion || data.metrics?.timebase?.slow_motion)
 
   let tone = 'border-rose-200 bg-rose-50 text-rose-800'
   let dot = 'bg-rose-500'
   let msg = 'Low pose quality — use a clearer, side-on, stable full-body video.'
 
-  if (q?.speed_view_ok === false || view === 'front_on') {
+  if (q?.speed_view_ok === false) {
     tone = 'border-rose-200 bg-rose-50 text-rose-800'
     dot = 'bg-rose-500'
     msg =
@@ -29,7 +31,11 @@ function ReliabilityBanner({ data }: { data: Delivery }) {
     tone = 'border-emerald-200 bg-emerald-50 text-emerald-800'
     dot = 'bg-emerald-500'
     msg =
-      'Body mechanics from a side-on clip. Speeds come from the pose and ball on the video plus your height — bowling style (spin/pace) is coaching only, not a speed lookup. Ball km/h is still 2D, not a gun. For broadcast-style speed, line and length, use Ball flight.'
+      (fromBall
+        ? 'Pose read this as an angled camera, but the tracked ball crosses the image — speeds are from that flight and still a 2D floor. '
+        : 'Body mechanics from this clip. Speeds come from the pose and ball on the video plus your height. ') +
+      (slowMo ? 'Capture rate was recovered from the ball’s fall. ' : '') +
+      'Bowling style (spin/pace) is coaching only, not a speed lookup. For broadcast-style speed, line and length, use Ball flight.'
   } else if (poseOk && calibrated && !ballOk) {
     tone = 'border-amber-200 bg-amber-50 text-amber-800'
     dot = 'bg-amber-500'
@@ -112,6 +118,7 @@ function ScoreRing({ label, score }: { label: string; score?: number | null }) {
       <div
         className={`grid h-20 w-20 place-items-center rounded-full ${tone}`}
         style={{ background: `conic-gradient(currentColor ${pct * 3.6}deg, rgba(255,255,255,0.08) 0deg)` }}
+        aria-label={`${label} score ${v == null ? 'unavailable' : Math.round(v)} of 100`}
       >
         <div className="grid h-14 w-14 place-items-center rounded-full bg-pitch-deep">
           <span className={`font-display text-xl font-extrabold ${tone}`}>{v == null ? '—' : Math.round(v)}</span>
@@ -204,8 +211,13 @@ export function ResultsPage() {
             <p className="mt-2 text-sm text-pitch/70">
               {cmp.delta_kmh >= 0 ? '+' : ''}
               {cmp.delta_kmh.toFixed(1)} km/h vs your last {cmp.previous_count}{' '}
-              {cmp.previous_count === 1 ? 'delivery' : 'deliveries'}
-              {metricReady(m.ball_speed_kmh) ? ' (ball speed)' : ' (arm speed — ball was not tracked)'}
+              {cmp.previous_count === 1 ? 'delivery' : 'deliveries'} (tracked ball speed)
+            </p>
+          ) : cmp?.arm_delta_kmh != null && cmp.previous_arm_count ? (
+            <p className="mt-2 text-sm text-pitch/70">
+              {cmp.arm_delta_kmh >= 0 ? '+' : ''}
+              {cmp.arm_delta_kmh.toFixed(1)} km/h arm speed vs your last {cmp.previous_arm_count}{' '}
+              {cmp.previous_arm_count === 1 ? 'delivery' : 'deliveries'} — ball was not tracked on this clip
             </p>
           ) : null}
         </div>
@@ -238,6 +250,8 @@ export function ResultsPage() {
 
       <ReliabilityBanner data={data} />
 
+      <DeliveryHonesty metrics={m} />
+
       {/* Hero: original on top, analyzed overlay underneath */}
       <div className="grid min-w-0 gap-6 lg:grid-cols-[1.55fr_0.85fr]">
         <div className="min-w-0 animate-rise space-y-4">
@@ -256,7 +270,10 @@ export function ResultsPage() {
             <div className="overflow-hidden rounded-3xl border border-pitch/10 bg-black shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/10 bg-pitch-deep px-4 py-2.5">
                 <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                  <span className="h-2 w-2 rounded-full bg-seam" /> After · slow-motion + overlays
+                  <span className="h-2 w-2 rounded-full bg-seam" /> After ·{' '}
+                  {m.timebase?.slow_motion || m.quality?.slow_motion
+                    ? 'slow-motion overlay'
+                    : 'processed overlay'}
                 </span>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">CricLab</span>
               </div>
@@ -400,6 +417,8 @@ export function ResultsPage() {
           <div className="mt-3 grid min-w-0 grid-cols-2 gap-3">
             <MetricCard label="Hip-line proxy" metric={m.hip_rotation_speed_deg_s} />
             <MetricCard label="Trunk-line proxy" metric={m.trunk_rotation_speed_deg_s} />
+            <MetricCard label="Hip→trunk peak gap" metric={m.hip_to_trunk_peak_gap_ms} />
+            <MetricCard label="Elbow extension range" metric={m.elbow_extension_range_deg} />
           </div>
         </details>
       </div>

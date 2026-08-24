@@ -11,9 +11,9 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-005 | **Action/release detection** | Done | Throwing side (profile arm wins) + leave-hand release + action phases |
 | FEAT-006 | Calibration | Done (basic) | Scale from pose body height or provided reference |
 | FEAT-007 | **Biomechanics metrics** | Done | Leave-hand arm speed, joint angles, timing, rotation proxies, scores from ok metrics only |
-| FEAT-008 | **Slow-mo overlay video** | Done | SpinLab HUD: grayscale + 2×2 tiles + BFC/FFC/MER/REL/FT timeline |
+| FEAT-008 | **Slow-mo overlay video** | Done | SpinLab HUD: colour frames + 2×2 tiles + BFC/FFC/MER/REL/FT timeline |
 | FEAT-009 | **Cloudinary hosting** | Done | Upload processed video + PDF; return shareable URLs |
-| FEAT-010 | Results dashboard | Done | Cloudinary video + URL, metric cards, score rings, AI sections |
+| FEAT-010 | Results dashboard | Done | Cloudinary video + URL, metric cards, score rings, AI sections, pace band / throwing screen |
 | FEAT-011 | AI agent (Gemma) | Done | Coaching from metrics JSON; catalog-only drill IDs via `gemma3:4b` |
 | FEAT-012 | **SpinLab-style PDF** | Done | Event stills + tiles, sequencing, charts, tables, AI notes + drill URLs |
 | FEAT-013 | History & compare | Done (basic) | History list + compare delta in agent report |
@@ -21,6 +21,8 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-014b | **Ball flight (stumps)** | Done | Behind-bowler + both wickets; pitch-plane speed/line/length UI |
 | FEAT-015 | Coaching memory | Planned | Embeddings via `nomic-embed-text` + semantic search |
 | FEAT-016 | Validation | Planned | Radar / ground-truth checks; multi-view for true rotation speed |
+| FEAT-018 | **Capture-rate recovery** | Done | Results show measured fps when the file understated slow-mo |
+| FEAT-019 | **Delivery type & throwing screen** | Done | Pace band + ICC 15° screening cards; `—` unless backend status is ok |
 | FEAT-017 | Train / drills | Done | Closed YouTube catalog + DrillShelf + `/train` library |
 
 ## Change log
@@ -37,3 +39,6 @@ High-level features. Detail lives in `tasks/`.
   leave-hand, not cocking peak. Missing ball speed no longer scores from arm
   speed. FEAT-016 (radar validation) remains Planned — stump speed is pitch-plane,
   not a gun.
+- **24 Aug 2026 (audit):** Results now shows pace band, ICC 15° screening, capture
+  rate, and ball-vs-arm consistency from the metrics JSON. Compare is same-player
+  ball speed only. Ball-flight length rejects off-pitch bounces instead of clipping.

@@ -60,6 +60,43 @@ export type PlayerProfile = {
   bowling_style?: 'pace' | 'spin' | 'medium' | string
 }
 
+export type DeliveryType = {
+  value?: string | null
+  basis?: string | null
+  speed_kmh?: number | null
+  profile_style?: string | null
+  band_edge_caveat?: boolean
+  note?: string | null
+  status?: string
+}
+
+export type ActionLegality = {
+  verdict?: string | null
+  assessable?: boolean
+  limit_deg?: number
+  extension_deg?: number | null
+  elbow_at_arm_horizontal_deg?: number | null
+  elbow_at_release_deg?: number | null
+  note?: string | null
+  status?: string
+}
+
+export type SpeedConsistency = {
+  ok?: boolean | null
+  ratio?: number | null
+  note?: string | null
+}
+
+export type Timebase = {
+  fps?: number | null
+  container_fps?: number | null
+  measured_fps?: number | null
+  slow_motion?: boolean
+  slow_factor?: number | null
+  source?: string | null
+  note?: string | null
+}
+
 export type Metrics = {
   throwing_side?: string | null
   player_profile?: PlayerProfile
@@ -79,8 +116,14 @@ export type Metrics = {
   release_angle_deg?: MetricValue
   stride_length_pct_height?: MetricValue
   elbow_extension_deg?: MetricValue
+  elbow_extension_range_deg?: MetricValue
+  hip_to_trunk_peak_gap_ms?: MetricValue
   front_knee_flexion_deg?: MetricValue
   hip_shoulder_separation_deg?: MetricValue
+  delivery_type?: DeliveryType
+  action_legality?: ActionLegality
+  speed_consistency?: SpeedConsistency
+  timebase?: Timebase
   scores?: Scores
   sequencing_ok?: boolean | null
   trajectory_points?: { frame: number; x: number; y: number }[]
@@ -96,6 +139,9 @@ export type Metrics = {
     camera_view?: string
     camera_view_note?: string
     speed_view_ok?: boolean
+    speed_view_from_ball?: boolean
+    capture_fps?: number
+    slow_motion?: boolean
     shoulder_width_ratio?: number
   }
   kinematic_sequence?: {
@@ -138,10 +184,15 @@ export type Analysis = {
   confidence_note?: string
   recommendations?: DrillRecommendation[]
   comparison?: {
+    basis?: string | null
     current_speed_kmh?: number | null
     previous_avg_speed_kmh?: number | null
     delta_kmh?: number | null
     previous_count?: number
+    current_arm_speed_kmh?: number | null
+    previous_avg_arm_speed_kmh?: number | null
+    arm_delta_kmh?: number | null
+    previous_arm_count?: number
   }
 }
 

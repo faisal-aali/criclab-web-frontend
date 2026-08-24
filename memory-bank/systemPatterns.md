@@ -32,6 +32,8 @@ The UI never invents km/h, angles, or drill YouTube IDs. Display what the API re
 
 Results: overlay player, metric cards, image-plane trajectory path (Action), DrillShelf YouTube iframes from **catalog IDs returned by the API** only.
 
+Pace band (`delivery_type`), throwing screen (`action_legality`), capture rate (`timebase`), and `speed_consistency` are displayed as backend strings/status — never computed in the browser. If `status !== 'ok'` or `verdict` is null, show `—` / “not assessable”.
+
 Poll job status; never block the UI on long CV work without progress.
 
 All writes go through FastAPI; React does not talk to MongoDB or Ollama directly.

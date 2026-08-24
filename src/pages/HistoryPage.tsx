@@ -31,6 +31,9 @@ export function HistoryPage() {
           const ballOk = metricReady(ball)
           const style = d.metrics?.player_profile?.bowling_style
           const armSide = d.metrics?.player_profile?.bowling_arm || d.metrics?.throwing_side
+          const pace = d.metrics?.delivery_type
+          const paceOk = pace?.status === 'ok' && pace.value
+          const slowMo = Boolean(d.metrics?.timebase?.slow_motion || d.metrics?.quality?.slow_motion)
           return (
             <Link
               key={d.id}
@@ -43,6 +46,12 @@ export function HistoryPage() {
                   <span>{d.created_at ? new Date(d.created_at).toLocaleString() : d.id}</span>
                   {armSide ? <span className="capitalize">{armSide}-arm</span> : null}
                   {style ? <span className="capitalize">{style}</span> : null}
+                  {paceOk ? (
+                    <span className="rounded-full bg-pitch/5 px-2 py-0.5 font-semibold text-pitch/70">{pace.value}</span>
+                  ) : null}
+                  {slowMo ? (
+                    <span className="rounded-full bg-seam/10 px-2 py-0.5 font-semibold text-seam">Slow-mo recovered</span>
+                  ) : null}
                 </div>
                 {d.analysis_summary ? (
                   <p className="mt-2 line-clamp-2 max-w-2xl text-sm text-pitch/70">{d.analysis_summary}</p>
