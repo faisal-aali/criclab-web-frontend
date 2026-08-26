@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { CricLabMark } from './SiteHeader'
-import { Container } from './ui'
+import { Backdrop, Container } from './ui'
 import { PitchFloor } from './visuals'
 
 const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
@@ -43,7 +43,8 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative overflow-hidden bg-stadium text-chalk">
+    <footer className="relative overflow-hidden bg-night text-chalk">
+      <Backdrop plate="turf" scrim="dark" parallax={0.05} />
       <PitchFloor />
       <Container size="wide" className="relative py-16">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2.6fr]">

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
+import { Backdrop, ScrollProgress } from './ui'
 
 /**
  * Shell for every public page. The header floats over the hero (which is why
@@ -28,6 +29,7 @@ export function MarketingLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-chalk">
+      <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
@@ -44,16 +46,20 @@ export function PageHero({
   title,
   lead,
   children,
+  plate = 'stadium',
 }: {
   eyebrow?: string
   title: React.ReactNode
   lead?: React.ReactNode
   children?: React.ReactNode
+  /** Which generated backdrop sits behind this hero. */
+  plate?: 'stadium' | 'pitch' | 'nets' | 'bokeh' | 'turf' | 'light'
 }) {
   return (
-    <section className="relative overflow-hidden bg-stadium pb-20 pt-36 text-chalk sm:pt-44">
-      <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-50" aria-hidden />
-      <div className="pointer-events-none absolute -right-40 top-0 h-[28rem] w-[28rem] rounded-full bg-lime/10 blur-[120px]" aria-hidden />
+    <section className="relative overflow-hidden bg-night pb-24 pt-36 text-chalk sm:pt-44">
+      <Backdrop plate={plate} scrim="dark" parallax={0.1} />
+      <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+      <div className="pointer-events-none absolute -right-40 top-0 h-[28rem] w-[28rem] animate-glow-breathe rounded-full bg-lime/10 blur-[120px]" aria-hidden />
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
         <div className="flex max-w-3xl flex-col items-start gap-5">
           {eyebrow ? (

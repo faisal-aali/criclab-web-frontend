@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
   Accordion,
+  Backdrop,
   Button,
   Card,
   Chip,
@@ -10,6 +11,9 @@ import {
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   BowlerSkeleton,
@@ -45,6 +49,41 @@ const CATEGORIES = [
     id: 'account',
     label: 'Account & billing',
     blurb: 'Plans, seats, squads and who can see what.',
+  },
+]
+
+/* The half-dozen answers people want before they will read anything longer.
+   One line each — anything that needs a paragraph belongs in an accordion. */
+const QUICK_ANSWERS = [
+  {
+    q: 'What do I film?',
+    a: 'One delivery, side-on, whole body in frame.',
+    tag: 'Filming',
+  },
+  {
+    q: 'What kit do I need?',
+    a: 'A phone and something to rest it on. No markers, no rig.',
+    tag: 'Kit',
+  },
+  {
+    q: 'How long does it take?',
+    a: 'A few minutes for a single ball — a walk back to your mark.',
+    tag: 'Timing',
+  },
+  {
+    q: 'Seamers or spinners?',
+    a: 'Both. Film a spinner closer and at the highest frame rate you have.',
+    tag: 'Bowling',
+  },
+  {
+    q: 'Batting or fielding?',
+    a: 'Not yet. Bowling first, and properly, before anything else.',
+    tag: 'Scope',
+  },
+  {
+    q: 'Behind the arm?',
+    a: 'Great for line and length, poor for an action. Film side-on.',
+    tag: 'Angle',
   },
 ]
 
@@ -197,6 +236,7 @@ export function FaqPage() {
     <MarketingLayout title="FAQ">
       {/* ===================== HERO ===================== */}
       <PageHero
+        plate="nets"
         eyebrow="Frequently asked"
         title={
           <>
@@ -212,6 +252,50 @@ export function FaqPage() {
         </div>
       </PageHero>
 
+      <SectionSeam />
+
+      {/* ===================== QUICK ANSWERS ===================== */}
+      <Section tone="mid" className="py-16 sm:py-20">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.09} />
+        <div
+          className="pointer-events-none absolute -left-24 -top-16 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="The short version"
+            title="Six answers before you scroll"
+            lead="The ones asked most often at the top of a bowler’s mark. Everything below this takes a paragraph."
+          />
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {QUICK_ANSWERS.map((item, i) => (
+              <Reveal key={item.q} delay={i * 70} className="h-full">
+                <TiltCard className="h-full" max={5}>
+                  <Card className="ring-glow flex h-full flex-col gap-3 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-display text-base font-bold text-chalk">{item.q}</h3>
+                      <Chip tone="neutral">{item.tag}</Chip>
+                    </div>
+                    <p className="text-sm leading-relaxed text-chalk/60">{item.a}</p>
+                  </Card>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={200} className="mt-8 text-center">
+            <p className="text-sm text-chalk/50">
+              Need the longer answer?{' '}
+              <a href="#getting-started" className="font-semibold text-lime hover:text-chalk">
+                Pick a section below →
+              </a>
+            </p>
+          </Reveal>
+        </Container>
+      </Section>
+
       {/* ===================== CATEGORY NAV ===================== */}
       <Section tone="plain" className="border-b border-pitch/10 py-12 sm:py-14">
         <Container>
@@ -220,7 +304,7 @@ export function FaqPage() {
               <Reveal key={c.id} delay={i * 80} className="h-full">
                 <a
                   href={`#${c.id}`}
-                  className="group flex h-full flex-col gap-2 rounded-2xl border border-pitch/10 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:border-pitch/30 hover:shadow-lg hover:shadow-pitch/10"
+                  className="ring-glow group flex h-full flex-col gap-2 rounded-2xl border border-pitch/10 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:border-pitch/30 hover:shadow-lg hover:shadow-pitch/10"
                 >
                   <span className="font-display text-xs font-extrabold uppercase tracking-[0.16em] text-lime-deep">
                     0{i + 1}
@@ -253,12 +337,17 @@ export function FaqPage() {
 
       {/* ===================== FILMING ===================== */}
       <Section tone="dark" id="filming" className="py-20 sm:py-28">
+        <Backdrop plate="nets" scrim="dark-soft" parallax={0.12} />
         <StadiumAtmosphere />
+        <div
+          className="pointer-events-none absolute -right-24 top-32 h-72 w-72 animate-drift rounded-full bg-pitch-soft/25 blur-[120px]"
+          aria-hidden
+        />
         <Container className="relative">
           <SectionHeading
             tone="dark"
             eyebrow="Filming"
-            title="Getting the clip right"
+            title={<WordReveal text="Getting the clip right" />}
             lead="Nearly every disappointing result traces back to the camera rather than the bowler. Two minutes of set-up buys you the whole read."
           />
 
@@ -308,7 +397,7 @@ export function FaqPage() {
       </Section>
 
       {/* ===================== RESULTS & ACCURACY ===================== */}
-      <Section tone="plain" id="results" className="py-20 sm:py-28">
+      <Section tone="warm" id="results" className="py-20 sm:py-28">
         <Container>
           <SectionHeading
             eyebrow="Results & accuracy"
@@ -336,7 +425,12 @@ export function FaqPage() {
 
       {/* ===================== ACCOUNT & BILLING ===================== */}
       <Section tone="pitch" id="account" className="py-20 sm:py-28">
+        <Backdrop plate="pitch" scrim="dark-soft" parallax={0.08} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute -bottom-20 left-1/2 h-64 w-64 -translate-x-1/2 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
         <Container className="relative">
           <SectionHeading
             tone="dark"
@@ -397,7 +491,7 @@ export function FaqPage() {
                   <Reveal key={l.to} delay={i * 80}>
                     <Link
                       to={l.to}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-pitch/10 bg-chalk p-5 transition duration-300 hover:border-pitch/30 hover:bg-white"
+                      className="ring-glow group flex items-center justify-between gap-4 rounded-2xl border border-pitch/10 bg-chalk p-5 transition duration-300 hover:border-pitch/30 hover:bg-white"
                     >
                       <span className="flex flex-col gap-1">
                         <span className="font-display text-base font-bold text-ink">{l.t}</span>
@@ -423,11 +517,12 @@ export function FaqPage() {
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="nets" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <SeamBall size={64} className="animate-float-slow" />
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
-                  Enough reading. <span className="text-gradient-lime">Mark out a run.</span>
+                  Enough reading. <span className="shimmer-text">Mark out a run.</span>
                 </h2>
                 <p className="text-base leading-relaxed text-chalk/65">
                   One delivery answers more of these questions than the whole page

@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listDeliveries, metricReady, type Delivery } from '../api/client'
-import { Button, Card, Chip, Reveal } from '../components/site/ui'
+import {
+  Backdrop,
+  Button,
+  Card,
+  Chip,
+  ProgressRing,
+  Reveal,
+  TiltCard,
+} from '../components/site/ui'
 import { BowlerSkeleton, SeamBall } from '../components/site/visuals'
 
 export function HistoryPage() {
@@ -17,7 +25,13 @@ export function HistoryPage() {
   return (
     <div className="space-y-6">
       {/* ---------------- Header ---------------- */}
-      <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <Reveal className="relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-7 sm:px-7 sm:py-8">
+        <Backdrop plate="stadium" scrim="dark" parallax={0.07} />
+        <div
+          className="pointer-events-none absolute -right-16 -top-14 h-52 w-52 animate-glow-breathe rounded-full bg-lime/10 blur-[90px]"
+          aria-hidden
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <Chip tone="lime">History</Chip>
           <h1 className="font-display mt-3 text-3xl font-extrabold leading-tight text-chalk sm:text-4xl">
@@ -33,6 +47,7 @@ export function HistoryPage() {
             <Chip>{items.length} deliveries</Chip>
           </div>
         ) : null}
+        </div>
       </Reveal>
 
       {error ? (
@@ -50,12 +65,12 @@ export function HistoryPage() {
       {/* ---------------- Empty state ---------------- */}
       {items.length === 0 && !error ? (
         <Reveal>
-          <Card interactive={false} className="relative overflow-hidden p-8 text-center sm:p-12">
+          <Card interactive={false} className="ring-glow relative overflow-hidden p-8 text-center sm:p-12">
             <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-[0.35]" aria-hidden />
             <div className="relative mx-auto flex max-w-md flex-col items-center gap-5">
               <div className="relative h-36 w-32">
                 <BowlerSkeleton />
-                <div className="absolute -right-6 bottom-2 animate-float-slow">
+                <div className="absolute -right-6 bottom-2 animate-bob">
                   <SeamBall size={40} />
                 </div>
               </div>
@@ -93,10 +108,17 @@ export function HistoryPage() {
             const pace = d.metrics?.delivery_type
             const paceOk = pace?.status === 'ok' && pace.value
             const slowMo = Boolean(d.metrics?.timebase?.slow_motion || d.metrics?.quality?.slow_motion)
+            // Presentation only: the ring is drawn from the overall score that is
+            // already on the delivery. When there is no score it is simply absent —
+            // never a placeholder that could be mistaken for a reading.
+            const overallRaw = d.metrics?.scores?.overall
+            const overall =
+              typeof overallRaw === 'number' && Number.isFinite(overallRaw) ? overallRaw : null
             return (
               <Reveal key={d.id} delay={Math.min(i * 45, 260)}>
                 <Link to={`/app/results/${d.id}`} className="group block">
-                  <Card className="flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
+                  <TiltCard max={4}>
+                  <Card className="ring-glow flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2.5">
                         <span className="font-display text-base font-bold text-chalk transition group-hover:text-lime">
@@ -121,7 +143,13 @@ export function HistoryPage() {
                       ) : null}
                     </div>
 
-                    <div className="shrink-0 text-right">
+                    <div className="flex shrink-0 items-center gap-5 sm:gap-7">
+                      {overall != null ? (
+                        <div className="hidden sm:block">
+                          <ProgressRing value={overall} size={84} stroke={7} label="Overall" sub="score" />
+                        </div>
+                      ) : null}
+                      <div className="text-right">
                       {ballOk ? (
                         <>
                           <div className="font-display text-3xl font-extrabold leading-none text-gradient-lime">
@@ -146,8 +174,10 @@ export function HistoryPage() {
                           Arm {Number(arm!.value).toFixed(0)} km/h
                         </div>
                       ) : null}
+                      </div>
                     </div>
                   </Card>
+                  </TiltCard>
                 </Link>
               </Reveal>
             )

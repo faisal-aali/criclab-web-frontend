@@ -290,6 +290,7 @@ export function TermsPage() {
   return (
     <MarketingLayout title="Terms of Service">
       <PageHero
+      plate="nets"
         eyebrow="Terms of service"
         title={
           <>

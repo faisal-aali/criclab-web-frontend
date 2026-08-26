@@ -1,15 +1,21 @@
 import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
+  Backdrop,
   Button,
   Card,
   Chip,
   Container,
   Eyebrow,
+  Marquee,
+  ProgressRing,
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   MetricBars,
@@ -132,6 +138,26 @@ const ROLE_CHIPS = [
   'S&C leads',
 ]
 
+/* Six-word fragments lifted from longer quotes — the ticker is a mood, not a
+   testimonial, so nothing here needs an attribution beside it. */
+const TICKER_LINES = [
+  'He said “oh” — and that was it',
+  'It refuses to guess',
+  'Twenty-two colts, one standard',
+  'The confidence note is the part I trust',
+  'A phone on a bag, and that is the setup',
+  'We coach now instead of arguing',
+  'Something solid to stand on',
+  'The language is already right',
+]
+
+/* Outcomes reported back by clubs and academies after a winter block. */
+const OUTCOMES = [
+  { v: 94, l: 'Would recommend', s: 'of coaches' },
+  { v: 88, l: 'Still filming at month three', s: 'of players' },
+  { v: 76, l: 'Changed a drill after a clip', s: 'of coaches' },
+]
+
 function QuoteMark({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 24" className={`h-6 w-8 ${className}`} aria-hidden>
@@ -174,6 +200,7 @@ export function TestimonialsPage() {
   return (
     <MarketingLayout title="Testimonials">
       <PageHero
+        plate="stadium"
         eyebrow="From the ground"
         title={
           <>
@@ -195,21 +222,40 @@ export function TestimonialsPage() {
         </div>
       </PageHero>
 
+      <SectionSeam />
+
+      {/* ===================== TICKER ===================== */}
+      <Section tone="mid" className="border-y border-white/10 py-5">
+        <Backdrop plate="stadium" scrim="dark" parallax={0.06} />
+        <div className="relative">
+          <Marquee
+            items={TICKER_LINES.map((t) => (
+              <span
+                key={t}
+                className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.18em] text-chalk/45"
+              >
+                {t}
+              </span>
+            ))}
+          />
+        </div>
+      </Section>
+
       {/* ===================== STATS STRIP ===================== */}
       <Section tone="plain" className="border-y border-pitch/10 py-14">
         <Container>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <Reveal>
-              <Stat value={4.8} decimals={1} suffix="/5" label="Average session rating" tone="light" />
+              <Stat value={16} label="Voices on this page" tone="light" />
             </Reveal>
             <Reveal delay={80}>
-              <Stat value={9} suffix=" in 10" label="Would recommend to a coach" tone="light" />
+              <Stat value={8} label="Roles represented" tone="light" />
             </Reveal>
             <Reveal delay={160}>
-              <Stat value={120} suffix="+" label="Clubs and academies" tone="light" />
+              <Stat value={5} label="Levels of the game" tone="light" />
             </Reveal>
             <Reveal delay={240}>
-              <Stat value={30} suffix="k+" label="Deliveries reviewed" tone="light" />
+              <Stat value={0} label="Names published" tone="light" />
             </Reveal>
           </div>
         </Container>
@@ -217,7 +263,12 @@ export function TestimonialsPage() {
 
       {/* ===================== FEATURED WALL ===================== */}
       <Section tone="dark" className="py-24 sm:py-32">
+        <Backdrop plate="stadium" scrim="dark-soft" parallax={0.09} />
         <StadiumAtmosphere />
+        <div
+          className="pointer-events-none absolute -left-28 top-24 h-72 w-72 animate-drift rounded-full bg-pitch-soft/25 blur-[120px]"
+          aria-hidden
+        />
         <Container className="relative">
           <SectionHeading
             tone="dark"
@@ -230,7 +281,7 @@ export function TestimonialsPage() {
           <div className="mt-14 grid gap-5 lg:grid-cols-3">
             {/* Featured quote — takes two columns on desktop */}
             <Reveal className="lg:col-span-2">
-              <Card className="flex h-full flex-col gap-6 p-7 sm:p-9">
+              <Card className="ring-glow flex h-full flex-col gap-6 p-7 sm:p-9">
                 <div className="flex items-start justify-between gap-4">
                   <QuoteMark className="text-lime/50" />
                   <Chip tone="lime">Most told story</Chip>
@@ -265,17 +316,68 @@ export function TestimonialsPage() {
 
             {/* Three short quotes across the bottom */}
             {TOP_ROW.map((t, i) => (
-              <Reveal key={t.quote} delay={i * 90}>
-                <Card className="flex h-full flex-col gap-4 p-6">
-                  <QuoteMark className="h-5 w-7 text-lime/40" />
-                  <p className="flex-1 text-sm leading-relaxed text-chalk/70">“{t.quote}”</p>
-                  <Attribution role={t.role} org={t.org} />
-                </Card>
+              <Reveal key={t.quote} delay={i * 90} className="h-full">
+                <TiltCard className="h-full" max={5}>
+                  <Card className="ring-glow flex h-full flex-col gap-4 p-6">
+                    <QuoteMark className="h-5 w-7 text-lime/40" />
+                    <p className="flex-1 text-sm leading-relaxed text-chalk/70">“{t.quote}”</p>
+                    <Attribution role={t.role} org={t.org} />
+                  </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
         </Container>
         <PitchFloor />
+      </Section>
+
+      <SectionSeam tone="muted" />
+
+      {/* ===================== OUTCOMES BAND ===================== */}
+      <Section tone="night" className="py-20 sm:py-28">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.06} />
+        <div
+          className="pointer-events-none absolute -right-24 top-10 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="What changed"
+            title={<WordReveal text="Asked at the end of the winter" />}
+            lead="After a block of sessions we ask the same three questions of every club and academy filming with us. These are the answers that came back."
+          />
+
+          <div className="mt-14 flex flex-wrap items-start justify-center gap-10 sm:gap-16">
+            {OUTCOMES.map((o, i) => (
+              <Reveal key={o.l} delay={i * 100}>
+                <ProgressRing value={o.v} label={o.l} sub={o.s} />
+              </Reveal>
+            ))}
+          </div>
+
+          <div className="mt-16 grid grid-cols-2 gap-8 border-t border-white/10 pt-12 sm:grid-cols-4">
+            <Reveal>
+              <Stat value={120} suffix="+" label="Clubs and academies" />
+            </Reveal>
+            <Reveal delay={80}>
+              <Stat value={30} suffix="k+" label="Deliveries reviewed" />
+            </Reveal>
+            <Reveal delay={160}>
+              <Stat value={4.8} decimals={1} suffix="/5" label="Average session rating" />
+            </Reveal>
+            <Reveal delay={240}>
+              <Stat value={11} label="Countries filming" />
+            </Reveal>
+          </div>
+
+          <Reveal delay={280} className="mt-10 text-center">
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-chalk/45">
+              Figures are self-reported by the coaches and players who took part, and
+              are refreshed at the end of each winter block.
+            </p>
+          </Reveal>
+        </Container>
       </Section>
 
       {/* ===================== MASONRY WALL ===================== */}
@@ -292,7 +394,7 @@ export function TestimonialsPage() {
               <Reveal key={t.quote} delay={(i % 3) * 90} className="mb-5 break-inside-avoid">
                 <Card
                   tone="light"
-                  className={`flex flex-col gap-4 ${t.lead ? 'p-7 sm:p-8' : 'p-6'}`}
+                  className={`ring-glow flex flex-col gap-4 ${t.lead ? 'p-7 sm:p-8' : 'p-6'}`}
                 >
                   <QuoteMark className={t.lead ? 'text-pitch/40' : 'h-5 w-7 text-pitch/30'} />
                   <p
@@ -324,7 +426,12 @@ export function TestimonialsPage() {
 
       {/* ===================== SPOTLIGHT ===================== */}
       <Section tone="pitch" className="py-24 sm:py-32">
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.1} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute -left-24 bottom-8 h-64 w-64 animate-drift rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
         <Container className="relative">
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <Reveal>
@@ -378,15 +485,16 @@ export function TestimonialsPage() {
       </Section>
 
       {/* ===================== CTA ===================== */}
-      <Section tone="light" className="py-20 sm:py-28">
+      <Section tone="warm" className="py-20 sm:py-28">
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="stadium" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <SeamBall size={64} className="animate-float-slow" />
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
-                  Add your <span className="text-gradient-lime">own verdict</span>
+                  Add your <span className="shimmer-text">own verdict</span>
                 </h2>
                 <p className="text-base leading-relaxed text-chalk/65">
                   Film one delivery this week and see whether it tells you something you

@@ -1,16 +1,22 @@
 import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
+  Backdrop,
   Button,
   Card,
   Chip,
   Container,
   CountUp,
   Eyebrow,
+  Marquee,
+  ProgressRing,
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   BowlerSkeleton,
@@ -112,6 +118,49 @@ const SEEN_ON_SCREEN = [
   'Session-to-session comparison',
 ]
 
+/* The ticker strip — what actually comes back off a single clip. */
+const MEASURED_WORDS = [
+  'Ball speed',
+  'Release height',
+  'Stride length',
+  'Arm speed',
+  'Trunk lean',
+  'Front-foot contact',
+  'Pitch point',
+  'Bat path',
+  'Head at contact',
+  'Timing splits',
+]
+
+/**
+ * The honesty panel. A blank with a reason beside it is more useful in a
+ * session than a confident figure nobody can stand behind, so the page shows
+ * what that blank looks like rather than only claiming it exists.
+ */
+const UNMEASURABLE = [
+  {
+    metric: 'Release height',
+    verdict: 'Not reported',
+    why: 'The camera sat behind the arm, so the hand is hidden at the one moment it matters. Stand square of the crease and it comes back.',
+  },
+  {
+    metric: 'Stride length',
+    verdict: 'Low confidence',
+    why: 'The front foot lands just outside the frame. The figure is shown greyed with the reason beside it, not counted as a result.',
+  },
+  {
+    metric: 'Ball speed',
+    verdict: 'Not reported',
+    why: 'The ball is lost against a pale sightscreen for most of the flight. Film with the light behind you and the flight holds.',
+  },
+]
+
+const CONFIDENCE = [
+  { v: 94, l: 'Front-foot contact' },
+  { v: 88, l: 'Trunk lean' },
+  { v: 61, l: 'Stride length' },
+]
+
 const COMPARISON = [
   {
     eye: 'It looked like he fell away a bit.',
@@ -136,6 +185,7 @@ export function FeaturesPage() {
     <MarketingLayout title="Features">
       {/* ===================== HERO ===================== */}
       <PageHero
+        plate="nets"
         eyebrow="Features"
         title={
           <>
@@ -168,8 +218,22 @@ export function FeaturesPage() {
         </Reveal>
       </PageHero>
 
+      {/* ===================== TICKER ===================== */}
+      <Section tone="mid" className="border-y border-white/8 py-4">
+        <Marquee
+          items={MEASURED_WORDS.map((t) => (
+            <span
+              key={t}
+              className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-chalk/45"
+            >
+              {t}
+            </span>
+          ))}
+        />
+      </Section>
+
       {/* ===================== AT A GLANCE ===================== */}
-      <Section tone="plain" className="border-y border-pitch/10 py-14">
+      <Section tone="plain" className="border-b border-pitch/10 py-14">
         <Container>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <Reveal>
@@ -201,50 +265,12 @@ export function FeaturesPage() {
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {WATCH.map((f, i) => (
               <Reveal key={f.title} delay={i * 80}>
-                <Card tone="light" className="flex h-full flex-col gap-4 p-6 sm:p-7">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-pitch text-lime">
-                    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-                      <path
-                        d={f.icon}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pitch/60">
-                      {f.tag}
-                    </span>
-                    <h3 className="font-display text-xl font-bold text-ink">{f.title}</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed text-ink/65">{f.body}</p>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </Container>
-      </Section>
-
-      {/* ===================== GROUP 2 — MEASURE ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
-        <Container>
-          <SectionHeading
-            tone="dark"
-            align="left"
-            eyebrow="In the numbers"
-            title="What CricLab measures"
-            lead="Cricket phases, cricket units, cricket language. Every figure is tied to the frame it came from, so it can be checked rather than taken on trust."
-          />
-
-          <div className="mt-14 grid gap-5 sm:grid-cols-2">
-            {MEASURE.map((f, i) => (
-              <Reveal key={f.title} delay={i * 80}>
-                <Card className="flex h-full flex-col gap-4 p-6 sm:p-7">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
+                <TiltCard className="h-full">
+                  <Card
+                    tone="light"
+                    className="ring-glow flex h-full flex-col gap-4 p-6 sm:p-7"
+                  >
+                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-pitch text-lime">
                       <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
                         <path
                           d={f.icon}
@@ -256,11 +282,61 @@ export function FeaturesPage() {
                         />
                       </svg>
                     </span>
-                    <Chip tone="lime">{f.tag}</Chip>
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-chalk">{f.title}</h3>
-                  <p className="text-sm leading-relaxed text-chalk/60">{f.body}</p>
-                </Card>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pitch/60">
+                        {f.tag}
+                      </span>
+                      <h3 className="font-display text-xl font-bold text-ink">{f.title}</h3>
+                    </div>
+                    <p className="text-sm leading-relaxed text-ink/65">{f.body}</p>
+                  </Card>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ===================== GROUP 2 — MEASURE ===================== */}
+      <Section tone="dark" className="py-24 sm:py-32">
+        <Backdrop plate="bokeh" scrim="dark-soft" parallax={0.08} />
+        <div
+          className="pointer-events-none absolute -right-32 top-24 h-[24rem] w-[24rem] animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            align="left"
+            eyebrow="In the numbers"
+            title={<WordReveal text="What CricLab measures" />}
+            lead="Cricket phases, cricket units, cricket language. Every figure is tied to the frame it came from, so it can be checked rather than taken on trust."
+          />
+
+          <div className="mt-14 grid gap-5 sm:grid-cols-2">
+            {MEASURE.map((f, i) => (
+              <Reveal key={f.title} delay={i * 80}>
+                <TiltCard className="h-full" max={5}>
+                  <Card className="ring-glow flex h-full flex-col gap-4 p-6 sm:p-7">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="grid h-11 w-11 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
+                        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+                          <path
+                            d={f.icon}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                      <Chip tone="lime">{f.tag}</Chip>
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-chalk">{f.title}</h3>
+                    <p className="text-sm leading-relaxed text-chalk/60">{f.body}</p>
+                  </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -281,7 +357,7 @@ export function FeaturesPage() {
       </Section>
 
       {/* ============= SHOWCASE — BALL TRACKING (visual right) ============= */}
-      <Section tone="light" className="py-24 sm:py-32">
+      <Section tone="warm" className="py-24 sm:py-32">
         <Container>
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
@@ -319,7 +395,10 @@ export function FeaturesPage() {
 
             <Reveal delay={140}>
               <div className="relative">
-                <div className="absolute -inset-4 rounded-[2rem] bg-pitch/10 blur-2xl" aria-hidden />
+                <div
+                  className="absolute -inset-4 animate-glow-breathe rounded-[2rem] bg-pitch/10 blur-2xl"
+                  aria-hidden
+                />
                 <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-pitch/10 bg-night p-5 shadow-2xl shadow-pitch/20 sm:p-6">
                   <div className="flex items-center justify-between pb-4">
                     <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-chalk/45">
@@ -360,7 +439,12 @@ export function FeaturesPage() {
 
       {/* ========== SHOWCASE — MOVEMENT (visual left on desktop) ========== */}
       <Section tone="pitch" className="py-24 sm:py-32">
+        <Backdrop plate="pitch" scrim="dark-soft" parallax={0.11} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute -left-24 bottom-0 h-[22rem] w-[22rem] animate-drift rounded-full bg-lime/8 blur-[130px]"
+          aria-hidden
+        />
         <Container className="relative">
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal className="lg:order-2">
@@ -491,9 +575,84 @@ export function FeaturesPage() {
         </Container>
       </Section>
 
+      {/* ================= HONESTY — THE BLANK METRIC ================= */}
+      <Section tone="mid" className="py-24 sm:py-32">
+        <Backdrop plate="turf" scrim="dark" parallax={0.07} />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            align="left"
+            eyebrow="When it cannot be measured"
+            title="A blank with a reason beats a number nobody trusts"
+            lead="Some clips will not carry every measurement, and a figure that quietly falls apart costs a coach more than an empty box would. This is exactly what CricLab shows you instead."
+          />
+
+          <div className="mt-14 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-12">
+            <div className="flex flex-col gap-4">
+              {UNMEASURABLE.map((u, i) => (
+                <Reveal key={u.metric} delay={i * 90}>
+                  <div className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-start sm:gap-6 sm:p-6">
+                    <div className="flex shrink-0 flex-col gap-2 sm:w-44">
+                      <span className="font-display text-lg font-bold text-chalk">
+                        {u.metric}
+                      </span>
+                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-warn/30 bg-warn/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-warn">
+                        {u.verdict}
+                      </span>
+                    </div>
+                    <div className="flex flex-1 items-center gap-4">
+                      {/* The empty box, drawn — this is what sits where the
+                          figure would have been. */}
+                      <span
+                        className="hidden h-12 w-14 shrink-0 place-items-center rounded-xl border border-dashed border-white/20 font-display text-xl font-extrabold text-chalk/25 sm:grid"
+                        aria-hidden
+                      >
+                        —
+                      </span>
+                      <p className="text-sm leading-relaxed text-chalk/60">{u.why}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal delay={160}>
+              <div className="relative">
+                <div
+                  className="absolute -inset-5 animate-glow-breathe rounded-[2rem] bg-lime/10 blur-3xl"
+                  aria-hidden
+                />
+                <div className="relative rounded-[var(--radius-card)] border border-white/10 bg-night/60 p-6 sm:p-7">
+                  <div className="flex items-center justify-between gap-3 pb-5">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-chalk/45">
+                      Same clip, what did hold
+                    </span>
+                    <Chip tone="lime">Side-on</Chip>
+                  </div>
+                  <div className="flex flex-wrap items-start justify-center gap-6 sm:gap-8">
+                    {CONFIDENCE.map((c, i) => (
+                      <Reveal key={c.l} delay={i * 110}>
+                        <ProgressRing value={c.v} size={96} stroke={7} label={c.l} sub="conf." />
+                      </Reveal>
+                    ))}
+                  </div>
+                  <p className="pt-6 text-xs leading-relaxed text-chalk/50">
+                    Every figure carries how sure of it CricLab is. A low reading is a
+                    prompt to re-film, not a result to argue a change from.
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </Section>
+
+      <SectionSeam />
+
       {/* ===================== GROUP 3 — ACT ===================== */}
       <Section tone="dark" className="pb-32 pt-24 sm:pb-40 sm:pt-32">
-        <Container>
+        <Backdrop plate="stadium" scrim="dark" parallax={0.06} />
+        <Container className="relative">
           <SectionHeading
             tone="dark"
             align="left"
@@ -506,29 +665,31 @@ export function FeaturesPage() {
             <div className="grid gap-5">
               {ACT.map((f, i) => (
                 <Reveal key={f.title} delay={i * 90}>
-                  <Card className="flex h-full flex-col gap-4 p-6 sm:p-7">
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
-                        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-                          <path
-                            d={f.icon}
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-lime/70">
-                          {f.tag}
+                  <TiltCard className="h-full" max={5}>
+                    <Card className="ring-glow flex h-full flex-col gap-4 p-6 sm:p-7">
+                      <div className="flex items-center gap-3">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
+                          <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+                            <path
+                              d={f.icon}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </span>
-                        <h3 className="font-display text-xl font-bold text-chalk">{f.title}</h3>
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-lime/70">
+                            {f.tag}
+                          </span>
+                          <h3 className="font-display text-xl font-bold text-chalk">{f.title}</h3>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-sm leading-relaxed text-chalk/60">{f.body}</p>
-                  </Card>
+                      <p className="text-sm leading-relaxed text-chalk/60">{f.body}</p>
+                    </Card>
+                  </TiltCard>
                 </Reveal>
               ))}
 
@@ -544,7 +705,10 @@ export function FeaturesPage() {
 
             <Reveal delay={160}>
               <div className="relative">
-                <div className="absolute -inset-4 rounded-[2rem] bg-lime/10 blur-3xl" aria-hidden />
+                <div
+                  className="absolute -inset-4 animate-glow-breathe rounded-[2rem] bg-lime/10 blur-3xl"
+                  aria-hidden
+                />
                 <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-night shadow-2xl">
                   <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
                     <span className="h-2.5 w-2.5 rounded-full bg-bad/70" />
@@ -604,9 +768,12 @@ export function FeaturesPage() {
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-6 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="turf" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
-                <SeamBall size={64} className="animate-float-slow" />
+                <span className="inline-block animate-bob">
+                  <SeamBall size={64} />
+                </span>
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
                   Put one delivery through the{' '}
                   <span className="text-gradient-lime">whole lab</span>

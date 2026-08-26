@@ -50,3 +50,11 @@ High-level features. Detail lives in `tasks/`.
   reveals and animated statistics with no animation dependency. The workspace was
   rebuilt on a dark sidebar shell to match. Routes are code-split per page.
   All user-visible copy was audited so nothing names how the analysis works.
+- **27 Aug 2026:** Second design pass. Added generated backdrop plates
+  (`public/backdrops/`, drawn by `scripts/generate-backdrops.py`) used through a
+  new `Backdrop` primitive that pairs each plate with a scrim, grain and
+  parallax. `Section` grew from four tones to seven so pages step between
+  surfaces rather than flipping. New motion primitives: `Parallax`, `TiltCard`,
+  `Marquee`, `ScrollProgress`, `WordReveal`, `ProgressRing`, `SectionSeam`, plus
+  `ring-glow`, `shimmer-text` and several ambient keyframes. Every marketing page
+  now runs 5-9 distinct tones with 4-5 plated sections.

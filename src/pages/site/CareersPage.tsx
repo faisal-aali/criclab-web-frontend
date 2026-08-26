@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
   Accordion,
+  Backdrop,
   Button,
   Card,
   Chip,
@@ -10,7 +11,10 @@ import {
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   BowlerSkeleton,
@@ -153,6 +157,7 @@ export function CareersPage() {
   return (
     <MarketingLayout title="Careers">
       <PageHero
+        plate="nets"
         eyebrow="Careers at CricLab"
         title={
           <>
@@ -175,7 +180,7 @@ export function CareersPage() {
       </PageHero>
 
       {/* ===================== QUICK FACTS ===================== */}
-      <Section tone="plain" className="border-y border-pitch/10 py-14">
+      <Section tone="warm" className="border-y border-pitch/10 py-14">
         <Container>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <Reveal>
@@ -196,7 +201,12 @@ export function CareersPage() {
 
       {/* ===================== WHY CRICLAB ===================== */}
       <Section tone="dark" className="py-24 sm:py-32">
+        <Backdrop plate="nets" scrim="dark-soft" parallax={0.09} />
         <StadiumAtmosphere />
+        <div
+          className="pointer-events-none absolute -right-32 top-24 h-80 w-80 animate-glow-breathe rounded-full bg-lime/10 blur-[130px]"
+          aria-hidden
+        />
         <Container className="relative">
           <SectionHeading
             tone="dark"
@@ -230,7 +240,7 @@ export function CareersPage() {
                     </div>
                   </div>
                 </PhotoFrame>
-                <div className="absolute -bottom-7 -left-6 hidden animate-float-slow sm:block">
+                <div className="absolute -bottom-7 -left-6 hidden animate-bob sm:block">
                   <SeamBall size={74} />
                 </div>
               </div>
@@ -239,13 +249,15 @@ export function CareersPage() {
             <div className="flex flex-col gap-4">
               {REASONS.map((r, i) => (
                 <Reveal key={r.title} delay={i * 90}>
-                  <Card className="flex flex-col gap-3 p-6">
-                    <Chip tone="lime">{r.tag}</Chip>
-                    <h3 className="font-display text-lg font-bold text-chalk sm:text-xl">
-                      {r.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-chalk/60">{r.body}</p>
-                  </Card>
+                  <TiltCard>
+                    <Card className="ring-glow flex flex-col gap-3 p-6">
+                      <Chip tone="lime">{r.tag}</Chip>
+                      <h3 className="font-display text-lg font-bold text-chalk sm:text-xl">
+                        {r.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-chalk/60">{r.body}</p>
+                    </Card>
+                  </TiltCard>
                 </Reveal>
               ))}
             </div>
@@ -266,8 +278,11 @@ export function CareersPage() {
           <div className="mt-16 grid gap-5 sm:grid-cols-2">
             {HOW_WE_WORK.map((h, i) => (
               <Reveal key={h.title} delay={i * 80}>
-                <Card tone="light" className="flex h-full flex-col gap-3 p-6 sm:p-7">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-pitch text-lime">
+                <Card tone="light" className="ring-glow flex h-full flex-col gap-3 p-6 sm:p-7">
+                  <span
+                    className="animate-pop-in grid h-10 w-10 place-items-center rounded-xl bg-pitch text-lime"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                  >
                     <span className="font-display text-sm font-extrabold">{i + 1}</span>
                   </span>
                   <h3 className="font-display text-lg font-bold text-ink">{h.title}</h3>
@@ -281,19 +296,21 @@ export function CareersPage() {
 
       {/* ===================== OPEN ROLES ===================== */}
       <Section tone="pitch" id="open-roles" className="py-24 sm:py-32">
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.1} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
         <Container className="relative">
           <SectionHeading
             tone="dark"
             eyebrow="Open roles"
-            title="Six seats, one dressing room"
+            title={<WordReveal text="Six seats, one dressing room" />}
             lead="Every role is hired for judgement over years served. If you can do the work and love the game, apply even if the years on the ad do not match yours."
           />
 
           <div className="mt-16 grid gap-5 lg:grid-cols-2">
             {ROLES.map((role, i) => (
               <Reveal key={role.title} delay={i * 70}>
-                <Card className="flex h-full flex-col gap-4 p-6 sm:p-7">
+                <TiltCard className="h-full">
+                <Card className="ring-glow flex h-full flex-col gap-4 p-6 sm:p-7">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h3 className="font-display text-xl font-bold text-chalk">{role.title}</h3>
                     <Chip tone="lime">{role.tag}</Chip>
@@ -319,6 +336,7 @@ export function CareersPage() {
                     </Button>
                   </div>
                 </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -326,7 +344,7 @@ export function CareersPage() {
       </Section>
 
       {/* ===================== BENEFITS ===================== */}
-      <Section tone="light" className="py-24 sm:py-32">
+      <Section tone="warm" className="py-24 sm:py-32">
         <Container>
           <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="flex flex-col gap-6">
@@ -355,7 +373,7 @@ export function CareersPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               {BENEFITS.map((b, i) => (
                 <Reveal key={b.title} delay={i * 70}>
-                  <Card tone="light" className="flex h-full flex-col gap-2.5 p-6">
+                  <Card tone="light" className="ring-glow flex h-full flex-col gap-2.5 p-6">
                     <h3 className="font-display text-base font-bold text-ink">{b.title}</h3>
                     <p className="text-sm leading-relaxed text-ink/65">{b.body}</p>
                   </Card>
@@ -366,11 +384,12 @@ export function CareersPage() {
         </Container>
       </Section>
 
-      {/* ===================== HIRING + OPEN APPLICATION ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-            <div className="flex flex-col gap-8">
+      {/* ===================== HIRING ===================== */}
+      <Section tone="mid" className="py-24 sm:py-32">
+        <Backdrop plate="bokeh" scrim="dark-soft" parallax={0.07} />
+        <Container className="relative">
+          <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <div className="flex flex-col gap-6">
               <SectionHeading
                 tone="dark"
                 align="left"
@@ -379,18 +398,47 @@ export function CareersPage() {
                 lead="You will always know what the next step is and roughly when to expect it. If the answer is no, you get it quickly and with a reason."
                 className="max-w-none"
               />
-              <Accordion tone="dark" items={HIRING} />
+              <Reveal delay={120}>
+                <div className="flex flex-wrap gap-3">
+                  {['Intro call', 'Craft conversation', 'Paid piece of work', 'Meet the side'].map(
+                    (t, i) => (
+                      <span
+                        key={t}
+                        className="animate-pop-in inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/60"
+                        style={{ animationDelay: `${i * 90}ms` }}
+                      >
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-lime/15 text-[10px] font-extrabold text-lime">
+                          {i + 1}
+                        </span>
+                        {t}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </Reveal>
             </div>
 
-            <Reveal delay={150}>
-              <Card className="flex flex-col gap-5 p-7 sm:p-8">
+            <Accordion tone="dark" items={HIRING} />
+          </div>
+        </Container>
+      </Section>
+
+      <SectionSeam />
+
+      {/* ===================== OPEN APPLICATION ===================== */}
+      <Section tone="night" className="py-24 sm:py-32">
+        <Backdrop plate="stadium" scrim="dark" parallax={0.06} />
+        <Container className="relative" size="narrow">
+          <Reveal>
+            <TiltCard>
+              <Card className="ring-glow flex flex-col gap-5 p-7 sm:p-9">
                 <div className="flex items-center justify-between gap-4">
                   <Eyebrow>Open application</Eyebrow>
-                  <div className="hidden h-16 w-16 shrink-0 opacity-70 sm:block">
+                  <div className="hidden h-16 w-16 shrink-0 animate-bob opacity-70 sm:block">
                     <BowlerSkeleton />
                   </div>
                 </div>
-                <h3 className="font-display text-2xl font-extrabold leading-tight text-chalk">
+                <h3 className="font-display text-2xl font-extrabold leading-tight text-chalk sm:text-3xl">
                   No open role that fits?
                 </h3>
                 <p className="text-sm leading-relaxed text-chalk/65">
@@ -404,9 +452,12 @@ export function CareersPage() {
                     'One paragraph beats a three-page covering letter',
                     'Coaching and playing experience counts as experience',
                     'Every note gets read by a person, and answered',
-                  ].map((t) => (
+                  ].map((t, i) => (
                     <li key={t} className="flex items-start gap-3 text-sm text-chalk/70">
-                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lime text-[11px] font-bold text-night">
+                      <span
+                        className="animate-pop-in mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lime text-[11px] font-bold text-night"
+                        style={{ animationDelay: `${i * 90}ms` }}
+                      >
                         ✓
                       </span>
                       {t}
@@ -420,8 +471,8 @@ export function CareersPage() {
                   </Button>
                 </div>
               </Card>
-            </Reveal>
-          </div>
+            </TiltCard>
+          </Reveal>
         </Container>
       </Section>
 
@@ -430,9 +481,14 @@ export function CareersPage() {
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="nets" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
+              <div
+                className="pointer-events-none absolute -right-20 top-1/2 h-64 w-64 -translate-y-1/2 animate-glow-breathe rounded-full bg-lime/12 blur-[110px]"
+                aria-hidden
+              />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
-                <SeamBall size={64} className="animate-float-slow" />
+                <SeamBall size={64} className="animate-bob" />
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
                   Come and <span className="text-gradient-lime">build the lab</span>
                 </h2>

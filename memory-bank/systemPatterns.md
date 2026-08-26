@@ -51,11 +51,27 @@ One system, defined in three places. Do not style outside it:
 3. `src/components/site/visuals.tsx` — the cricket visual language, drawn as SVG
    rather than photographed: `StadiumAtmosphere`, `SeamBall`, `TrajectoryArc`,
    `BowlerSkeleton`, `MetricBars`, `PitchFloor`, `PhotoFrame`.
+4. `public/backdrops/` — generated section backdrop plates (`stadium-night`,
+   `pitch-perspective`, `nets`, `bokeh`, `turf`, `mesh-light`, `grain`). Drawn by
+   `scripts/generate-backdrops.py`; see `public/backdrops/README.md` for how to
+   replace them with real photography.
+
+Depth and motion primitives: `Backdrop`, `Parallax`, `TiltCard`, `Marquee`,
+`ScrollProgress`, `WordReveal`, `ProgressRing`, `SectionSeam`.
 
 Rules that keep it coherent:
 
-- **Alternate section tones.** `<Section tone="dark|light|pitch|plain">`, never
-  two identical tones adjacent — the depth comes from the rhythm.
+- **Step through the tones, do not flip between two.** `Section` takes
+  `plain | light | warm | mid | pitch | dark | night`. A long page that only
+  alternates chalk and night reads as a stack of stripes; the intermediate
+  surfaces let it step. Never two identical tones adjacent, and aim for at least
+  five distinct tones on a full page.
+- **Background images always go through `Backdrop`.** Never set a plate as a bare
+  background. `Backdrop` pairs it with a scrim, adds grain and applies parallax —
+  the scrim is what guarantees text contrast never depends on the image. The
+  section must be `relative` and its `Container` needs `className="relative"` so
+  content sits above the plate. Three-plus plated sections per page is the
+  target.
 - **Everything reveals.** Wrap section content in `Reveal` with staggered
   `delay`. Motion is CSS + IntersectionObserver; there is no animation library
   and adding one needs a reason.
@@ -64,7 +80,16 @@ Rules that keep it coherent:
 - **`PhotoFrame` is the photography slot.** It renders a drawn fallback when
   `src` is absent or fails, so no screen depends on stock imagery existing.
 - Respect `prefers-reduced-motion` — the primitives already do; anything bespoke
-  must too.
+  must too. `Parallax`, `TiltCard` and `WordReveal` also no-op on touch or when
+  the API is unavailable.
+- **IntersectionObserver thresholds must be `0`, never a fraction.** A fractional
+  threshold is unreachable for any element taller than `viewport ÷ threshold`, so
+  on a short window a tall section never reveals and the page renders blank. Use
+  `{ threshold: 0, rootMargin: "0px 0px -40px 0px" }`.
+- **Position `PhotoFrame` with its `position` prop, not `className`.** Tailwind
+  resolves competing position utilities by stylesheet order, not attribute order,
+  so passing `absolute` alongside the component's own `relative` silently loses
+  and the frame stays in flow.
 
 ## Frontend screens (workspace)
 

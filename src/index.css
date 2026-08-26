@@ -361,3 +361,188 @@ body {
 .scroll-slim::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ===========================================================================
+   Backdrop plates
+   Generated art in /public/backdrops — see the note there. Each is paired with
+   a scrim so text contrast never depends on the image.
+   ======================================================================== */
+
+.backdrop-plate {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.plate-stadium { background-image: url("/backdrops/stadium-night.jpg"); }
+.plate-pitch   { background-image: url("/backdrops/pitch-perspective.jpg"); }
+.plate-nets    { background-image: url("/backdrops/nets.jpg"); }
+.plate-bokeh   { background-image: url("/backdrops/bokeh.jpg"); }
+.plate-turf    { background-image: url("/backdrops/turf.jpg"); }
+.plate-light   { background-image: url("/backdrops/mesh-light.jpg"); }
+
+/* Film grain. Sits over a plate at very low opacity so large flat gradients
+   do not band on wide screens. */
+.grain-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/backdrops/grain.png");
+  background-size: 220px 220px;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Scrims — the reason a background image never hurts readability. */
+.scrim-dark {
+  background: linear-gradient(180deg, rgba(5, 9, 10, 0.9) 0%, rgba(5, 9, 10, 0.72) 45%, rgba(5, 9, 10, 0.94) 100%);
+}
+.scrim-dark-soft {
+  background: linear-gradient(180deg, rgba(5, 9, 10, 0.82) 0%, rgba(5, 9, 10, 0.55) 50%, rgba(5, 9, 10, 0.88) 100%);
+}
+.scrim-light {
+  background: linear-gradient(180deg, rgba(246, 249, 247, 0.94) 0%, rgba(246, 249, 247, 0.8) 50%, rgba(246, 249, 247, 0.96) 100%);
+}
+
+/* An intermediate surface. Two tones were never enough rhythm on a long page —
+   this sits between chalk and night so sections can step rather than flip. */
+.bg-slate-mid {
+  background-color: #0f1a1b;
+  background-image:
+    radial-gradient(46rem 26rem at 82% -12%, rgba(182, 242, 74, 0.10), transparent 62%),
+    radial-gradient(40rem 24rem at 8% 108%, rgba(18, 81, 60, 0.5), transparent 60%);
+}
+
+.bg-chalk-warm {
+  background-color: #f1f5f2;
+  background-image:
+    radial-gradient(40rem 22rem at 12% -10%, rgba(217, 116, 60, 0.10), transparent 58%),
+    radial-gradient(46rem 26rem at 92% 6%, rgba(182, 242, 74, 0.18), transparent 60%);
+}
+
+/* ===========================================================================
+   Section dividers — the seam between a light and a dark block
+   ======================================================================== */
+
+.divider-slant-top {
+  clip-path: polygon(0 3.5rem, 100% 0, 100% 100%, 0 100%);
+}
+.divider-slant-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.5rem), 0 100%);
+}
+
+/* ===========================================================================
+   Motion
+   ======================================================================== */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  33% { transform: translate3d(14px, -12px, 0); }
+  66% { transform: translate3d(-10px, 8px, 0); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.42; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.07); }
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes ring-draw {
+  to { stroke-dashoffset: var(--ring-target, 0); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(4deg); }
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-drift { animation: drift 16s ease-in-out infinite; }
+.animate-glow-breathe { animation: glow-breathe 6s ease-in-out infinite; }
+.animate-bob { animation: bob 5s ease-in-out infinite; }
+.animate-pop-in { animation: pop-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Text that fills with a moving highlight — used once, on a hero word. */
+.shimmer-text {
+  background: linear-gradient(100deg, #8fd12b 0%, #e8ffb0 18%, #b6f24a 36%, #8fd12b 60%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 7s linear infinite;
+}
+
+/* Gradient hairline that runs around a card on hover. */
+.ring-glow {
+  position: relative;
+}
+.ring-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(130deg, rgba(182, 242, 74, 0.8), transparent 40%, transparent 60%, rgba(217, 116, 60, 0.6));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.ring-glow:hover::after { opacity: 1; }
+
+/* Marquee strip. The inner track is duplicated, so -50% is one clean loop. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 34s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* Card that leans toward the cursor. The rotation values are set as custom
+   properties from JS so the transition stays on the compositor. */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+}
+
+/* Reading-progress rail under the fixed header. */
+.scroll-rail {
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  transition: transform 0.1s linear;
+}
+
+/* Word-by-word entrance for a headline. */
+.word-rise > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.word-rise.is-visible > span {
+  opacity: 1;
+  transform: none;
+}

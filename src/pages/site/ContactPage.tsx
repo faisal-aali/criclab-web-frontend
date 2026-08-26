@@ -3,14 +3,19 @@ import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
   Accordion,
+  Backdrop,
   Button,
   Card,
   Chip,
   Container,
   Eyebrow,
+  Marquee,
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import { SeamBall, StadiumAtmosphere } from '../../components/site/visuals'
 
@@ -92,6 +97,21 @@ const HELP = [
   },
 ]
 
+const AFTER_SEND = [
+  {
+    title: 'It lands in one inbox',
+    body: 'Every note arrives in the same place and is read by the people who build CricLab. No ticket number, no call centre, no being passed sideways.',
+  },
+  {
+    title: 'A cricket person answers',
+    body: 'Your reply comes from someone who has stood at a ground in the drizzle waiting for the covers to come off, so you can talk in overs and sessions rather than in forms.',
+  },
+  {
+    title: 'If there is a clip, we watch it',
+    body: 'Attach the delivery you are asking about. We will watch the footage before we answer and tell you plainly what we would have filmed differently.',
+  },
+]
+
 type Errors = {
   name?: string
   email?: string
@@ -143,6 +163,7 @@ export function ContactPage() {
   return (
     <MarketingLayout title="Contact">
       <PageHero
+        plate="stadium"
         eyebrow="Contact"
         title={
           <>
@@ -161,7 +182,7 @@ export function ContactPage() {
       </PageHero>
 
       {/* ===================== FORM + DETAILS ===================== */}
-      <Section tone="plain" className="py-20 sm:py-28">
+      <Section tone="warm" className="py-20 sm:py-28">
         <Container>
           <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             {/* --- Form --- */}
@@ -341,6 +362,7 @@ export function ContactPage() {
             {/* --- Details panel --- */}
             <Reveal delay={140}>
               <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-stadium p-6 text-chalk sm:p-8">
+                <Backdrop plate="stadium" scrim="dark" parallax={0.05} />
                 <StadiumAtmosphere />
                 <div className="relative flex flex-col gap-5">
                   <div className="flex items-start justify-between gap-4">
@@ -350,19 +372,21 @@ export function ContactPage() {
                         Or skip the form
                       </h2>
                     </div>
-                    <SeamBall size={58} className="hidden shrink-0 animate-float-slow sm:block" />
+                    <SeamBall size={58} className="hidden shrink-0 animate-bob sm:block" />
                   </div>
 
                   {DETAILS.map((d, i) => (
                     <Reveal key={d.tag} delay={i * 80}>
-                      <Card className="flex flex-col gap-2.5 p-5">
-                        <Chip tone="lime">{d.tag}</Chip>
-                        <h3 className="font-display text-lg font-bold text-chalk">{d.title}</h3>
-                        <p className="text-sm leading-relaxed text-chalk/60">{d.body}</p>
-                        <p className="border-t border-white/10 pt-3 text-xs font-semibold text-lime/80">
-                          {d.foot}
-                        </p>
-                      </Card>
+                      <TiltCard>
+                        <Card className="ring-glow flex flex-col gap-2.5 p-5">
+                          <Chip tone="lime">{d.tag}</Chip>
+                          <h3 className="font-display text-lg font-bold text-chalk">{d.title}</h3>
+                          <p className="text-sm leading-relaxed text-chalk/60">{d.body}</p>
+                          <p className="border-t border-white/10 pt-3 text-xs font-semibold text-lime/80">
+                            {d.foot}
+                          </p>
+                        </Card>
+                      </TiltCard>
                     </Reveal>
                   ))}
 
@@ -379,6 +403,49 @@ export function ContactPage() {
               </div>
             </Reveal>
           </div>
+        </Container>
+      </Section>
+
+      {/* ===================== WHAT HAPPENS NEXT ===================== */}
+      <Section tone="mid" className="py-20 sm:py-28">
+        <Backdrop plate="stadium" scrim="dark-soft" parallax={0.12} />
+        <div
+          className="pointer-events-none absolute -left-28 top-8 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="After you press send"
+            title={<WordReveal text="What happens next" />}
+            lead="No auto-acknowledgement that says nothing. Here is the whole of it, in order."
+          />
+
+          <div className="mt-14 grid gap-5 md:grid-cols-3">
+            {AFTER_SEND.map((a, i) => (
+              <Reveal key={a.title} delay={i * 90}>
+                <TiltCard className="h-full">
+                  <Card className="ring-glow flex h-full flex-col gap-3.5 p-6 sm:p-7">
+                    <span
+                      className="animate-pop-in grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-lime/40 bg-lime/10 font-display text-sm font-extrabold text-lime"
+                      style={{ animationDelay: `${i * 90}ms` }}
+                    >
+                      {i + 1}
+                    </span>
+                    <h3 className="font-display text-lg font-bold text-chalk">{a.title}</h3>
+                    <p className="text-sm leading-relaxed text-chalk/60">{a.body}</p>
+                  </Card>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={280} className="mt-10 text-center">
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-chalk/55">
+              Monday to Friday, within one working day. Anything sent over a weekend of club
+              cricket is picked up first thing Monday.
+            </p>
+          </Reveal>
         </Container>
       </Section>
 
@@ -414,9 +481,40 @@ export function ContactPage() {
         </Container>
       </Section>
 
+      {/* ===================== ASK US ABOUT ===================== */}
+      <Section tone="night" className="border-y border-white/8 py-4">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.06} />
+        <div className="relative">
+          <Marquee
+            items={[
+              'Squad and academy accounts',
+              'Winter nets programmes',
+              'Filming a left-armer',
+              'Age-group reporting',
+              'Coach sign-ins',
+              'A clip that read short',
+              'Club coaching sessions',
+              'County pathway squads',
+              'School programmes',
+              'Match-day questions',
+            ].map((t) => (
+              <span
+                key={t}
+                className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-chalk/45"
+              >
+                {t}
+              </span>
+            ))}
+          />
+        </div>
+      </Section>
+
+      <SectionSeam />
+
       {/* ===================== CTA ===================== */}
       <Section tone="pitch" className="py-20 sm:py-24">
-        <Container>
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.08} />
+        <Container className="relative">
           <Reveal>
             <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-3">

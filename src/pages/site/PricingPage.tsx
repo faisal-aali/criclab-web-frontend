@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
   Accordion,
+  Backdrop,
   Button,
   Card,
   Chip,
@@ -12,7 +13,10 @@ import {
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   MetricBars,
@@ -170,6 +174,39 @@ const PRICING_FAQ = [
   },
 ]
 
+/* The five moments a delivery is broken into, in the order they happen. Shown
+   as a rail so "one analysis" reads as a span of the action, not a line item. */
+const PHASES = [
+  { code: 'BFC', name: 'Back-foot contact' },
+  { code: 'FFC', name: 'Front-foot contact' },
+  { code: 'MER', name: 'Arm horizontal' },
+  { code: 'REL', name: 'Release' },
+  { code: 'FT', name: 'Follow-through' },
+]
+
+const ANALYSIS_PARTS = [
+  {
+    n: '01',
+    t: 'The review clip',
+    b: 'Slow motion with the five moments held, named and marked over the footage you filmed yourself.',
+  },
+  {
+    n: '02',
+    t: 'The ball’s flight',
+    b: 'The path from the hand to the pitch mark, drawn on your own delivery rather than on a diagram.',
+  },
+  {
+    n: '03',
+    t: 'The measured numbers',
+    b: 'Speed, release height, stride and the timing splits — each one carrying a note on how far to trust it.',
+  },
+  {
+    n: '04',
+    t: 'Something to work on',
+    b: 'A written read on the action and drills matched to what actually showed up, ready for the next net.',
+  },
+]
+
 function CompareCell({ value }: { value: CellValue }) {
   if (typeof value === 'boolean') {
     return value ? (
@@ -204,6 +241,7 @@ export function PricingPage() {
     <MarketingLayout title="Pricing">
       {/* ===================== HERO ===================== */}
       <PageHero
+        plate="turf"
         eyebrow="Pricing"
         title={
           <>
@@ -226,14 +264,21 @@ export function PricingPage() {
         </div>
       </PageHero>
 
+      <SectionSeam />
+
       {/* ===================== PLANS ===================== */}
       <Section tone="pitch" className="py-20 sm:py-28">
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.08} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute -right-28 top-16 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
         <Container size="wide" className="relative">
           <Reveal className="flex flex-col items-center gap-5 text-center">
             <Eyebrow>Three plans</Eyebrow>
             <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-chalk sm:text-4xl">
-              Priced by how much you film
+              <WordReveal text="Priced by how much you film" />
             </h2>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-1">
               <div
@@ -270,7 +315,7 @@ export function PricingPage() {
                 <Card
                   tone="dark"
                   interactive={!tier.featured}
-                  className={`flex h-full flex-col gap-6 p-7 sm:p-8 ${
+                  className={`ring-glow flex h-full flex-col gap-6 p-7 sm:p-8 ${
                     tier.featured ? 'bg-night/40' : ''
                   }`}
                 >
@@ -337,26 +382,107 @@ export function PricingPage() {
 
               return (
                 <Reveal key={tier.id} delay={i * 110} className="h-full">
-                  {tier.featured ? (
-                    <div className="h-full rounded-[calc(var(--radius-card)+2px)] bg-gradient-to-b from-lime via-lime/45 to-lime/10 p-[2px] shadow-[0_34px_80px_-34px_rgba(182,242,74,0.6)]">
-                      {body}
-                    </div>
-                  ) : (
-                    <div className="h-full">{body}</div>
-                  )}
+                  <TiltCard className="h-full" max={tier.featured ? 5 : 7}>
+                    {tier.featured ? (
+                      <div className="ring-glow h-full rounded-[calc(var(--radius-card)+2px)] bg-gradient-to-b from-lime via-lime/45 to-lime/10 p-[2px] shadow-[0_34px_80px_-34px_rgba(182,242,74,0.6)]">
+                        {body}
+                      </div>
+                    ) : (
+                      <div className="h-full">{body}</div>
+                    )}
+                  </TiltCard>
                 </Reveal>
               )
             })}
           </div>
 
-          <Reveal delay={200} className="mt-8 text-center">
+          <Reveal delay={200} className="mt-8 flex flex-col items-center gap-2 text-center">
             <p className="text-sm text-chalk/50">
               Not sure which one fits your set-up?{' '}
               <Link to="/contact" className="font-semibold text-lime hover:text-chalk">
                 Tell us how you film and we’ll say →
               </Link>
             </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-chalk/35">
+              Placeholder figures · launch pricing not yet settled
+            </p>
           </Reveal>
+        </Container>
+      </Section>
+
+      <SectionSeam tone="muted" />
+
+      {/* ===================== ONE ANALYSIS, UNPACKED ===================== */}
+      <Section tone="mid" className="py-20 sm:py-28">
+        <Backdrop plate="pitch" scrim="dark" parallax={0.11} />
+        <div
+          className="pointer-events-none absolute -left-24 top-24 h-72 w-72 animate-drift rounded-full bg-pitch-soft/25 blur-[110px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="One analysis"
+            title="What a single delivery buys you"
+            lead="Every plan gets this, in full. The only thing a bigger plan changes is how many deliveries you can put through it."
+          />
+
+          <Reveal delay={100} className="mt-14">
+            <div className="rounded-[var(--radius-card)] border border-white/10 bg-night/50 p-5 sm:p-7">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-chalk/45">
+                  The delivery, moment by moment
+                </span>
+                <Chip tone="lime">Counts as 1</Chip>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
+                {PHASES.map((p, i) => (
+                  <div
+                    key={p.code}
+                    className={`min-w-0 rounded-xl border px-1.5 py-3 text-center transition duration-300 sm:px-2 ${
+                      i === 3
+                        ? 'border-lime/45 bg-lime/10'
+                        : 'border-white/10 bg-white/[0.03]'
+                    }`}
+                  >
+                    <div
+                      className={`font-display text-sm font-extrabold sm:text-base ${
+                        i === 3 ? 'text-lime' : 'text-chalk/70'
+                      }`}
+                    >
+                      {p.code}
+                    </div>
+                    <div className="hidden pt-1 text-[10px] font-semibold leading-tight text-chalk/40 sm:block">
+                      {p.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-white/10">
+                <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-pitch-soft via-lime-deep to-lime" />
+              </div>
+              <p className="pt-3 text-xs leading-relaxed text-chalk/45">
+                One ball, one analysis — however many times you then watch it, share
+                it, or line it up against a delivery from last winter.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {ANALYSIS_PARTS.map((item, i) => (
+              <Reveal key={item.n} delay={i * 90} className="h-full">
+                <TiltCard className="h-full">
+                  <Card className="ring-glow flex h-full flex-col gap-3 p-6">
+                    <span className="font-display text-3xl font-extrabold text-lime/25">
+                      {item.n}
+                    </span>
+                    <h3 className="font-display text-base font-bold text-chalk">{item.t}</h3>
+                    <p className="text-sm leading-relaxed text-chalk/60">{item.b}</p>
+                  </Card>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
         </Container>
       </Section>
 
@@ -455,6 +581,7 @@ export function PricingPage() {
 
       {/* ===================== IN EVERY PLAN ===================== */}
       <Section tone="dark" className="py-20 sm:py-28">
+        <Backdrop plate="stadium" scrim="dark" parallax={0.07} />
         <StadiumAtmosphere />
         <Container className="relative">
           <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
@@ -486,8 +613,8 @@ export function PricingPage() {
                     b: 'A written read on the delivery and drills matched to what showed up, ready for the next net.',
                   },
                 ].map((item, i) => (
-                  <Reveal key={item.t} delay={i * 80}>
-                    <Card className="flex h-full flex-col gap-2.5 p-6">
+                  <Reveal key={item.t} delay={i * 80} className="h-full">
+                    <Card className="ring-glow flex h-full flex-col gap-2.5 p-6">
                       <h3 className="font-display text-base font-bold text-chalk">{item.t}</h3>
                       <p className="text-sm leading-relaxed text-chalk/60">{item.b}</p>
                     </Card>
@@ -504,7 +631,9 @@ export function PricingPage() {
                     <span className="text-xs font-semibold uppercase tracking-[0.16em] text-chalk/45">
                       Included everywhere
                     </span>
-                    <SeamBall size={34} />
+                    <span className="inline-flex animate-bob">
+                      <SeamBall size={34} />
+                    </span>
                   </div>
                   <div className="h-40 overflow-hidden rounded-2xl border border-white/10 bg-night/60 p-3">
                     <TrajectoryArc />
@@ -526,7 +655,7 @@ export function PricingPage() {
       </Section>
 
       {/* ===================== PRICING FAQ ===================== */}
-      <Section tone="light" className="py-20 sm:py-28">
+      <Section tone="warm" className="py-20 sm:py-28">
         <Container>
           <SectionHeading
             eyebrow="Before you pick"
@@ -563,11 +692,13 @@ export function PricingPage() {
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="turf" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <SeamBall size={64} className="animate-float-slow" />
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
-                  Film a ball first. <span className="text-gradient-lime">Decide after.</span>
+                  Film a ball first.{' '}
+                  <span className="shimmer-text">Decide after.</span>
                 </h2>
                 <p className="text-base leading-relaxed text-chalk/65">
                   You will know within one delivery whether this belongs in your

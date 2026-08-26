@@ -316,6 +316,7 @@ export function PrivacyPage() {
   return (
     <MarketingLayout title="Privacy Policy">
       <PageHero
+      plate="bokeh"
         eyebrow="Privacy"
         title={
           <>

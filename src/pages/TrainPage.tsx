@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { listDrills, type DrillCatalogItem } from '../api/client'
-import { Card, Chip, Reveal } from '../components/site/ui'
+import { Backdrop, Card, Chip, Reveal, TiltCard } from '../components/site/ui'
 
 function label(tag: string) {
   return tag.replace(/_/g, ' ')
@@ -8,7 +8,7 @@ function label(tag: string) {
 
 function DrillTile({ drill }: { drill: DrillCatalogItem }) {
   return (
-    <Card interactive={false} className="flex h-full flex-col overflow-hidden p-0">
+    <Card interactive={false} className="ring-glow lift flex h-full flex-col overflow-hidden p-0">
       <div className="aspect-video w-full bg-night">
         {drill.youtube_id ? (
           <iframe
@@ -81,7 +81,13 @@ export function TrainPage() {
   return (
     <div className="space-y-7">
       {/* ---------------- Header ---------------- */}
-      <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <Reveal className="relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-7 sm:px-7 sm:py-8">
+        <Backdrop plate="nets" scrim="dark" parallax={0.07} />
+        <div
+          className="pointer-events-none absolute -right-16 -top-14 h-52 w-52 animate-glow-breathe rounded-full bg-lime/10 blur-[90px]"
+          aria-hidden
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <Chip tone="lime">Train</Chip>
           <h1 className="font-display mt-3 text-3xl font-extrabold leading-tight text-chalk sm:text-4xl">
@@ -98,6 +104,7 @@ export function TrainPage() {
             <Chip>{items.length} drills</Chip>
           </div>
         ) : null}
+        </div>
       </Reveal>
 
       {error ? (
@@ -165,7 +172,8 @@ export function TrainPage() {
           </div>
         </div>
       ) : groups.length === 0 ? (
-        <Card interactive={false} className="p-8 text-center sm:p-10">
+        <TiltCard>
+        <Card interactive={false} className="ring-glow p-8 text-center sm:p-10">
           <p className="font-display text-lg font-bold text-chalk">Nothing filed under this tag</p>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-chalk/55">
             No drills are tagged{' '}
@@ -180,11 +188,19 @@ export function TrainPage() {
             Show all drills
           </button>
         </Card>
+        </TiltCard>
       ) : (
         <div className="space-y-9">
           {groups.map(([group, list], gi) => (
             <section key={group} className="space-y-3.5">
               <div className="flex flex-wrap items-center gap-3 border-b border-white/8 pb-3">
+                <span
+                  className="animate-pop-in grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-lime/35 bg-lime/10 font-display text-xs font-extrabold text-lime"
+                  style={{ animationDelay: `${gi * 80}ms` }}
+                  aria-hidden
+                >
+                  {gi + 1}
+                </span>
                 <h2 className="font-display text-lg font-bold capitalize text-chalk">
                   {label(group)}
                 </h2>

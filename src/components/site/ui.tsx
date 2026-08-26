@@ -215,27 +215,64 @@ export function Button({
    Layout + type
 --------------------------------------------------------------------------- */
 
+export type SectionTone = 'light' | 'dark' | 'pitch' | 'plain' | 'mid' | 'warm' | 'night'
+
+/**
+ * Six surfaces, not two. A long page that only flips chalk/night reads as a
+ * stack of stripes; the intermediate tones let it *step* between them, which is
+ * where the depth comes from.
+ */
+const SECTION_TONES: Record<SectionTone, string> = {
+  plain: 'bg-chalk text-ink',
+  light: 'bg-chalk-gradient text-ink',
+  warm: 'bg-chalk-warm text-ink',
+  mid: 'bg-slate-mid text-chalk',
+  pitch: 'bg-pitch-gradient text-chalk',
+  dark: 'bg-stadium text-chalk',
+  night: 'bg-night text-chalk',
+}
+
 export function Section({
   children,
   className = '',
   tone = 'light',
   id,
+  slant,
 }: {
   children: ReactNode
   className?: string
-  tone?: 'light' | 'dark' | 'pitch' | 'plain'
+  tone?: SectionTone
   id?: string
+  /** Angled seam where this block meets its neighbour. */
+  slant?: 'top' | 'bottom' | 'both'
 }) {
-  const tones = {
-    light: 'bg-chalk-gradient text-ink',
-    dark: 'bg-stadium text-chalk',
-    pitch: 'bg-pitch-gradient text-chalk',
-    plain: 'bg-chalk text-ink',
-  }
+  const clip =
+    slant === 'top'
+      ? 'divider-slant-top'
+      : slant === 'bottom'
+        ? 'divider-slant-bottom'
+        : slant === 'both'
+          ? 'divider-slant-top divider-slant-bottom'
+          : ''
   return (
-    <section id={id} className={`relative overflow-hidden ${tones[tone]} ${className}`}>
+    <section id={id} className={`relative overflow-hidden ${SECTION_TONES[tone]} ${clip} ${className}`}>
       {children}
     </section>
+  )
+}
+
+/** Drawn seam between two blocks — a crease line fading out to both sides. */
+export function SectionSeam({ tone = 'lime' }: { tone?: 'lime' | 'muted' }) {
+  return (
+    <div className="relative h-px w-full" aria-hidden>
+      <div
+        className={`absolute inset-0 ${
+          tone === 'lime'
+            ? 'bg-gradient-to-r from-transparent via-lime/45 to-transparent'
+            : 'bg-gradient-to-r from-transparent via-white/15 to-transparent'
+        }`}
+      />
+    </div>
   )
 }
 
@@ -456,6 +493,314 @@ export function Accordion({
           </Reveal>
         )
       })}
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Depth + motion primitives added in the second design pass.
+   All of them no-op under prefers-reduced-motion.
+--------------------------------------------------------------------------- */
+
+function prefersReducedMotion() {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+}
+
+/**
+ * Scroll parallax. Translates a layer at a fraction of scroll speed while its
+ * container is on screen. Driven by rAF off a passive scroll listener and
+ * written straight to `style.transform`, so it never triggers React work.
+ */
+export function Parallax({
+  children,
+  speed = 0.18,
+  className = '',
+}: {
+  children: ReactNode
+  speed?: number
+  className?: string
+}) {
+  const outer = useRef<HTMLDivElement | null>(null)
+  const inner = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const o = outer.current
+    const i = inner.current
+    if (!o || !i || prefersReducedMotion()) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const r = o.getBoundingClientRect()
+      if (r.bottom < -200 || r.top > window.innerHeight + 200) return
+      // 0 when the block is centred; ± as it leaves either edge
+      const offset = r.top + r.height / 2 - window.innerHeight / 2
+      i.style.transform = `translate3d(0, ${(-offset * speed).toFixed(1)}px, 0)`
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [speed])
+
+  return (
+    <div ref={outer} className={className}>
+      <div ref={inner} className="will-change-transform">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/** A section backdrop: generated plate + scrim + optional grain, behind content. */
+export function Backdrop({
+  plate,
+  scrim = 'dark',
+  grain = true,
+  parallax = 0.12,
+  className = '',
+}: {
+  plate: 'stadium' | 'pitch' | 'nets' | 'bokeh' | 'turf' | 'light'
+  scrim?: 'dark' | 'dark-soft' | 'light' | 'none'
+  grain?: boolean
+  parallax?: number
+  className?: string
+}) {
+  const scrimClass =
+    scrim === 'none'
+      ? ''
+      : scrim === 'light'
+        ? 'scrim-light'
+        : scrim === 'dark-soft'
+          ? 'scrim-dark-soft'
+          : 'scrim-dark'
+  return (
+    <div
+      className={`pointer-events-none absolute inset-0 overflow-hidden ${grain ? 'grain-overlay' : ''} ${className}`}
+      aria-hidden
+    >
+      <Parallax speed={parallax} className="absolute inset-0">
+        {/* Oversized so the parallax shift never exposes an edge. */}
+        <div className={`absolute -inset-y-[12%] inset-x-0 backdrop-plate plate-${plate}`} />
+      </Parallax>
+      {scrimClass ? <div className={`absolute inset-0 ${scrimClass}`} /> : null}
+    </div>
+  )
+}
+
+/** Card that leans toward the pointer. Pointer-only; untouched on touch. */
+export function TiltCard({
+  children,
+  className = '',
+  max = 7,
+}: {
+  children: ReactNode
+  className?: string
+  max?: number
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || prefersReducedMotion()) return
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    const move = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect()
+      const px = (e.clientX - r.left) / r.width - 0.5
+      const py = (e.clientY - r.top) / r.height - 0.5
+      el.style.setProperty('--ry', `${(px * max).toFixed(2)}deg`)
+      el.style.setProperty('--rx', `${(-py * max).toFixed(2)}deg`)
+    }
+    const leave = () => {
+      el.style.setProperty('--rx', '0deg')
+      el.style.setProperty('--ry', '0deg')
+    }
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerleave', leave)
+    return () => {
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerleave', leave)
+    }
+  }, [max])
+
+  return (
+    <div ref={ref} className={`tilt ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+/** Infinite ticker. Children are rendered twice so the loop is seamless. */
+export function Marquee({
+  items,
+  className = '',
+}: {
+  items: ReactNode[]
+  className?: string
+}) {
+  return (
+    <div className={`marquee ${className}`}>
+      <div className="marquee-track">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex shrink-0 items-center" aria-hidden={copy === 1}>
+            {items.map((item, i) => (
+              <span key={i} className="flex items-center gap-3 px-6 py-2">
+                {item}
+                <span className="h-1 w-1 rounded-full bg-lime/50" />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Reading-progress rail. Fixed under the site header. */
+export function ScrollProgress() {
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      el.style.setProperty('--p', max > 0 ? String(Math.min(1, window.scrollY / max)) : '0')
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
+  return (
+    <div className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-transparent" aria-hidden>
+      <div ref={ref} className="scroll-rail h-full bg-gradient-to-r from-lime-deep via-lime to-seam" />
+    </div>
+  )
+}
+
+/** Headline that lifts in word by word. */
+export function WordReveal({
+  text,
+  className = '',
+  stagger = 55,
+  as = 'span',
+}: {
+  text: string
+  className?: string
+  stagger?: number
+  as?: ElementType
+}) {
+  const ref = useRef<HTMLElement | null>(null)
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && (setShown(true), io.unobserve(e.target))),
+      { threshold: 0, rootMargin: '0px 0px -40px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return createElement(
+    as,
+    { ref, className: `word-rise ${shown ? 'is-visible' : ''} ${className}` },
+    text.split(' ').map((word, i) => (
+      <span key={`${word}-${i}`} style={{ transitionDelay: `${i * stagger}ms` }}>
+        {word}
+        {i < text.split(' ').length - 1 ? ' ' : ''}
+      </span>
+    )),
+  )
+}
+
+/** Circular progress ring that draws itself on reveal. */
+export function ProgressRing({
+  value,
+  size = 120,
+  stroke = 8,
+  label,
+  sub,
+}: {
+  value: number
+  size?: number
+  stroke?: number
+  label?: string
+  sub?: string
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [on, setOn] = useState(false)
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const pct = Math.max(0, Math.min(100, value))
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setOn(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (e) => e[0]?.isIntersecting && (setOn(true), io.disconnect()),
+      { threshold: 0, rootMargin: '0px 0px -40px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="relative inline-flex flex-col items-center gap-1.5">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="url(#ringGrad)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={on ? c - (c * pct) / 100 : c}
+          style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1)' }}
+        />
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#b6f24a" />
+            <stop offset="100%" stopColor="#2f9e6b" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pb-5">
+        <span className="font-display text-2xl font-extrabold text-chalk">
+          <CountUp to={pct} />
+        </span>
+        {sub ? <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-chalk/40">{sub}</span> : null}
+      </div>
+      {label ? (
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-chalk/50">{label}</span>
+      ) : null}
     </div>
   )
 }

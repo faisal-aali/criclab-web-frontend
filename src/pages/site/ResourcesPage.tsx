@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
+  Backdrop,
   Button,
   Card,
   Chip,
@@ -11,7 +12,10 @@ import {
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   BowlerSkeleton,
@@ -151,6 +155,47 @@ const GUIDES = [
   },
 ]
 
+/* A four-stage path for someone who has never filmed a delivery. Ordered by
+   what to do next, not by how long each piece takes to read. */
+const PATH = [
+  {
+    n: '01',
+    stage: 'Before the first ball',
+    title: 'Get the camera in the right place',
+    body: 'Side-on, waist height, whole body in frame, landscape. Almost every disappointing read starts here.',
+    read: '5 min',
+    to: '/record',
+    cta: 'Filming guide',
+  },
+  {
+    n: '02',
+    stage: 'The first session',
+    title: 'Film one delivery and read it back',
+    body: 'One ball, not an over. Watch the moments held on the clip before you go anywhere near the numbers.',
+    read: '6 min',
+    to: '/how-it-works',
+    cta: 'Walk the flow',
+  },
+  {
+    n: '03',
+    stage: 'The first month',
+    title: 'Learn what each figure carries',
+    body: 'Release height, stride, timing splits — and the confidence note that says how much weight to put on each.',
+    read: '7 min',
+    to: '/features',
+    cta: 'See the detail',
+  },
+  {
+    n: '04',
+    stage: 'The first block',
+    title: 'Build a baseline you can argue with',
+    body: 'Four sessions filmed the same way turn a feeling about an action into a line you can point at.',
+    read: '7 min',
+    to: '/app',
+    cta: 'Start filming',
+  },
+]
+
 function ArticleArt({ kind }: { kind: ArtKind }) {
   switch (kind) {
     case 'skeleton':
@@ -195,6 +240,7 @@ export function ResourcesPage() {
     <MarketingLayout title="Resources">
       {/* ===================== HERO ===================== */}
       <PageHero
+        plate="bokeh"
         eyebrow="Insights & resources"
         title={
           <>
@@ -211,6 +257,64 @@ export function ResourcesPage() {
           <Chip tone="neutral">Performance</Chip>
         </div>
       </PageHero>
+
+      <SectionSeam />
+
+      {/* ===================== LEARNING PATH ===================== */}
+      <Section tone="mid" className="py-20 sm:py-28">
+        <Backdrop plate="nets" scrim="dark" parallax={0.08} />
+        <div
+          className="pointer-events-none absolute -right-28 top-10 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="Start here"
+            title={<WordReveal text="A path, not a pile" />}
+            lead="Nine pieces and three guides is a lot to land on. Read them in this order and each one makes the next one shorter."
+          />
+
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {PATH.map((s, i) => (
+              <Reveal key={s.n} delay={i * 90} className="h-full">
+                <Link to={s.to} className="group block h-full">
+                  <TiltCard className="h-full" max={6}>
+                    <Card className="ring-glow flex h-full flex-col gap-3 p-6">
+                      <div className="flex items-center gap-3">
+                        <span className="font-display text-3xl font-extrabold text-lime/25">
+                          {s.n}
+                        </span>
+                        <span className="h-px flex-1 bg-gradient-to-r from-lime/40 to-transparent" />
+                      </div>
+                      <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-lime/70">
+                        {s.stage}
+                      </span>
+                      <h3 className="font-display text-lg font-bold leading-snug text-chalk">
+                        {s.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-chalk/60">{s.body}</p>
+                      <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">
+                        <span>{s.read}</span>
+                        <span className="text-lime transition group-hover:translate-x-1">
+                          {s.cta} →
+                        </span>
+                      </div>
+                    </Card>
+                  </TiltCard>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={220} className="mt-8 text-center">
+            <p className="text-sm text-chalk/50">
+              Roughly twenty-five minutes of reading, spread across your first block
+              of sessions.
+            </p>
+          </Reveal>
+        </Container>
+      </Section>
 
       {/* ===================== FEATURED ===================== */}
       <Section tone="light" className="py-20 sm:py-28">
@@ -275,7 +379,12 @@ export function ResourcesPage() {
 
       {/* ===================== ARTICLE GRID ===================== */}
       <Section tone="dark" className="py-20 sm:py-28">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.07} />
         <StadiumAtmosphere />
+        <div
+          className="pointer-events-none absolute -left-24 top-40 h-72 w-72 animate-drift rounded-full bg-pitch-soft/25 blur-[120px]"
+          aria-hidden
+        />
         <Container size="wide" className="relative">
           <SectionHeading
             tone="dark"
@@ -287,27 +396,29 @@ export function ResourcesPage() {
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {ARTICLES.map((a, i) => (
               <Reveal key={a.title} delay={(i % 3) * 90} className="h-full">
-                <Card className="flex h-full flex-col overflow-hidden p-0">
-                  <PhotoFrame
-                    className="aspect-[16/10] w-full rounded-none"
-                    overlay={false}
-                    fallback={<ArticleArt kind={a.art} />}
-                  >
-                    <div className="flex h-full items-start justify-between p-4">
-                      <Chip tone="lime">{a.category}</Chip>
+                <TiltCard className="h-full" max={6}>
+                  <Card className="ring-glow flex h-full flex-col overflow-hidden p-0">
+                    <PhotoFrame
+                      className="aspect-[16/10] w-full rounded-none"
+                      overlay={false}
+                      fallback={<ArticleArt kind={a.art} />}
+                    >
+                      <div className="flex h-full items-start justify-between p-4">
+                        <Chip tone="lime">{a.category}</Chip>
+                      </div>
+                    </PhotoFrame>
+                    <div className="flex flex-1 flex-col gap-3 p-6">
+                      <h3 className="font-display text-lg font-bold leading-snug text-chalk">
+                        {a.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-chalk/60">{a.excerpt}</p>
+                      <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">
+                        <span>{a.read}</span>
+                        <span className="text-lime/70">Full piece soon</span>
+                      </div>
                     </div>
-                  </PhotoFrame>
-                  <div className="flex flex-1 flex-col gap-3 p-6">
-                    <h3 className="font-display text-lg font-bold leading-snug text-chalk">
-                      {a.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-chalk/60">{a.excerpt}</p>
-                    <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">
-                      <span>{a.read}</span>
-                      <span className="text-lime/70">Full piece soon</span>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -338,11 +449,11 @@ export function ResourcesPage() {
       </Section>
 
       {/* ===================== GUIDES STRIP ===================== */}
-      <Section tone="plain" className="py-20 sm:py-28">
+      <Section tone="warm" className="py-20 sm:py-28">
         <Container>
           <SectionHeading
-            eyebrow="Start here"
-            title="The three guides worth reading first"
+            eyebrow="The references"
+            title="The three guides worth keeping open"
             lead="If you only read one thing before your next net, make it the filming guide. Everything else gets easier once the camera is in the right place."
           />
 
@@ -350,7 +461,7 @@ export function ResourcesPage() {
             {GUIDES.map((g, i) => (
               <Reveal key={g.to} delay={i * 90} className="h-full">
                 <Link to={g.to} className="group block h-full">
-                  <Card tone="light" className="flex h-full flex-col gap-4 p-6">
+                  <Card tone="light" className="ring-glow flex h-full flex-col gap-4 p-6">
                     <div className="flex items-center justify-between">
                       <span className="font-display text-4xl font-extrabold text-pitch/15">
                         {g.n}
@@ -372,7 +483,12 @@ export function ResourcesPage() {
 
       {/* ===================== NEWSLETTER ===================== */}
       <Section tone="pitch" className="py-20 sm:py-28">
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.1} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <div
+          className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
         <Container className="relative">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="flex flex-col items-start gap-5">
@@ -479,16 +595,17 @@ export function ResourcesPage() {
       </Section>
 
       {/* ===================== CTA ===================== */}
-      <Section tone="light" className="py-20 sm:py-28">
+      <Section tone="plain" className="py-20 sm:py-28">
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="bokeh" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <SeamBall size={64} className="animate-float-slow" />
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">
                   Reading is one thing.{' '}
-                  <span className="text-gradient-lime">Filming is another.</span>
+                  <span className="shimmer-text">Filming is another.</span>
                 </h2>
                 <p className="text-base leading-relaxed text-chalk/65">
                   Everything on this page is easier to follow once you have watched

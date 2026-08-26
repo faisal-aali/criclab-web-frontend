@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { uploadVideo } from '../api/client'
-import { Button, Card, Chip, Eyebrow } from '../components/site/ui'
+import { Backdrop, Button, Card, Chip, Eyebrow, Reveal, TiltCard } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
 
@@ -145,7 +145,13 @@ export function UploadPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* ---------------- Page header ---------------- */}
-      <header className="animate-rise flex flex-col items-start gap-4">
+      <header className="animate-rise relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-8 sm:px-8 sm:py-10">
+        <Backdrop plate="pitch" scrim="dark" parallax={0.08} />
+        <div
+          className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 animate-glow-breathe rounded-full bg-lime/10 blur-[90px]"
+          aria-hidden
+        />
+        <div className="relative flex flex-col items-start gap-4">
         <Eyebrow>Action · mechanics lab</Eyebrow>
         <h1 className="font-display text-[2.4rem] font-extrabold leading-[1.05] sm:text-5xl lg:text-[3.4rem]">
           <span className="text-chalk">Analyze the</span>{' '}
@@ -167,6 +173,7 @@ export function UploadPage() {
           <Chip tone="lime">Side-on camera</Chip>
           <Chip>One delivery</Chip>
           <Chip>Full body in frame</Chip>
+        </div>
         </div>
       </header>
 
@@ -426,7 +433,9 @@ export function UploadPage() {
 
         {/* ---------------- Guidance ---------------- */}
         <div className="animate-rise flex flex-col gap-4 lg:order-1" style={{ animationDelay: '140ms' }}>
-          <Card interactive={false} className="p-5">
+          <Reveal>
+          <TiltCard>
+          <Card interactive={false} className="ring-glow p-5">
             <h2 className="font-display text-base font-bold text-chalk">What each detail does</h2>
             <ul className="mt-3 flex flex-col divide-y divide-white/10">
               {WHY_FIELDS.map((r) => (
@@ -439,7 +448,10 @@ export function UploadPage() {
               ))}
             </ul>
           </Card>
+          </TiltCard>
+          </Reveal>
 
+          <Reveal delay={90}>
           <Card interactive={false} className="p-5 ring-1 ring-warn/25">
             <p className="font-display text-base font-bold text-warn">Two cameras, two truths</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk/65">
@@ -448,13 +460,21 @@ export function UploadPage() {
               clip filmed for mechanics.
             </p>
           </Card>
+          </Reveal>
 
-          <Card interactive={false} className="p-5">
+          <Reveal delay={180}>
+          <TiltCard>
+          <Card interactive={false} className="ring-glow p-5">
             <h2 className="font-display text-base font-bold text-chalk">Film it this way</h2>
             <ul className="mt-3 flex flex-col gap-2.5">
-              {FILMING.map((t) => (
+              {FILMING.map((t, i) => (
                 <li key={t} className="flex items-start gap-2.5 text-sm leading-relaxed text-chalk/65">
-                  <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-lime" />
+                  <span
+                    className="animate-pop-in mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lime/15 text-[10px] font-extrabold text-lime"
+                    style={{ animationDelay: `${i * 90}ms` }}
+                  >
+                    {i + 1}
+                  </span>
                   <span>{t}</span>
                 </li>
               ))}
@@ -464,7 +484,10 @@ export function UploadPage() {
               <span aria-hidden>→</span>
             </Button>
           </Card>
+          </TiltCard>
+          </Reveal>
 
+          <Reveal delay={270}>
           <div className="relative h-48 overflow-hidden rounded-[var(--radius-card)] border border-white/10 sm:h-60">
             <img
               src="/hero-bowling.jpg"
@@ -479,6 +502,7 @@ export function UploadPage() {
               Side-on · Stable camera · Full body in frame
             </p>
           </div>
+          </Reveal>
         </div>
       </div>
     </div>

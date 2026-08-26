@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MarketingLayout, PageHero } from '../../components/site/MarketingLayout'
 import {
   Accordion,
+  Backdrop,
   Button,
   Card,
   Chip,
@@ -10,7 +11,10 @@ import {
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   PhotoFrame,
@@ -440,6 +444,7 @@ export function RecordVideoPage() {
   return (
     <MarketingLayout title="Record a Video">
       <PageHero
+        plate="pitch"
         eyebrow="Filming guide"
         title={
           <>
@@ -467,7 +472,7 @@ export function RecordVideoPage() {
       </PageHero>
 
       {/* ===================== WHAT A GOOD CLIP LOOKS LIKE ===================== */}
-      <Section tone="plain" className="py-20 sm:py-24">
+      <Section tone="warm" className="py-20 sm:py-24">
         <Container>
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <Reveal>
@@ -537,99 +542,140 @@ export function RecordVideoPage() {
         </Container>
       </Section>
 
-      {/* ===================== CAMERA POSITION ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
-        <Container>
+      {/* ===================== CAMERA POSITION — PLAN VIEW ===================== */}
+      <Section tone="mid" className="py-24 sm:py-32">
+        <Backdrop plate="pitch" scrim="dark-soft" parallax={0.1} />
+        <div
+          className="pointer-events-none absolute -right-32 top-16 h-80 w-80 animate-glow-breathe rounded-full bg-lime/10 blur-[120px]"
+          aria-hidden
+        />
+        <Container className="relative">
           <SectionHeading
             tone="dark"
             eyebrow="Camera position"
-            title="Where to stand"
+            title={<WordReveal text="Where to stand" />}
             lead="Two positions cover everything CricLab looks at. Pace them out once at your ground and you will never have to think about it again."
           />
 
-          <div className="mt-16 grid items-center gap-8 lg:grid-cols-[1.3fr_0.7fr]">
-            <Reveal>
-              <Card className="p-4 sm:p-6" interactive={false}>
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+          <Reveal className="mt-14">
+            <figure className="rounded-[var(--radius-card)] border border-white/10 bg-night/55 p-4 backdrop-blur sm:p-7">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-5">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <Chip tone="lime">Action clip</Chip>
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-chalk/45">
-                    Plan view
-                  </span>
+                  <Chip>Plan view</Chip>
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/60 p-3 sm:p-4">
-                  <ActionCameraDiagram />
-                </div>
-              </Card>
-            </Reveal>
-
-            <Reveal delay={140}>
-              <div className="flex flex-col gap-5">
-                <h3 className="font-display text-2xl font-extrabold text-chalk">
-                  Side-on, square to the bowler
-                </h3>
-                <ul className="flex flex-col gap-4">
-                  {ACTION_NOTES.map((n) => (
-                    <li key={n.title} className="flex gap-3">
-                      <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lime/15 text-[11px] font-bold text-lime">
-                        ✓
-                      </span>
-                      <span>
-                        <span className="block text-sm font-bold text-chalk">{n.title}</span>
-                        <span className="block pt-1 text-sm leading-relaxed text-chalk/60">
-                          {n.body}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-chalk/45">
+                  Diagram 1 of 3
+                </span>
               </div>
-            </Reveal>
-          </div>
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/70 p-3 sm:p-6">
+                <ActionCameraDiagram />
+              </div>
+              <figcaption className="mt-5 border-t border-white/10 pt-4 text-sm leading-relaxed text-chalk/60">
+                <span className="font-semibold text-chalk">Looking straight down on the ground.</span>{' '}
+                Stand square to the popping crease, eight to twelve metres out, with the whole
+                delivery stride sitting inside the shaded field of view. The crossed-out phone is
+                the angle almost everyone drifts into: from there the arm comes over away from the
+                camera and the bowler’s own body hides half the action.
+              </figcaption>
+            </figure>
+          </Reveal>
 
-          <div className="mt-8 grid items-center gap-8 lg:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            {ACTION_NOTES.map((n, i) => (
+              <Reveal key={n.title} delay={i * 80}>
+                <TiltCard className="h-full">
+                  <Card className="ring-glow flex h-full gap-3.5 p-6">
+                    <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lime/15 text-[11px] font-bold text-lime">
+                      ✓
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-base font-bold text-chalk">
+                        {n.title}
+                      </span>
+                      <span className="block pt-1.5 text-sm leading-relaxed text-chalk/60">
+                        {n.body}
+                      </span>
+                    </span>
+                  </Card>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      <SectionSeam />
+
+      {/* ===================== FRAMING + BEHIND THE ARM ===================== */}
+      <Section tone="dark" className="py-24 sm:py-32">
+        <Backdrop plate="nets" scrim="dark" parallax={0.08} />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="Framing & the second position"
+            title="What the frame has to hold"
+            lead="One drawing for the shape of the shot, one for the view from behind the bowler’s end. Between them they cover both clip types."
+          />
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-2">
             <Reveal>
-              <Card className="p-4 sm:p-6" interactive={false}>
+              <figure className="flex h-full flex-col rounded-[var(--radius-card)] border border-white/10 bg-night/55 p-4 backdrop-blur sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
                   <Chip tone="lime">Framing</Chip>
                   <span className="text-xs font-semibold uppercase tracking-[0.14em] text-chalk/45">
-                    What the frame holds
+                    Diagram 2 of 3
                   </span>
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/60 p-3 sm:p-4">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/70 p-3 sm:p-5">
                   <FramingDiagram />
                 </div>
-              </Card>
+                <figcaption className="mt-auto pt-4 text-sm leading-relaxed text-chalk/60">
+                  <span className="font-semibold text-chalk">Elevation — what you see on screen.</span>{' '}
+                  Ball above the head, both feet on the grass, and enough air either side that the
+                  follow-through does not walk out of shot. Hold the phone level with the bowler’s
+                  waist, not overhead and not on the ground.
+                </figcaption>
+              </figure>
             </Reveal>
 
             <Reveal delay={120}>
-              <Card className="p-4 sm:p-6" interactive={false}>
+              <figure className="flex h-full flex-col rounded-[var(--radius-card)] border border-white/10 bg-night/55 p-4 backdrop-blur sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
                   <Chip tone="lime">Ball flight clip</Chip>
                   <span className="text-xs font-semibold uppercase tracking-[0.14em] text-chalk/45">
-                    Behind the bowler
+                    Diagram 3 of 3
                   </span>
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/60 p-3 sm:p-4">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-night/70 p-3 sm:p-5">
                   <BallFlightCameraDiagram />
                 </div>
-              </Card>
+                <figcaption className="mt-auto pt-4 text-sm leading-relaxed text-chalk/60">
+                  <span className="font-semibold text-chalk">The umpire’s view, two paces further back.</span>{' '}
+                  Stand on the line of the pitch behind the non-striker’s stumps. If both sets of
+                  stumps sit in the frame without moving the phone, the ball has somewhere to
+                  travel through on screen.
+                </figcaption>
+              </figure>
             </Reveal>
           </div>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
             {FLIGHT_NOTES.map((n, i) => (
               <Reveal key={n.title} delay={i * 90}>
-                <Card className="flex h-full flex-col gap-2.5 p-6">
-                  <h3 className="font-display text-lg font-bold text-chalk">{n.title}</h3>
-                  <p className="text-sm leading-relaxed text-chalk/60">{n.body}</p>
-                </Card>
+                <TiltCard className="h-full">
+                  <Card className="ring-glow flex h-full flex-col gap-2.5 p-6">
+                    <h3 className="font-display text-lg font-bold text-chalk">{n.title}</h3>
+                    <p className="text-sm leading-relaxed text-chalk/60">{n.body}</p>
+                  </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
 
           <Reveal delay={200} className="mt-10">
             <div className="flex flex-col items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:flex-row sm:items-center">
-              <div className="h-20 w-32 shrink-0">
+              <div className="h-20 w-32 shrink-0 animate-bob">
                 <TrajectoryArc />
               </div>
               <p className="text-sm leading-relaxed text-chalk/60">
@@ -659,9 +705,13 @@ export function RecordVideoPage() {
                 delay={i * 70}
                 className={i === DOS_AND_DONTS.length - 1 ? 'sm:col-span-2 lg:col-span-3' : ''}
               >
-                <Card tone="light" className="flex h-full flex-col gap-4 p-6">
+                <TiltCard className="h-full">
+                <Card tone="light" className="ring-glow flex h-full flex-col gap-4 p-6">
                   <div className="flex items-center gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-pitch font-display text-xs font-extrabold text-lime">
+                    <span
+                      className="animate-pop-in grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-pitch font-display text-xs font-extrabold text-lime"
+                      style={{ animationDelay: `${i * 70}ms` }}
+                    >
                       {i + 1}
                     </span>
                     <h3 className="font-display text-lg font-bold text-ink">{d.topic}</h3>
@@ -679,6 +729,7 @@ export function RecordVideoPage() {
                     <p className="text-sm leading-relaxed text-ink/50">{d.bad}</p>
                   </div>
                 </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -687,6 +738,7 @@ export function RecordVideoPage() {
 
       {/* ===================== SETTINGS CHECKLIST ===================== */}
       <Section tone="pitch" id="checklist" className="scroll-mt-24 py-24 sm:py-32">
+        <Backdrop plate="turf" scrim="dark-soft" parallax={0.09} />
         <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
         <Container className="relative">
           <SectionHeading
@@ -699,16 +751,27 @@ export function RecordVideoPage() {
           <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {SETTINGS.map((s, i) => (
               <Reveal key={s.title} delay={i * 70}>
-                <Card className="flex h-full flex-col gap-3 p-6">
+                <TiltCard className="h-full">
+                <Card className="ring-glow flex h-full flex-col gap-3 p-6">
                   <div className="flex items-center justify-between gap-3">
-                    <Chip tone="lime">{s.tag}</Chip>
-                    <span className="grid h-7 w-7 place-items-center rounded-full border border-lime/40 text-[12px] font-bold text-lime">
-                      ✓
+                    <span
+                      className="animate-pop-in grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-lime/40 bg-lime/10 font-display text-sm font-extrabold text-lime"
+                      style={{ animationDelay: `${i * 70}ms` }}
+                    >
+                      {i + 1}
                     </span>
+                    <Chip tone="lime">{s.tag}</Chip>
                   </div>
                   <h3 className="font-display text-lg font-bold text-chalk">{s.title}</h3>
                   <p className="text-sm leading-relaxed text-chalk/60">{s.body}</p>
+                  <span className="mt-auto flex items-center gap-2 pt-3 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">
+                    <span className="grid h-5 w-5 place-items-center rounded-full border border-lime/40 text-[10px] text-lime">
+                      ✓
+                    </span>
+                    Tick before you roll
+                  </span>
                 </Card>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -725,7 +788,7 @@ export function RecordVideoPage() {
       </Section>
 
       {/* ===================== STEP BY STEP ===================== */}
-      <Section tone="plain" className="py-24 sm:py-32">
+      <Section tone="warm" className="py-24 sm:py-32">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="flex flex-col gap-6">
@@ -738,7 +801,7 @@ export function RecordVideoPage() {
               />
               <Reveal delay={120}>
                 <div className="hidden lg:block">
-                  <SeamBall size={110} className="animate-float-slow opacity-90" />
+                  <SeamBall size={110} className="animate-bob opacity-90" />
                 </div>
               </Reveal>
             </div>
@@ -746,8 +809,11 @@ export function RecordVideoPage() {
             <ol className="flex flex-col gap-4">
               {STEPS.map((s, i) => (
                 <Reveal key={s.n} delay={i * 70} as="li">
-                  <Card tone="light" className="flex gap-5 p-6">
-                    <span className="font-display text-2xl font-extrabold text-pitch/25 sm:text-3xl">
+                  <Card tone="light" className="ring-glow flex gap-5 p-6">
+                    <span
+                      className="animate-pop-in grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-pitch font-display text-base font-extrabold text-lime sm:h-12 sm:w-12 sm:text-lg"
+                      style={{ animationDelay: `${i * 70}ms` }}
+                    >
                       {s.n}
                     </span>
                     <div className="flex flex-col gap-1.5">
@@ -763,8 +829,9 @@ export function RecordVideoPage() {
       </Section>
 
       {/* ===================== TROUBLESHOOTING ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
-        <Container>
+      <Section tone="night" className="py-24 sm:py-32">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.06} />
+        <Container className="relative">
           <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="flex flex-col gap-6">
               <SectionHeading
@@ -800,7 +867,12 @@ export function RecordVideoPage() {
         <Container>
           <Reveal>
             <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="pitch" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
+              <div
+                className="pointer-events-none absolute -left-20 top-1/2 h-64 w-64 -translate-y-1/2 animate-glow-breathe rounded-full bg-lime/12 blur-[110px]"
+                aria-hidden
+              />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <Eyebrow>Ready</Eyebrow>
                 <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-[2.6rem]">

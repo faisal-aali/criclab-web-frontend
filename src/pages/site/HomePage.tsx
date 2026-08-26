@@ -1,15 +1,21 @@
 import { Link } from 'react-router-dom'
 import { MarketingLayout } from '../../components/site/MarketingLayout'
 import {
+  Backdrop,
   Button,
   Card,
   Chip,
   Container,
   Eyebrow,
+  Marquee,
+  ProgressRing,
   Reveal,
   Section,
   SectionHeading,
+  SectionSeam,
   Stat,
+  TiltCard,
+  WordReveal,
 } from '../../components/site/ui'
 import {
   BowlerSkeleton,
@@ -135,14 +141,17 @@ export function HomePage() {
   return (
     <MarketingLayout>
       {/* ===================== HERO ===================== */}
-      <section className="relative isolate min-h-[92vh] overflow-hidden bg-stadium pt-32 text-chalk">
+      {/* Height is capped as well as proportional: 92vh alone leaves a screen-deep
+          gap under the content on a tall 4K display. */}
+      <section className="relative isolate min-h-[min(92vh,980px)] overflow-hidden bg-stadium pt-32 text-chalk">
+        <Backdrop plate="stadium" scrim="none" parallax={0.14} grain={false} />
         <StadiumAtmosphere />
         <PhotoFrame
           src="/hero-bowling.jpg"
           alt=""
           overlay={false}
           position="absolute"
-          className="pointer-events-none inset-0 rounded-none opacity-[0.35] mix-blend-luminosity"
+          className="pointer-events-none inset-0 rounded-none opacity-[0.32] mix-blend-luminosity"
         />
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-b from-night/70 via-night/60 to-night"
@@ -268,8 +277,30 @@ export function HomePage() {
         <PitchFloor />
       </section>
 
+      {/* ===================== TICKER ===================== */}
+      <Section tone="night" className="border-y border-white/8 py-4">
+        <Marquee
+          items={[
+            'Release timing',
+            'Front-foot contact',
+            'Ball flight tracking',
+            'Arm speed',
+            'Hip & trunk rotation',
+            'Stride length',
+            'Release height',
+            'Kinematic sequence',
+            'Throwing screen',
+            'Pace band',
+          ].map((t) => (
+            <span key={t} className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-chalk/45">
+              {t}
+            </span>
+          ))}
+        />
+      </Section>
+
       {/* ===================== STATS ===================== */}
-      <Section tone="plain" className="border-y border-pitch/10 py-14">
+      <Section tone="plain" className="border-b border-pitch/10 py-14">
         <Container>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <Reveal>
@@ -289,8 +320,9 @@ export function HomePage() {
       </Section>
 
       {/* ===================== FEATURES ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
-        <Container>
+      <Section tone="mid" className="py-24 sm:py-32">
+        <Backdrop plate="nets" scrim="dark-soft" parallax={0.08} />
+        <Container className="relative">
           <SectionHeading
             tone="dark"
             eyebrow="What you get"
@@ -307,7 +339,8 @@ export function HomePage() {
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
                 <Link to={f.to} className="group block h-full">
-                  <Card className="flex h-full flex-col gap-3.5 p-6">
+                  <TiltCard className="h-full">
+                  <Card className="ring-glow flex h-full flex-col gap-3.5 p-6">
                     <Chip tone="lime">{f.tag}</Chip>
                     <h3 className="font-display text-xl font-bold text-chalk">{f.title}</h3>
                     <p className="text-sm leading-relaxed text-chalk/60">{f.body}</p>
@@ -315,6 +348,7 @@ export function HomePage() {
                       Learn more →
                     </span>
                   </Card>
+                  </TiltCard>
                 </Link>
               </Reveal>
             ))}
@@ -323,7 +357,7 @@ export function HomePage() {
       </Section>
 
       {/* ===================== SHOWCASE ===================== */}
-      <Section tone="light" className="py-24 sm:py-32">
+      <Section tone="warm" className="py-24 sm:py-32">
         <Container>
           <div className="grid items-center gap-14 lg:grid-cols-2">
             <Reveal>
@@ -416,12 +450,13 @@ export function HomePage() {
 
       {/* ===================== HOW IT WORKS ===================== */}
       <Section tone="pitch" className="py-24 sm:py-32">
-        <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-40" aria-hidden />
+        <Backdrop plate="pitch" scrim="dark-soft" parallax={0.1} />
+        <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-30" aria-hidden />
         <Container className="relative">
           <SectionHeading
             tone="dark"
             eyebrow="How CricLab works"
-            title="Four steps, one phone"
+            title={<WordReveal text="Four steps, one phone" />}
             lead="From filming a delivery to knowing what to change — without a rig, a lab, or a specialist."
           />
 
@@ -489,6 +524,33 @@ export function HomePage() {
         </Container>
       </Section>
 
+      {/* ===================== SCORES ===================== */}
+      <Section tone="night" className="py-20 sm:py-24">
+        <Backdrop plate="bokeh" scrim="dark" parallax={0.06} />
+        <Container className="relative">
+          <SectionHeading
+            tone="dark"
+            eyebrow="Every delivery scored"
+            title="A read you can act on before the next over"
+            lead="Each area is scored from what was actually measured — and left blank when the footage could not support it."
+          />
+          <div className="mt-14 flex flex-wrap items-start justify-center gap-10 sm:gap-16">
+            {[
+              { v: 86, l: 'Front-leg brace', s: 'score' },
+              { v: 92, l: 'Kinematic sequence', s: 'score' },
+              { v: 74, l: 'Arm speed', s: 'score' },
+              { v: 81, l: 'Overall', s: 'score' },
+            ].map((r, i) => (
+              <Reveal key={r.l} delay={i * 90}>
+                <ProgressRing value={r.v} label={r.l} sub={r.s} />
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      <SectionSeam />
+
       {/* ===================== TESTIMONIALS ===================== */}
       <Section tone="dark" className="py-24 sm:py-32">
         <Container>
@@ -501,7 +563,7 @@ export function HomePage() {
           <div className="mt-16 grid gap-5 lg:grid-cols-3">
             {TESTIMONIALS.map((t, i) => (
               <Reveal key={t.name} delay={i * 90}>
-                <Card className="flex h-full flex-col gap-5 p-7">
+                <Card className="ring-glow flex h-full flex-col gap-5 p-7">
                   <svg viewBox="0 0 32 24" className="h-6 w-8 text-lime/50" aria-hidden>
                     <path
                       d="M0 24V13.4C0 6.2 4.3 1.4 12 0l1.4 3.9C9 5.5 6.6 8.2 6.4 12H12v12H0Zm18 0V13.4C18 6.2 22.3 1.4 30 0l1.4 3.9C27 5.5 24.6 8.2 24.4 12H30v12H18Z"
@@ -534,7 +596,8 @@ export function HomePage() {
       <Section tone="light" className="py-20 sm:py-28">
         <Container>
           <Reveal>
-            <div className="relative overflow-hidden rounded-[2rem] bg-stadium px-7 py-16 text-center text-chalk sm:px-14">
+            <div className="relative overflow-hidden rounded-[2rem] bg-night px-7 py-16 text-center text-chalk sm:px-14">
+              <Backdrop plate="turf" scrim="dark" parallax={0.05} />
               <StadiumAtmosphere />
               <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
                 <SeamBall size={64} className="animate-float-slow" />
