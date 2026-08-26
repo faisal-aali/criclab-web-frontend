@@ -138,7 +138,7 @@ function BoxHandle({
       onPointerDown={onDown('move')}
     >
       <span
-        className="absolute left-1.5 top-1.5 inline-flex items-center gap-1.5 rounded-full border bg-night/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-chalk backdrop-blur"
+        className="on-night absolute left-1.5 top-1.5 inline-flex items-center gap-1.5 rounded-full border bg-night/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-chalk backdrop-blur"
         style={{ borderColor: color }}
       >
         <span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />

@@ -115,6 +115,16 @@ html.dark body {
     linear-gradient(180deg, var(--color-chalk) 0%, var(--color-mist) 100%);
 }
 
+/* Dark counterpart — see the note beside `.glass-light`. Matches `.bg-stadium`
+   so a `light` section and a `dark` section sit on one continuous ground. */
+html.dark .bg-chalk-gradient {
+  background-color: var(--color-night);
+  background-image:
+    radial-gradient(60rem 32rem at 12% -10%, rgba(182, 242, 74, 0.13), transparent 60%),
+    radial-gradient(52rem 30rem at 88% 0%, rgba(18, 81, 60, 0.55), transparent 62%),
+    radial-gradient(80rem 40rem at 50% 118%, rgba(11, 61, 46, 0.65), transparent 70%);
+}
+
 /* Faint bowling-crease rule lines. Sits under content at low opacity so it
    suggests a pitch without competing with text. */
 .bg-crease-lines {
@@ -150,6 +160,22 @@ html.dark body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(11, 61, 46, 0.1);
+}
+
+/* Every light surface below carries its own dark counterpart.
+   ---------------------------------------------------------------------------
+   These are plain classes, not Tailwind utilities, so a `dark:bg-…` sitting
+   beside one in the markup does NOT win: both are single-class selectors and
+   this file is emitted after the utilities, so source order hands it to the
+   plain class. That is how a 72%-white card ended up carrying near-white text
+   in dark mode.
+
+   Pairing each surface with an `html.dark` rule here settles it by
+   specificity instead of by ordering, and keeps the two halves of a surface
+   defined next to each other. */
+html.dark .glass-light {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Hairline top highlight — the detail that stops a dark card looking flat. */
@@ -349,9 +375,19 @@ html.dark body {
   box-shadow: 0 0 0 4px rgba(182, 242, 74, 0.18);
 }
 
-/* Light workspace: pages are written in chalk-on-night tokens. Remap chalk /
-   charcoal / glass / dark fields so the same markup reads on mist. Keep
-   --color-night so lime buttons (text-night) stay dark-on-lime. */
+/* Light workspace.
+   ---------------------------------------------------------------------------
+   Workspace markup is written ONCE, in dark-first tokens — text-chalk,
+   bg-charcoal, bg-white/5, border-white/10 — and light mode is produced by
+   remapping those tokens here. One set of classes, two themes.
+
+   The rule that follows from it: inside .app-shell, never write a light-first
+   token (bg-white, text-ink, border-pitch) and never write a `dark:` variant.
+   Both are applied on top of an already-remapped token and come out inverted —
+   bg-chalk would paint a dark surface, and text-ink would put dark text on it.
+
+   --color-night is deliberately left alone so lime buttons, which carry
+   text-night, stay dark-on-lime in both themes. */
 html.light .app-shell {
   --color-chalk: #122018;
   --color-charcoal: #e7efe9;
@@ -380,6 +416,65 @@ html.light .app-shell .field-dark {
 html.light .app-shell .field-dark::placeholder {
   color: rgba(18, 32, 24, 0.4);
 }
+/* Opting a subtree back out of the remap.
+
+   A few workspace surfaces are dark in both themes — a header sitting on a
+   floodlit photograph, a video frame — and the markup inside them is written
+   for that. Remapping their tokens would put ink on near-black. `on-night`
+   restores the dark values for that subtree only. */
+html.light .app-shell .on-night {
+  --color-chalk: #f6f9f7;
+  --color-charcoal: #0b1113;
+  --color-slate-deep: #101a1c;
+  --color-white: #fff;
+}
+html.light .app-shell .on-night .text-lime,
+html.light .app-shell .on-night .hover\:text-lime:hover {
+  color: var(--color-lime);
+}
+html.light .app-shell .on-night .text-ok { color: var(--color-ok); }
+html.light .app-shell .on-night .text-warn { color: var(--color-warn); }
+html.light .app-shell .on-night .text-bad { color: var(--color-bad); }
+
+/* Accent and status colours as *text*.
+
+   The palette is tuned for a dark workspace: lime, ok, warn and bad all sit
+   bright, which is right on charcoal and close to invisible on white. Fills
+   keep those bright values — a lime button carrying near-black text reads well
+   in both themes — so the two cannot share one variable, and the text
+   utilities are darkened here instead.
+
+   Backgrounds and borders are deliberately left alone: at 10-12% alpha they
+   become a faint tint rather than a colour, which is exactly what a chip or an
+   active nav row wants behind darkened text. */
+html.light .app-shell .text-lime,
+html.light .app-shell .hover\:text-lime:hover,
+html.light .app-shell .group:hover .group-hover\:text-lime {
+  color: #2c6e10;
+}
+html.light .app-shell .text-lime-deep {
+  color: #245c0c;
+}
+/* The lime gradient runs light-to-lighter, which is legible on charcoal and
+   washed out on white. In the light workspace it runs the pitch gradient
+   instead — same brand, opposite direction of travel. */
+html.light .app-shell .text-gradient-lime {
+  background-image: linear-gradient(100deg, var(--color-pitch) 0%, #1d7a55 55%, #4f9e18 100%);
+}
+html.light .app-shell .on-night .text-gradient-lime {
+  background-image: linear-gradient(100deg, var(--color-lime) 0%, #e8ffb0 45%, var(--color-lime-deep) 100%);
+}
+
+html.light .app-shell .text-ok {
+  color: #14713a;
+}
+html.light .app-shell .text-warn {
+  color: #8a5a06;
+}
+html.light .app-shell .text-bad {
+  color: #a41b1b;
+}
+
 html.light .app-shell .field-dark:focus {
   border-color: var(--color-pitch);
   box-shadow: 0 0 0 4px rgba(143, 209, 43, 0.22);
@@ -465,6 +560,14 @@ html.light .app-shell .field-dark:focus {
   background-image:
     radial-gradient(40rem 22rem at 12% -10%, rgba(217, 116, 60, 0.10), transparent 58%),
     radial-gradient(46rem 26rem at 92% 6%, rgba(182, 242, 74, 0.18), transparent 60%);
+}
+
+/* Dark counterpart — see the note beside `.glass-light`. */
+html.dark .bg-chalk-warm {
+  background-color: #0f1a1b;
+  background-image:
+    radial-gradient(46rem 26rem at 82% -12%, rgba(182, 242, 74, 0.10), transparent 62%),
+    radial-gradient(40rem 24rem at 8% 108%, rgba(18, 81, 60, 0.5), transparent 60%);
 }
 
 /* ===========================================================================

@@ -108,7 +108,7 @@ export function BallFlightResultsPage() {
             </Card>
           ) : (
             <Card interactive={false} className="p-6">
-              <div className="flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/12 bg-night/40 p-6 text-center">
+              <div className="on-night flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/12 bg-night/40 p-6 text-center">
                 <div className="h-24 w-full max-w-xs opacity-60">
                   <TrajectoryArc />
                 </div>

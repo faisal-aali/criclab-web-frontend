@@ -177,7 +177,11 @@ export async function authFetch<T>(path: string, init?: RequestInit): Promise<T>
     fetch(`${API_BASE}${path}`, {
       ...init,
       headers: {
-        ...(init?.body ? { 'content-type': 'application/json' } : {}),
+        // FormData carries its own multipart content-type with a boundary the
+        // browser generates; overriding it makes the body unparseable.
+        ...(init?.body && !(init.body instanceof FormData)
+          ? { 'content-type': 'application/json' }
+          : {}),
         ...(token ? { authorization: `Bearer ${token}` } : {}),
         ...(init?.headers ?? {}),
       },
@@ -197,6 +201,34 @@ export async function authFetch<T>(path: string, init?: RequestInit): Promise<T>
     }
   }
   return parse<T>(res)
+}
+
+/**
+ * Authenticated download.
+ *
+ * Separate from `authFetch` because that one parses JSON. A file needs the
+ * bearer header just as much, so it cannot be a plain `<a href>` either.
+ */
+export async function authFetchBlob(path: string): Promise<Blob> {
+  if (!accessToken || Date.now() >= accessExpiry) {
+    await refreshSession()
+  }
+  const send = (token: string | null) =>
+    fetch(`${API_BASE}${path}`, {
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    })
+
+  let res = await send(accessToken)
+  if (res.status === 401) {
+    const renewed = await refreshSession()
+    if (!renewed) {
+      endSession()
+      throw new ApiError('Your session has ended. Sign in again.', 401)
+    }
+    res = await send(renewed)
+  }
+  if (!res.ok) throw new ApiError('That file could not be downloaded', res.status)
+  return res.blob()
 }
 
 // --------------------------------------------------------------------------

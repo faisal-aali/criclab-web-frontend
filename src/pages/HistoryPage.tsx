@@ -25,7 +25,7 @@ export function HistoryPage() {
   return (
     <div className="space-y-6">
       {/* ---------------- Header ---------------- */}
-      <Reveal className="relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-7 sm:px-7 sm:py-8">
+      <Reveal className="on-night relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-7 sm:px-7 sm:py-8">
         <Backdrop plate="stadium" scrim="dark" parallax={0.07} />
         <div
           className="pointer-events-none absolute -right-16 -top-14 h-52 w-52 animate-glow-breathe rounded-full bg-lime/10 blur-[90px]"

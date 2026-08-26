@@ -145,7 +145,7 @@ export function UploadPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* ---------------- Page header ---------------- */}
-      <header className="animate-rise relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-8 sm:px-8 sm:py-10">
+      <header className="on-night animate-rise relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 px-5 py-8 sm:px-8 sm:py-10">
         <Backdrop plate="pitch" scrim="dark" parallax={0.08} />
         <div
           className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 animate-glow-breathe rounded-full bg-lime/10 blur-[90px]"

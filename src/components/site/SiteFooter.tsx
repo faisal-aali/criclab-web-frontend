@@ -11,6 +11,7 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: '/how-it-works', label: 'How It Works' },
       { to: '/record', label: 'Record a Video' },
       { to: '/pricing', label: 'Pricing' },
+      { to: '/app/coaching', label: 'Coaching' },
       { to: '/app', label: 'Open CricLab' },
     ],
   },
@@ -30,6 +31,7 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
       { to: '/faq', label: 'FAQ' },
       { to: '/record', label: 'Filming Guide' },
       { to: '/app/train', label: 'Drill Library' },
+      { to: '/app/support', label: 'Support' },
     ],
   },
   {

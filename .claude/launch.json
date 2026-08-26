@@ -4,8 +4,29 @@
     {
       "name": "criclab-web",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "preview", "--configLoader", "runner", "--port", "4173", "--strictPort"],
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "--configLoader",
+        "runner",
+        "--port",
+        "4173",
+        "--strictPort"
+      ],
       "port": 4173
+    },
+    {
+      "name": "criclab-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "--configLoader",
+        "runner",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174
     }
   ]
 }

@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
 import { RedirectIfAuthenticated, RequireAuth, RequireVerified } from './auth/guards'
+import { AssistantWidget } from './components/app/AssistantWidget'
 import { Layout } from './components/Layout'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { HomePage } from './pages/site/HomePage'
@@ -58,6 +59,11 @@ const TrainPage = lazy(() => import('./pages/TrainPage').then((m) => ({ default:
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
 const AccountSettingsPage = lazy(() =>
   import('./pages/app/AccountSettingsPage').then((m) => ({ default: m.AccountSettingsPage })),
+)
+const SupportPage = lazy(() => import('./pages/app/SupportPage').then((m) => ({ default: m.SupportPage })))
+const TicketPage = lazy(() => import('./pages/app/TicketPage').then((m) => ({ default: m.TicketPage })))
+const CoachingPage = lazy(() =>
+  import('./pages/app/CoachingPage').then((m) => ({ default: m.CoachingPage })),
 )
 
 /** Shown while a route chunk loads. Dark, so it never flashes white. */
@@ -124,6 +130,10 @@ export default function App() {
                 creates data or spends the user's quota. */}
               <Route element={<RequireAuth />}>
                 <Route path="/app/settings" element={<AppShell><AccountSettingsPage /></AppShell>} />
+              {/* Deliberately outside RequireVerified: someone who cannot get
+                  their address confirmed still needs a way to tell us. */}
+              <Route path="/app/support" element={<AppShell><SupportPage /></AppShell>} />
+              <Route path="/app/support/:ticketId" element={<AppShell><TicketPage /></AppShell>} />
                 <Route element={<RequireVerified />}>
                   <Route path="/app" element={<AppShell><UploadPage /></AppShell>} />
                   <Route
@@ -146,7 +156,8 @@ export default function App() {
                     path="/app/ball-flight/results/:sessionId"
                     element={<AppShell><BallFlightResultsPage /></AppShell>}
                   />
-                  <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
+                  <Route path="/app/coaching" element={<AppShell><CoachingPage /></AppShell>} />
+                <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
                   <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
                 </Route>
               </Route>
@@ -161,6 +172,9 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
+          {/* Outside Suspense: the assistant should be reachable while a route
+              chunk is still loading, which is exactly when someone is stuck. */}
+          <AssistantWidget />
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
