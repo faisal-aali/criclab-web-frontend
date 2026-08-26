@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { CricLabMark } from './site/SiteHeader'
+import { AccountMenu } from './app/AccountMenu'
+import { NotificationBell } from './app/NotificationBell'
 
 /**
  * Application shell.
@@ -70,6 +72,7 @@ const TITLES: [string, string][] = [
   ['/app/ball-flight', 'Ball flight'],
   ['/app/train', 'Train'],
   ['/app/history', 'History'],
+  ['/app/settings', 'Account'],
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -161,6 +164,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/" className="text-chalk">
             <CricLabMark />
           </Link>
+          <div className="flex items-center gap-2">
+          <NotificationBell />
+          <AccountMenu />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -186,6 +192,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               />
             </span>
           </button>
+          </div>
         </header>
 
         {open ? (
@@ -199,6 +206,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
         ) : null}
+
+        <div className="sticky top-0 z-30 hidden items-center justify-end gap-2.5 border-b border-white/8 bg-night/80 px-9 py-3 backdrop-blur-xl lg:flex">
+          <NotificationBell />
+          <AccountMenu />
+        </div>
 
         <main className="scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 sm:px-7 lg:px-9 lg:py-10">
           <div className="mx-auto w-full max-w-6xl">{children}</div>

@@ -58,3 +58,8 @@ High-level features. Detail lives in `tasks/`.
   `Marquee`, `ScrollProgress`, `WordReveal`, `ProgressRing`, `SectionSeam`, plus
   `ring-glow`, `shimmer-text` and several ambient keyframes. Every marketing page
   now runs 5-9 distinct tones with 4-5 plated sections.
+- **26 Aug 2026:** Authentication landed. Public marketing routes, five auth
+  screens on the CricLab design system, `/app` behind route guards, an in-memory
+  access token with a persisted rotating refresh token, a notification centre in
+  the app shell, and an account settings page (profile, password, active
+  devices). Support, coaching and the assistant UIs are not built.

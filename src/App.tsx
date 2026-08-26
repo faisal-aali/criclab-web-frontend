@@ -1,5 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthProvider'
+import { RedirectIfAuthenticated, RequireAuth, RequireVerified } from './auth/guards'
 import { Layout } from './components/Layout'
 import { HomePage } from './pages/site/HomePage'
 
@@ -27,6 +29,19 @@ const ResourcesPage = lazy(() => import('./pages/site/ResourcesPage').then((m) =
 const TermsPage = lazy(() => import('./pages/site/TermsPage').then((m) => ({ default: m.TermsPage })))
 const TestimonialsPage = lazy(() => import('./pages/site/TestimonialsPage').then((m) => ({ default: m.TestimonialsPage })))
 
+// Authentication
+const LoginPage = lazy(() => import('./pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
+const SignUpPage = lazy(() => import('./pages/auth/SignUpPage').then((m) => ({ default: m.SignUpPage })))
+const VerifyEmailPage = lazy(() =>
+  import('./pages/auth/VerifyEmailPage').then((m) => ({ default: m.VerifyEmailPage })),
+)
+const ForgotPasswordPage = lazy(() =>
+  import('./pages/auth/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })),
+)
+const ResetPasswordPage = lazy(() =>
+  import('./pages/auth/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })),
+)
+
 // Workspace
 const UploadPage = lazy(() => import('./pages/UploadPage').then((m) => ({ default: m.UploadPage })))
 const ProcessingPage = lazy(() => import('./pages/ProcessingPage').then((m) => ({ default: m.ProcessingPage })))
@@ -40,6 +55,9 @@ const BallFlightResultsPage = lazy(() =>
 )
 const TrainPage = lazy(() => import('./pages/TrainPage').then((m) => ({ default: m.TrainPage })))
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
+const AccountSettingsPage = lazy(() =>
+  import('./pages/app/AccountSettingsPage').then((m) => ({ default: m.AccountSettingsPage })),
+)
 
 /** Shown while a route chunk loads. Dark, so it never flashes white. */
 function RouteFallback() {
@@ -69,58 +87,79 @@ function AppShell({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          {/* ---------------- Marketing ---------------- */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/features" element={<FeaturesPage />} />
-          <Route path="/how-it-works" element={<HowItWorksPage />} />
-          <Route path="/record" element={<RecordVideoPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/careers" element={<CareersPage />} />
-          <Route path="/testimonials" element={<TestimonialsPage />} />
-          <Route path="/resources" element={<ResourcesPage />} />
-          <Route path="/faq" element={<FaqPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
+      <AuthProvider>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            {/* ---------------- Public marketing ---------------- */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/record" element={<RecordVideoPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/careers" element={<CareersPage />} />
+            <Route path="/testimonials" element={<TestimonialsPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
 
-          {/* ---------------- Application ---------------- */}
-          <Route path="/app" element={<AppShell><UploadPage /></AppShell>} />
-          <Route
-            path="/app/processing/:jobId"
-            element={<AppShell><ProcessingPage /></AppShell>}
-          />
-          <Route
-            path="/app/results/:deliveryId"
-            element={<AppShell><ResultsPage /></AppShell>}
-          />
-          <Route
-            path="/app/ball-flight"
-            element={<AppShell><BallFlightPage /></AppShell>}
-          />
-          <Route
-            path="/app/ball-flight/processing/:jobId"
-            element={<AppShell><BallFlightProcessingPage /></AppShell>}
-          />
-          <Route
-            path="/app/ball-flight/results/:sessionId"
-            element={<AppShell><BallFlightResultsPage /></AppShell>}
-          />
-          <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
-          <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
+            {/* ---------------- Authentication ----------------
+                Behind RedirectIfAuthenticated so a live session cannot land
+                back on a sign-in form via the back button. Verification is
+                outside it: an unverified but signed-in user must reach it. */}
+            <Route element={<RedirectIfAuthenticated />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+            </Route>
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Links minted before the workspace moved under /app */}
-          <Route path="/processing/:jobId" element={<Navigate to="/app" replace />} />
-          <Route path="/results/:deliveryId" element={<Navigate to="/app" replace />} />
-          <Route path="/ball-flight/*" element={<Navigate to="/app/ball-flight" replace />} />
-          <Route path="/train" element={<Navigate to="/app/train" replace />} />
-          <Route path="/history" element={<Navigate to="/app/history" replace />} />
+            {/* ---------------- Protected workspace ----------------
+                RequireAuth gates the shell; RequireVerified gates anything that
+                creates data or spends the user's quota. */}
+            <Route element={<RequireAuth />}>
+              <Route path="/app/settings" element={<AppShell><AccountSettingsPage /></AppShell>} />
+              <Route element={<RequireVerified />}>
+                <Route path="/app" element={<AppShell><UploadPage /></AppShell>} />
+                <Route
+                  path="/app/processing/:jobId"
+                  element={<AppShell><ProcessingPage /></AppShell>}
+                />
+                <Route
+                  path="/app/results/:deliveryId"
+                  element={<AppShell><ResultsPage /></AppShell>}
+                />
+                <Route
+                  path="/app/ball-flight"
+                  element={<AppShell><BallFlightPage /></AppShell>}
+                />
+                <Route
+                  path="/app/ball-flight/processing/:jobId"
+                  element={<AppShell><BallFlightProcessingPage /></AppShell>}
+                />
+                <Route
+                  path="/app/ball-flight/results/:sessionId"
+                  element={<AppShell><BallFlightResultsPage /></AppShell>}
+                />
+                <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
+                <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
+              </Route>
+            </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+            {/* Links minted before the workspace moved under /app */}
+            <Route path="/processing/:jobId" element={<Navigate to="/app" replace />} />
+            <Route path="/results/:deliveryId" element={<Navigate to="/app" replace />} />
+            <Route path="/ball-flight/*" element={<Navigate to="/app/ball-flight" replace />} />
+            <Route path="/train" element={<Navigate to="/app/train" replace />} />
+            <Route path="/history" element={<Navigate to="/app/history" replace />} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

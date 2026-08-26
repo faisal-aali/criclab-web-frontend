@@ -121,6 +121,28 @@ Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → P
 2. Frontend adds a card / chart that respects `metricReady`
 3. Do not compute biomechanics in the browser
 
+## Authentication in the UI
+
+- **Public** — `/`, `/features`, `/how-it-works`, `/record`, `/pricing`, `/about`,
+  `/careers`, `/testimonials`, `/resources`, `/faq`, `/contact`, `/privacy`,
+  `/terms`, plus `/login`, `/signup`, `/forgot-password`, `/reset-password`,
+  `/verify-email`.
+- **Protected** — everything under `/app`, behind `RequireAuth`. Anything that
+  creates data also sits behind `RequireVerified`. `/app/settings` is the
+  exception: reachable while unverified, so an account can be managed.
+- **The access token never touches storage.** It lives in memory in
+  `src/api/auth.ts`; only the refresh token is persisted. A short-lived bearer
+  token in `localStorage` is exactly what an XSS wants.
+- **One in-flight refresh.** Concurrent 401s await the same promise — otherwise
+  the first rotation invalidates the token the others are retrying with.
+- **`status` is three-valued** (`loading`/`authenticated`/`anonymous`). Guards
+  must tell "still checking" from "signed out", or every reload flashes the
+  sign-in page.
+- **Guards are UX, not security.** The API refuses unauthorised data
+  independently; the guard only decides what to render.
+- Poll counts, not lists: the notification badge polls `unread-count` and pauses
+  while the tab is hidden; the list loads when the panel opens.
+
 ## Privacy rule — never expose how the analysis works
 
 Public copy and workspace copy describe **what the user gets**, never how it is
