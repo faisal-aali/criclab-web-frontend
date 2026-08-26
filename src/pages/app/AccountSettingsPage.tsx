@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { auth } from '../../api/auth'
 import { useAuth } from '../../auth/AuthProvider'
 import { Button, Card, Chip, Reveal } from '../../components/site/ui'
+import { useTheme, type ThemePreference } from '../../theme/ThemeProvider'
 
 type Session = { id: string; device: string; created_at: string; last_used_at: string }
 
@@ -46,6 +47,7 @@ function Banner({ tone, children }: { tone: 'ok' | 'error'; children: React.Reac
 
 export function AccountSettingsPage() {
   const { user, setUser, signOut, adopt } = useAuth()
+  const { preference, setPreference } = useTheme()
   const navigate = useNavigate()
 
   const [name, setName] = useState(user?.name ?? '')
@@ -135,6 +137,37 @@ export function AccountSettingsPage() {
             {user.role === 'admin' ? <Chip tone="lime">Admin</Chip> : null}
           </div>
         </div>
+      </Reveal>
+
+      <Reveal delay={40}>
+        <Panel
+          title="Appearance"
+          description="Light, dark, or match the device. Saved in this browser."
+        >
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ['system', 'System'],
+                ['light', 'Light'],
+                ['dark', 'Dark'],
+              ] as [ThemePreference, string][]
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPreference(id)}
+                aria-pressed={preference === id}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  preference === id
+                    ? 'border-lime/50 bg-lime/15 text-lime'
+                    : 'border-white/15 text-chalk/70 hover:border-white/30 hover:text-chalk'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </Panel>
       </Reveal>
 
       <div className="grid gap-5 lg:grid-cols-2">

@@ -223,9 +223,9 @@ export type SectionTone = 'light' | 'dark' | 'pitch' | 'plain' | 'mid' | 'warm' 
  * where the depth comes from.
  */
 const SECTION_TONES: Record<SectionTone, string> = {
-  plain: 'bg-chalk text-ink',
-  light: 'bg-chalk-gradient text-ink',
-  warm: 'bg-chalk-warm text-ink',
+  plain: 'bg-chalk text-ink dark:bg-night dark:text-chalk',
+  light: 'bg-chalk-gradient text-ink dark:bg-stadium dark:text-chalk',
+  warm: 'bg-chalk-warm text-ink dark:bg-slate-mid dark:text-chalk',
   mid: 'bg-slate-mid text-chalk',
   pitch: 'bg-pitch-gradient text-chalk',
   dark: 'bg-stadium text-chalk',
@@ -300,7 +300,7 @@ export function Eyebrow({
   const base =
     tone === 'dark'
       ? 'border-lime/30 bg-lime/10 text-lime'
-      : 'border-pitch/15 bg-pitch/5 text-pitch'
+      : 'border-pitch/15 bg-pitch/5 text-pitch dark:border-lime/30 dark:bg-lime/10 dark:text-lime'
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full border ${base} px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em]`}
@@ -332,7 +332,7 @@ export function SectionHeading({
       {eyebrow ? <Eyebrow tone={tone === 'dark' ? 'dark' : 'light'}>{eyebrow}</Eyebrow> : null}
       <h2
         className={`font-display text-3xl font-extrabold leading-[1.1] sm:text-4xl lg:text-[2.9rem] ${
-          tone === 'dark' ? 'text-chalk' : 'text-ink'
+          tone === 'dark' ? 'text-chalk' : 'text-ink dark:text-chalk'
         }`}
       >
         {title}
@@ -340,7 +340,7 @@ export function SectionHeading({
       {lead ? (
         <p
           className={`text-base leading-relaxed sm:text-lg ${
-            tone === 'dark' ? 'text-chalk/65' : 'text-ink/65'
+            tone === 'dark' ? 'text-chalk/65' : 'text-ink/65 dark:text-chalk/65'
           }`}
         >
           {lead}
@@ -364,7 +364,7 @@ export function Card({
   const base =
     tone === 'dark'
       ? 'glass card-sheen border-white/10 text-chalk hover:border-lime/35'
-      : 'glass-light card-sheen text-ink hover:border-pitch/25'
+      : 'glass-light card-sheen text-ink hover:border-pitch/25 dark:bg-white/6 dark:text-chalk dark:hover:border-lime/35'
   return (
     <div
       className={`rounded-[var(--radius-card)] ${base} ${interactive ? 'lift' : ''} ${className}`}
@@ -400,7 +400,7 @@ export function Stat({
       </div>
       <div
         className={`text-xs font-semibold uppercase tracking-[0.14em] ${
-          tone === 'dark' ? 'text-chalk/50' : 'text-ink/50'
+          tone === 'dark' ? 'text-chalk/50' : 'text-ink/50 dark:text-chalk/50'
         }`}
       >
         {label}
@@ -453,7 +453,7 @@ export function Accordion({
               className={`overflow-hidden rounded-2xl border transition ${
                 dark
                   ? `border-white/10 bg-white/[0.04] ${isOpen ? 'border-lime/35' : ''}`
-                  : `border-pitch/10 bg-white ${isOpen ? 'border-pitch/30 shadow-lg shadow-pitch/5' : ''}`
+                  : `border-pitch/10 bg-white dark:border-white/10 dark:bg-white/[0.04] ${isOpen ? 'border-pitch/30 shadow-lg shadow-pitch/5 dark:border-lime/35 dark:shadow-none' : ''}`
               }`}
             >
               <button
@@ -461,13 +461,13 @@ export function Accordion({
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
                 className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold ${
-                  dark ? 'text-chalk' : 'text-ink'
+                  dark ? 'text-chalk' : 'text-ink dark:text-chalk'
                 }`}
               >
                 <span>{item.q}</span>
                 <span
                   className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-lg leading-none transition-transform duration-300 ${
-                    dark ? 'border-white/20 text-lime' : 'border-pitch/20 text-pitch'
+                    dark ? 'border-white/20 text-lime' : 'border-pitch/20 text-pitch dark:border-white/20 dark:text-lime'
                   } ${isOpen ? 'rotate-45' : ''}`}
                   aria-hidden
                 >
@@ -482,7 +482,7 @@ export function Accordion({
                 <div className="overflow-hidden">
                   <div
                     className={`px-5 pb-5 text-sm leading-relaxed ${
-                      dark ? 'text-chalk/65' : 'text-ink/65'
+                      dark ? 'text-chalk/65' : 'text-ink/65 dark:text-chalk/65'
                     }`}
                   >
                     {item.a}

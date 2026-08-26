@@ -8,6 +8,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { CricLabMark } from '../../components/site/SiteHeader'
+import { ThemeToggle } from '../../components/ThemeToggle'
 import { Backdrop } from '../../components/site/ui'
 import { SeamBall, StadiumAtmosphere } from '../../components/site/visuals'
 
@@ -33,9 +34,12 @@ export function AuthShell({
     <div className="grid min-h-screen bg-night lg:grid-cols-[1fr_0.9fr]">
       {/* form */}
       <div className="flex flex-col px-6 py-10 sm:px-12 lg:px-16">
-        <Link to="/" className="inline-flex text-chalk transition hover:opacity-85">
-          <CricLabMark />
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/" className="inline-flex text-chalk transition hover:opacity-85">
+            <CricLabMark />
+          </Link>
+          <ThemeToggle variant="on-dark" />
+        </div>
         <div className="flex flex-1 items-center py-10">
           <div className="w-full max-w-md">
             <h1 className="font-display text-3xl font-extrabold leading-tight text-chalk sm:text-4xl">

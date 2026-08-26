@@ -28,7 +28,7 @@ export function MarketingLayout({
   }, [pathname])
 
   return (
-    <div className="flex min-h-screen flex-col bg-chalk">
+    <div className="flex min-h-screen flex-col bg-chalk dark:bg-night">
       <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">{children}</main>

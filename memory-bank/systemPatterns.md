@@ -31,7 +31,12 @@ workspace** under `/app`. They share one design system but not one chrome.
 | Surface | Routes | Shell |
 |---------|--------|-------|
 | Marketing | `/`, `/features`, `/how-it-works`, `/record`, `/pricing`, `/about`, `/careers`, `/testimonials`, `/resources`, `/faq`, `/contact`, `/privacy`, `/terms` | `components/site/MarketingLayout` (floating header over a dark hero + full footer) |
-| Workspace | `/app`, `/app/processing/:jobId`, `/app/results/:deliveryId`, `/app/ball-flight[...]`, `/app/train`, `/app/history` | `components/Layout` (dark sidebar shell) |
+| Workspace | `/app`, … | `components/Layout` (sidebar shell; follows site light/dark theme) |
+
+Light/dark is a first-class preference (`src/theme/ThemeProvider.tsx`). A sun/moon
+control lives in the marketing header, auth header, and workspace header. Preference
+is `localStorage` key `criclab-theme` (`light` | `dark` | `system`). Do not invent a
+second theme mechanism or hardcode a night-only shell that ignores `html.dark`.
 
 Pre-`/app` links (`/results/:id`, `/train`, …) redirect in `App.tsx`. Keep those
 redirects when adding routes — they are the only thing holding old bookmarks.

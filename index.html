@@ -7,6 +7,27 @@
     <title>CricLab — The Cricket Performance Lab</title>
     <meta name="description" content="Turn a phone video of a delivery into measured, coachable insight. Bowling and batting analysis, ball tracking and performance metrics for players, coaches and academies." />
     <meta name="theme-color" content="#05090a" />
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('criclab-theme');
+          var theme =
+            raw === 'light' || raw === 'dark'
+              ? raw
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.classList.add(theme);
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#05090a' : '#f6f9f7');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      })();
+    </script>
     <meta property="og:title" content="CricLab — The Cricket Performance Lab" />
     <meta property="og:description" content="Measured, coachable cricket insight from a single phone video." />
     <meta property="og:type" content="website" />

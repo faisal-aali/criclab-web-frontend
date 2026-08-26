@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Button } from './ui'
+import { ThemeToggle } from '../ThemeToggle'
 
 const NAV = [
   { to: '/', label: 'Home' },
@@ -93,6 +94,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle variant="on-dark" />
             <Link
               to="/app"
               className="hidden rounded-full px-3.5 py-2 text-sm font-semibold text-chalk/70 transition hover:text-chalk sm:block"
@@ -165,6 +167,10 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mt-6 flex flex-col gap-3">
+            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <span className="text-sm font-semibold text-chalk/70">Appearance</span>
+              <ThemeToggle variant="on-dark" />
+            </div>
             <Button to="/app" size="lg">
               Start Analyzing
             </Button>

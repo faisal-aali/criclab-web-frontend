@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { CricLabMark } from './site/SiteHeader'
 import { AccountMenu } from './app/AccountMenu'
 import { NotificationBell } from './app/NotificationBell'
+import { ThemeToggle } from './ThemeToggle'
 
 /**
  * Application shell.
@@ -97,7 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             `group relative flex items-center gap-3 rounded-xl px-3.5 py-3 transition ${
               isActive
                 ? 'bg-lime/12 text-lime'
-                : 'text-chalk/60 hover:bg-white/5 hover:text-chalk'
+                : 'text-ink/55 hover:bg-pitch/5 hover:text-ink dark:text-chalk/60 dark:hover:bg-white/5 dark:hover:text-chalk'
             }`
           }
         >
@@ -130,28 +131,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="flex min-h-screen bg-night text-chalk">
+    <div className="app-shell flex min-h-screen bg-mist text-ink dark:bg-night dark:text-chalk">
       {/* ---------------- Desktop sidebar ---------------- */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/8 bg-charcoal/80 px-4 py-6 lg:flex">
-        <Link to="/" className="px-2 pb-8 text-chalk transition hover:opacity-85">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-pitch/10 bg-chalk/90 px-4 py-6 dark:border-white/8 dark:bg-charcoal/80 lg:flex">
+        <Link to="/" className="px-2 pb-8 text-ink transition hover:opacity-85 dark:text-chalk">
           <CricLabMark />
         </Link>
         {nav}
         <div className="mt-auto flex flex-col gap-3 pt-6">
           <Link
             to="/record"
-            className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-lime/40"
+            className="rounded-xl border border-pitch/10 bg-white p-3.5 transition hover:border-lime/40 dark:border-white/10 dark:bg-white/[0.03]"
           >
             <div className="text-xs font-bold uppercase tracking-[0.14em] text-lime">
               Filming guide
             </div>
-            <p className="pt-1.5 text-[11px] leading-relaxed text-chalk/50">
+            <p className="pt-1.5 text-[11px] leading-relaxed text-ink/50 dark:text-chalk/50">
               A better clip gives a better read. Two minutes well spent.
             </p>
           </Link>
           <Link
             to="/"
-            className="px-2 text-[11px] font-semibold text-chalk/40 transition hover:text-chalk/70"
+            className="px-2 text-[11px] font-semibold text-ink/40 transition hover:text-ink/70 dark:text-chalk/40 dark:hover:text-chalk/70"
           >
             ← Back to criclab.com
           </Link>
@@ -160,11 +161,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* ---------------- Mobile header ---------------- */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-white/8 bg-night/85 px-4 py-3 backdrop-blur-xl lg:hidden">
-          <Link to="/" className="text-chalk">
+        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-pitch/10 bg-chalk/90 px-4 py-3 backdrop-blur-xl dark:border-white/8 dark:bg-night/85 lg:hidden">
+          <Link to="/" className="text-ink dark:text-chalk">
             <CricLabMark />
           </Link>
           <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationBell />
           <AccountMenu />
           <button
@@ -172,7 +174,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/5"
+            className="grid h-10 w-10 place-items-center rounded-xl border border-pitch/15 bg-white dark:border-white/15 dark:bg-white/5"
           >
             <span className="relative block h-4 w-5">
               <span
@@ -196,18 +198,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </header>
 
         {open ? (
-          <div className="border-b border-white/8 bg-charcoal px-4 py-4 lg:hidden">
+          <div className="border-b border-pitch/10 bg-mist px-4 py-4 dark:border-white/8 dark:bg-charcoal lg:hidden">
             {nav}
             <Link
               to="/"
-              className="mt-4 block px-2 text-[11px] font-semibold text-chalk/40"
+              className="mt-4 block px-2 text-[11px] font-semibold text-ink/40 dark:text-chalk/40"
             >
               ← Back to criclab.com
             </Link>
           </div>
         ) : null}
 
-        <div className="sticky top-0 z-30 hidden items-center justify-end gap-2.5 border-b border-white/8 bg-night/80 px-9 py-3 backdrop-blur-xl lg:flex">
+        <div className="sticky top-0 z-30 hidden items-center justify-end gap-2.5 border-b border-pitch/10 bg-chalk/90 px-9 py-3 backdrop-blur-xl dark:border-white/8 dark:bg-night/80 lg:flex">
+          <ThemeToggle />
           <NotificationBell />
           <AccountMenu />
         </div>
@@ -216,8 +219,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
 
-        <footer className="border-t border-white/8 bg-charcoal/60 px-5 py-4">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 text-[11px] text-chalk/40">
+        <footer className="border-t border-pitch/10 bg-chalk/80 px-5 py-4 dark:border-white/8 dark:bg-charcoal/60">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 text-[11px] text-ink/40 dark:text-chalk/40">
             <span>CricLab — the cricket performance lab</span>
             <span>
               Measured estimates from your footage. A coaching tool, not officiating
