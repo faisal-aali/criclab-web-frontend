@@ -1,4 +1,15 @@
+import type { ReactNode } from 'react'
 import type { Metrics } from '../api/client'
+import { Card, Chip } from './site/ui'
+
+/**
+ * The "what we could actually see" panel.
+ *
+ * Every card here is a caveat as much as a reading, so the dark treatment keeps
+ * a real verdict visually distinct from a missing one: measured values sit in
+ * full chalk, absent ones stay dimmed behind an em dash, and every note the
+ * analysis attached is still printed underneath.
+ */
 
 const LEGALITY_LABEL: Record<string, string> = {
   within_limit: 'Within the 15° limit',
@@ -7,17 +18,23 @@ const LEGALITY_LABEL: Record<string, string> = {
   flexing: 'Elbow flexes into release — no extension',
 }
 
-function legalityTone(verdict?: string | null) {
-  if (verdict === 'within_limit') return 'border-emerald-200 bg-emerald-50 text-emerald-900'
+function legalityTone(verdict?: string | null): { accent: string; ring: string } {
+  if (verdict === 'within_limit') return { accent: 'text-ok', ring: 'ring-ok/25' }
   if (verdict === 'borderline' || verdict === 'above_limit_screening')
-    return 'border-amber-200 bg-amber-50 text-amber-950'
-  if (verdict === 'flexing') return 'border-pitch/15 bg-mist text-pitch/80'
-  return 'border-pitch/10 bg-white text-pitch/80'
+    return { accent: 'text-warn', ring: 'ring-warn/25' }
+  if (verdict === 'flexing') return { accent: 'text-chalk', ring: 'ring-white/10' }
+  return { accent: 'text-chalk/60', ring: 'ring-transparent' }
 }
 
 function formatFps(n?: number | null) {
   if (n == null || Number.isNaN(n)) return '—'
   return Number.isInteger(n) ? String(n) : n.toFixed(0)
+}
+
+function PanelLabel({ children }: { children: ReactNode }) {
+  return (
+    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-chalk/45">{children}</p>
+  )
 }
 
 export function DeliveryHonesty({ metrics }: { metrics: Metrics }) {
@@ -30,33 +47,50 @@ export function DeliveryHonesty({ metrics }: { metrics: Metrics }) {
   const legalOk = legality?.status === 'ok' && Boolean(legality?.verdict)
   const fps = tb?.fps ?? q?.capture_fps
   const slowMo = Boolean(tb?.slow_motion || q?.slow_motion)
+  const tone = legalityTone(legalOk ? legality?.verdict : null)
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      <article className="rounded-2xl border border-pitch/10 bg-white p-4 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-pitch/45">Capture & view</p>
-        <p className="mt-2 font-display text-xl font-extrabold text-pitch">
-          {formatFps(fps)} <span className="text-sm font-semibold text-pitch/50">fps</span>
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card interactive={false} className="p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <PanelLabel>Capture &amp; view</PanelLabel>
+          {slowMo ? <Chip tone="warn">Slow motion</Chip> : null}
+        </div>
+        <p className="mt-2.5 font-display text-2xl font-extrabold text-chalk">
+          {formatFps(fps)} <span className="text-sm font-bold text-seam">fps</span>
         </p>
-        <p className="mt-1 text-xs text-pitch/60">
+        <p className="mt-1.5 text-xs leading-relaxed text-chalk/60">
           {slowMo
             ? 'Measured from the ball’s fall — the file understated the capture rate.'
             : 'Frame rate taken from the video file.'}
         </p>
-        {slowMo && tb?.note ? <p className="mt-2 text-[11px] leading-snug text-pitch/55">{tb.note}</p> : null}
+        {slowMo && tb?.note ? (
+          <p className="mt-2 text-[11px] leading-snug text-chalk/45">{tb.note}</p>
+        ) : null}
         {q?.camera_view ? (
-          <p className="mt-2 text-[11px] capitalize text-pitch/55">
-            Camera: {q.camera_view.replace('_', '-')}
-            {q.speed_view_from_ball ? ' · speeds unlocked by tracked ball flight' : ''}
+          <p className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-chalk/55">
+            <span className="font-bold uppercase tracking-[0.14em] text-chalk/35">Camera</span>
+            <span className="capitalize text-chalk/70">{q.camera_view.replace('_', '-')}</span>
+            {q.speed_view_from_ball ? (
+              <span className="text-lime">· speeds unlocked by tracked ball flight</span>
+            ) : null}
           </p>
         ) : null}
-        {q?.camera_view_note ? <p className="mt-1 text-[11px] leading-snug text-pitch/50">{q.camera_view_note}</p> : null}
-      </article>
+        {q?.camera_view_note ? (
+          <p className="mt-1.5 text-[11px] leading-snug text-chalk/45">{q.camera_view_note}</p>
+        ) : null}
+      </Card>
 
-      <article className="rounded-2xl border border-pitch/10 bg-white p-4 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-pitch/45">Pace band</p>
-        <p className="mt-2 font-display text-xl font-extrabold text-pitch">{paceOk ? pace!.value : '—'}</p>
-        <p className="mt-1 text-xs text-pitch/60">
+      <Card interactive={false} className="p-5">
+        <PanelLabel>Pace band</PanelLabel>
+        <p
+          className={`mt-2.5 font-display text-2xl font-extrabold ${
+            paceOk ? 'text-chalk' : 'text-chalk/25'
+          }`}
+        >
+          {paceOk ? pace!.value : '—'}
+        </p>
+        <p className="mt-1.5 text-xs leading-relaxed text-chalk/60">
           {paceOk
             ? `From ${String(pace?.basis || 'speed').replace(/_/g, ' ')}${
                 pace?.speed_kmh != null ? ` · ${Math.round(pace.speed_kmh)} km/h` : ''
@@ -64,41 +98,53 @@ export function DeliveryHonesty({ metrics }: { metrics: Metrics }) {
             : pace?.note || 'No measured ball or arm speed — a stated bowling style is not a band.'}
         </p>
         {paceOk && pace?.band_edge_caveat && pace?.note ? (
-          <p className="mt-2 text-[11px] leading-snug text-amber-800">{pace.note}</p>
+          <p className="mt-2 text-[11px] leading-snug text-warn">{pace.note}</p>
         ) : null}
-      </article>
+      </Card>
 
-      <article className={`rounded-2xl border p-4 shadow-sm ${legalityTone(legalOk ? legality?.verdict : null)}`}>
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] opacity-60">Throwing screen · ICC 15°</p>
-        <p className="mt-2 font-display text-lg font-extrabold">
+      <Card interactive={false} className={`p-5 ring-1 ${tone.ring}`}>
+        <PanelLabel>Throwing screen · ICC 15°</PanelLabel>
+        <p className={`mt-2.5 font-display text-lg font-extrabold leading-snug ${tone.accent}`}>
           {legalOk ? LEGALITY_LABEL[legality!.verdict!] || legality!.verdict : 'Not assessable from this camera'}
         </p>
         {legalOk && legality?.extension_deg != null ? (
-          <p className="mt-1 text-xs opacity-80">
+          <p className="mt-1.5 text-xs text-chalk/60">
             Elbow extension {legality.extension_deg.toFixed(0)}° (limit {legality.limit_deg ?? 15}°)
           </p>
         ) : null}
         {legality?.elbow_at_release_deg != null ? (
-          <p className="mt-1 text-xs opacity-80">Elbow at release {legality.elbow_at_release_deg.toFixed(0)}°</p>
+          <p className="mt-1 text-xs text-chalk/60">
+            Elbow at release {legality.elbow_at_release_deg.toFixed(0)}°
+          </p>
         ) : null}
-        {legality?.note ? <p className="mt-2 text-[11px] leading-snug opacity-75">{legality.note}</p> : null}
-      </article>
+        {legality?.note ? (
+          <p className="mt-2 text-[11px] leading-snug text-chalk/45">{legality.note}</p>
+        ) : null}
+      </Card>
 
       {cons?.ok === false && cons.note ? (
-        <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-800/70">Speed consistency</p>
-          <p className="mt-2 text-sm leading-relaxed">{cons.note}</p>
-        </article>
+        <Card interactive={false} className="p-5 ring-1 ring-warn/25">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <PanelLabel>Speed consistency</PanelLabel>
+            <Chip tone="warn">Check the clip</Chip>
+          </div>
+          <p className="mt-2.5 text-sm leading-relaxed text-chalk/75">{cons.note}</p>
+        </Card>
       ) : cons?.ok === true && cons.note ? (
-        <article className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-800/70">Speed consistency</p>
-          <p className="mt-2 text-sm leading-relaxed">{cons.note}</p>
-        </article>
+        <Card interactive={false} className="p-5 ring-1 ring-ok/25">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <PanelLabel>Speed consistency</PanelLabel>
+            <Chip tone="ok">Consistent</Chip>
+          </div>
+          <p className="mt-2.5 text-sm leading-relaxed text-chalk/75">{cons.note}</p>
+        </Card>
       ) : (
-        <article className="rounded-2xl border border-pitch/10 bg-white p-4 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-pitch/45">Speed consistency</p>
-          <p className="mt-2 text-sm text-pitch/60">Needs both a tracked ball and a measured arm speed.</p>
-        </article>
+        <Card interactive={false} className="p-5">
+          <PanelLabel>Speed consistency</PanelLabel>
+          <p className="mt-2.5 text-sm leading-relaxed text-chalk/55">
+            Needs both a tracked ball and a measured arm speed.
+          </p>
+        </Card>
       )}
     </div>
   )

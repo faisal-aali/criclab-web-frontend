@@ -1,15 +1,49 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   CricLab design system
+   Palette: floodlit night cricket. Deep pitch greens against near-black
+   charcoal, with an electric lime that reads as "live data" rather than
+   decoration. Warm seam-leather accent keeps the cricket identity when the
+   greens would otherwise feel like generic tech.
+   ========================================================================= */
+
 @theme {
-  --font-display: "Sora", "Figtree", sans-serif;
-  --font-sans: "Figtree", sans-serif;
-  --color-pitch: #0b3d2e;
+  --font-display: "Sora", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Core surfaces — darkest to lightest */
+  --color-night: #05090a;
+  --color-charcoal: #0b1113;
+  --color-slate-deep: #101a1c;
   --color-pitch-deep: #06261c;
-  --color-crease: #e8f5e9;
-  --color-seam: #c45c26;
+  --color-pitch: #0b3d2e;
+  --color-pitch-soft: #12513c;
+
+  /* Light surfaces */
+  --color-chalk: #f6f9f7;
+  --color-mist: #e9f1ec;
+  --color-crease: #dbe9e0;
+
+  /* Accents */
+  --color-lime: #b6f24a;
+  --color-lime-deep: #8fd12b;
+  --color-seam: #d9743c;
   --color-ball: #b91c1c;
-  --color-ink: #14201b;
-  --color-mist: #edf3ef;
+  --color-ink: #0d1512;
+
+  /* Semantic */
+  --color-ok: #4ade80;
+  --color-warn: #fbbf24;
+  --color-bad: #f87171;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -22,21 +56,144 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(196, 92, 38, 0.18), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, rgba(11, 61, 46, 0.22), transparent 50%),
-    linear-gradient(180deg, #f7faf8 0%, #e8f0ea 45%, #dfeae3 100%);
-  background-attachment: fixed;
+  background: var(--color-chalk);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
+
+/* --------------------------------------------------------------------------
+   Surfaces
+   ----------------------------------------------------------------------- */
+
+/* Floodlit night: two stadium light pools plus a low pitch glow. Used behind
+   every dark section so they read as one continuous stadium, not separate
+   blocks that happen to be dark. */
+.bg-stadium {
+  background-color: var(--color-night);
+  background-image:
+    radial-gradient(60rem 32rem at 12% -10%, rgba(182, 242, 74, 0.13), transparent 60%),
+    radial-gradient(52rem 30rem at 88% 0%, rgba(18, 81, 60, 0.55), transparent 62%),
+    radial-gradient(80rem 40rem at 50% 118%, rgba(11, 61, 46, 0.65), transparent 70%);
+}
+
+.bg-pitch-gradient {
+  background-image: linear-gradient(160deg, var(--color-pitch-deep) 0%, var(--color-pitch) 55%, #0a3326 100%);
+}
+
+.bg-chalk-gradient {
+  background-image:
+    radial-gradient(48rem 24rem at 90% -10%, rgba(182, 242, 74, 0.16), transparent 60%),
+    radial-gradient(40rem 22rem at 0% 0%, rgba(11, 61, 46, 0.08), transparent 55%),
+    linear-gradient(180deg, var(--color-chalk) 0%, var(--color-mist) 100%);
+}
+
+/* Faint bowling-crease rule lines. Sits under content at low opacity so it
+   suggests a pitch without competing with text. */
+.bg-crease-lines {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 96px
+  );
+}
+
+.bg-grid-tech {
+  background-image:
+    linear-gradient(rgba(182, 242, 74, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(182, 242, 74, 0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* --------------------------------------------------------------------------
+   Glass + cards
+   ----------------------------------------------------------------------- */
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(11, 61, 46, 0.1);
+}
+
+/* Hairline top highlight — the detail that stops a dark card looking flat. */
+.card-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.card-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(182, 242, 74, 0.55),
+    transparent
+  );
+  opacity: 0.7;
+}
+
+.lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+.lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 50px -22px rgba(0, 0, 0, 0.55);
+}
+
+.text-gradient-lime {
+  background-image: linear-gradient(100deg, var(--color-lime) 0%, #e8ffb0 45%, var(--color-lime-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-pitch {
+  background-image: linear-gradient(100deg, var(--color-pitch) 0%, #1d7a55 60%, var(--color-lime-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Motion
+   ----------------------------------------------------------------------- */
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -54,10 +211,153 @@ body {
   }
 }
 
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes seam-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .animate-rise {
   animation: rise 0.55s ease-out both;
 }
-
 .animate-pulse-bar {
   animation: pulse-bar 1.4s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+.animate-seam-spin {
+  animation: seam-spin 18s linear infinite;
+}
+
+/* Light sweep across a CTA on hover — one frame of "live" feedback. */
+.sweep-on-hover {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.sweep-on-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+}
+.sweep-on-hover:hover::after {
+  animation: sweep 0.85s ease-out;
+}
+
+/* Scroll reveal — the Reveal component toggles .is-visible via
+   IntersectionObserver, so nothing depends on an animation library. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.trace-path {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+}
+.reveal.is-visible .trace-path {
+  animation: trace 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* --------------------------------------------------------------------------
+   Forms + focus
+   ----------------------------------------------------------------------- */
+
+.field {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(11, 61, 46, 0.16);
+  background: #fff;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-pitch);
+  box-shadow: 0 0 0 4px rgba(143, 209, 43, 0.22);
+}
+
+.field-dark {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-chalk);
+}
+.field-dark::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.field-dark:focus {
+  border-color: var(--color-lime);
+  box-shadow: 0 0 0 4px rgba(182, 242, 74, 0.18);
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-lime-deep);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(182, 242, 74, 0.35);
+}
+
+/* Scrollbar — dark app shell reads better without the default light gutter. */
+.scroll-slim::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
 }

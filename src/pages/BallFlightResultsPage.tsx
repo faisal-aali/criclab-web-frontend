@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { assetUrl, getBalltrackSession, metricReady, type BalltrackSession } from '../api/client'
 import { DrillShelf } from '../components/DrillShelf'
 import { MetricCard } from '../components/MetricCard'
+import { Button, Card, Chip, Reveal } from '../components/site/ui'
+import { TrajectoryArc } from '../components/site/visuals'
 
 export function BallFlightResultsPage() {
   const { sessionId } = useParams()
@@ -16,12 +18,43 @@ export function BallFlightResultsPage() {
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load session'))
   }, [sessionId])
 
-  if (error) return <p className="text-ball">{error}</p>
+  if (error) {
+    return (
+      <div className="mx-auto w-full max-w-xl">
+        <div
+          role="alert"
+          className="rounded-[var(--radius-card)] border border-bad/30 bg-bad/10 p-6 text-center"
+        >
+          <Chip tone="bad">Session unavailable</Chip>
+          <p className="mt-3 text-sm leading-relaxed break-words text-bad">{error}</p>
+          <div className="mt-5 flex justify-center">
+            <Button to="/app/ball-flight" variant="secondary" size="sm">
+              Start a new session
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!data) {
     return (
-      <div className="flex items-center gap-3 text-pitch/60">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-pitch/30 border-t-pitch" />
-        Loading ball-flight session…
+      <div className="space-y-5">
+        <div className="flex items-center gap-3 text-sm text-chalk/60">
+          <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-lime/30 border-t-lime" />
+          Opening your ball-flight session…
+        </div>
+        <div className="grid gap-5 lg:grid-cols-[1.55fr_0.85fr]">
+          <div className="aspect-video animate-pulse rounded-[var(--radius-card)] border border-white/10 bg-white/[0.04]" />
+          <div className="flex flex-col gap-3">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-24 animate-pulse rounded-[var(--radius-card)] border border-white/10 bg-white/[0.04]"
+              />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -33,90 +66,137 @@ export function BallFlightResultsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-seam">Ball flight</p>
-          <h1 className="font-display mt-1 text-4xl font-extrabold text-pitch">{data.title || 'Session'}</h1>
-          <p className="mt-1 text-sm text-pitch/60">
-            Pitch-plane from stump homography. Cards only show a number when validation passed (about 45–155 km/h,
-            bounce on the square).
+      {/* ---------------- Header ---------------- */}
+      <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <Chip tone="lime">Ball flight</Chip>
+          <h1 className="font-display mt-3 text-3xl font-extrabold leading-tight break-words text-chalk sm:text-4xl">
+            {data.title || 'Session'}
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-chalk/60">
+            Measured off the pitch between both sets of stumps. A card only shows a number when the
+            delivery passed our checks (roughly 45–155 km/h, bouncing on the square).
           </p>
         </div>
-        <Link
-          to="/ball-flight"
-          className="rounded-xl border border-pitch/20 bg-white px-4 py-2 text-sm font-semibold text-pitch transition hover:bg-pitch hover:text-white"
-        >
+        <Button to="/app/ball-flight" variant="secondary" size="sm" className="self-start sm:self-auto">
           New session
-        </Link>
+        </Button>
+      </Reveal>
+
+      <div className="flex items-start gap-3 rounded-2xl border border-warn/25 bg-warn/10 px-4 py-3.5 text-sm leading-relaxed text-warn">
+        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-warn/20 text-[11px] font-bold">
+          i
+        </span>
+        <span className="min-w-0">
+          This is not the arm speed from an Action report, and it is not a radar gun. Filmed from
+          the wrong position, it still shows — rather than a number.
+        </span>
       </div>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-        This is not Action arm speed and not a radar gun. Wrong camera still yields —.
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.55fr_0.85fr]">
-        <div className="space-y-4">
+      <div className="grid gap-5 lg:grid-cols-[1.55fr_0.85fr]">
+        {/* ---------------- Footage ---------------- */}
+        <div className="flex min-w-0 flex-col gap-4">
           {overlay ? (
-            <div className="overflow-hidden rounded-3xl border border-pitch/10 bg-black shadow-2xl">
-              <div className="border-b border-white/10 bg-pitch-deep px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white/70">
-                Overlay · speed / line / length HUD
+            <Card interactive={false} className="overflow-hidden p-0">
+              <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/50">
+                  Tracked delivery · speed, line and length on screen
+                </span>
               </div>
-              <video className="aspect-video w-full object-contain" src={overlay} controls playsInline />
-            </div>
+              <video className="aspect-video w-full bg-night object-contain" src={overlay} controls playsInline />
+            </Card>
           ) : (
-            <div className="flex aspect-video items-center justify-center rounded-3xl bg-black text-white/60">
-              No overlay
-            </div>
+            <Card interactive={false} className="p-6">
+              <div className="flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/12 bg-night/40 p-6 text-center">
+                <div className="h-24 w-full max-w-xs opacity-60">
+                  <TrajectoryArc />
+                </div>
+                <p className="text-sm font-semibold text-chalk">No marked-up clip for this session</p>
+                <p className="max-w-sm text-xs leading-relaxed text-chalk/50">
+                  The numbers below are still whatever we could measure from your footage.
+                </p>
+              </div>
+            </Card>
           )}
+
           {pitchMap ? (
-            <div className="overflow-hidden rounded-2xl border border-pitch/10 bg-white p-3 shadow-sm">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-pitch/55">Pitch map</p>
-              <img src={pitchMap} alt="Pitch map of bounce points" className="w-full rounded-xl" />
-            </div>
+            <Card interactive={false} className="p-4">
+              <p className="pb-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/50">
+                Pitch map · where each ball landed
+              </p>
+              <img
+                src={pitchMap}
+                alt="Pitch map of bounce points"
+                className="w-full rounded-xl border border-white/10 bg-night"
+              />
+            </Card>
           ) : null}
         </div>
 
-        <aside className="space-y-3">
-          <h2 className="font-display text-base font-bold text-pitch">Headline delivery</h2>
+        {/* ---------------- Headline delivery ---------------- */}
+        <aside className="flex min-w-0 flex-col gap-3">
+          <h2 className="font-display text-base font-bold text-chalk">Headline delivery</h2>
           <div className="grid gap-3">
             <MetricCard label="Ball speed" metric={first?.speed_kmh} />
             <MetricCard label="Line" metric={first?.line_m} />
             <MetricCard label="Length" metric={first?.length_m} />
           </div>
           {!metricReady(first?.speed_kmh) ? (
-            <p className="text-xs text-pitch/55">
-              Speed stays hidden unless the track looks like a cricket ball toward the batter.
+            <p className="rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-chalk/55">
+              Speed stays hidden unless the ball’s path clearly reads as a delivery travelling
+              toward the batter.
             </p>
           ) : null}
         </aside>
       </div>
 
+      {/* ---------------- All deliveries ---------------- */}
       {deliveries.length > 1 ? (
-        <div>
-          <h2 className="font-display mb-3 text-lg font-bold text-pitch">All tracked deliveries</h2>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {deliveries.map((d) => (
-              <div key={d.id} className="rounded-2xl border border-pitch/10 bg-white p-4 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-pitch/45">Ball {d.index}</p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <MetricCard label="Speed" metric={d.metrics?.speed_kmh} />
-                  <MetricCard label="Line" metric={d.metrics?.line_m} />
-                  <MetricCard label="Length" metric={d.metrics?.length_m} />
-                </div>
-              </div>
+        <section className="space-y-3">
+          <div className="flex items-center gap-3">
+            <h2 className="font-display text-lg font-bold text-chalk">All tracked deliveries</h2>
+            <Chip>{deliveries.length} balls</Chip>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {deliveries.map((d, i) => (
+              <Reveal key={d.id} delay={i * 50}>
+                <Card interactive={false} className="h-full p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">
+                    Ball {d.index}
+                  </p>
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <MetricCard label="Speed" metric={d.metrics?.speed_kmh} />
+                    <MetricCard label="Line" metric={d.metrics?.line_m} />
+                    <MetricCard label="Length" metric={d.metrics?.length_m} />
+                  </div>
+                </Card>
+              </Reveal>
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
 
+      {/* ---------------- Written read ---------------- */}
       {data.analysis?.summary ? (
-        <article className="rounded-2xl border border-pitch/10 bg-white p-5 shadow-sm">
-          <h2 className="font-display text-base font-bold text-pitch">AI coach</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-pitch/80">{data.analysis.summary}</p>
-          {data.analysis.improvements ? (
-            <p className="mt-3 whitespace-pre-wrap text-sm text-pitch/75">{data.analysis.improvements}</p>
-          ) : null}
-        </article>
+        <Reveal>
+          <Card interactive={false} className="p-5 sm:p-6">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-lime/15 text-sm font-bold text-lime">
+                ”
+              </span>
+              <h2 className="font-display text-base font-bold text-chalk">Coach’s read</h2>
+            </div>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-chalk/75">
+              {data.analysis.summary}
+            </p>
+            {data.analysis.improvements ? (
+              <p className="mt-3 whitespace-pre-wrap border-t border-white/10 pt-3 text-sm leading-relaxed text-chalk/65">
+                {data.analysis.improvements}
+              </p>
+            ) : null}
+          </Card>
+        </Reveal>
       ) : null}
 
       <DrillShelf drills={data.analysis?.recommendations} heading="Drills for this session" />

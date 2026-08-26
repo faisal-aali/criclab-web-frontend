@@ -1,4 +1,5 @@
 import type { DrillCatalogItem, DrillRecommendation } from '../api/client'
+import { Card, Chip } from './site/ui'
 
 type Item = DrillRecommendation | (DrillCatalogItem & { reason?: string })
 
@@ -25,21 +26,25 @@ export function DrillShelf({
 }) {
   const items = drills || []
   if (!items.length) {
-    return empty ? <p className="text-sm text-pitch/55">{empty}</p> : null
+    return empty ? <p className="text-sm leading-relaxed text-chalk/55">{empty}</p> : null
   }
 
   return (
-    <section className="animate-rise space-y-3">
-      <h2 className="font-display text-lg font-bold text-pitch">{heading}</h2>
-      <p className="text-xs text-pitch/55">
-        Catalog videos only. Gemma picks IDs from this list — it does not invent YouTube links or km/h.
-      </p>
+    <section className="animate-rise space-y-4">
+      <div className="flex flex-col gap-1.5">
+        <h2 className="font-display text-lg font-bold capitalize text-chalk">{heading}</h2>
+        <p className="max-w-2xl text-xs leading-relaxed text-chalk/50">
+          Every video here comes from the CricLab drill library and is matched to what your footage
+          showed — none of it is invented.
+        </p>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         {items.map((d) => {
           const yt = youtubeId(d)
           return (
-            <article key={idOf(d)} className="overflow-hidden rounded-2xl border border-pitch/10 bg-white shadow-sm">
-              <div className="aspect-video bg-black">
+            <Card key={idOf(d)} interactive={false} className="flex flex-col overflow-hidden">
+              <div className="aspect-video w-full bg-night">
                 {yt ? (
                   <iframe
                     className="h-full w-full"
@@ -51,25 +56,22 @@ export function DrillShelf({
                   />
                 ) : null}
               </div>
-              <div className="space-y-2 p-4">
-                <h3 className="font-display text-sm font-bold text-pitch">{titleOf(d)}</h3>
+              <div className="flex flex-col gap-2.5 p-4">
+                <h3 className="font-display text-sm font-bold text-chalk">{titleOf(d)}</h3>
                 {'reason' in d && d.reason ? (
-                  <p className="text-sm leading-relaxed text-pitch/75">{d.reason}</p>
+                  <p className="text-sm leading-relaxed text-chalk/65">{d.reason}</p>
                 ) : null}
                 {d.tags?.length ? (
-                  <p className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {d.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full bg-mist px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-pitch/60"
-                      >
-                        {t.replace(/_/g, ' ')}
-                      </span>
+                      <Chip key={t}>
+                        <span className="capitalize">{t.replace(/_/g, ' ')}</span>
+                      </Chip>
                     ))}
-                  </p>
+                  </div>
                 ) : null}
               </div>
-            </article>
+            </Card>
           )
         })}
       </div>

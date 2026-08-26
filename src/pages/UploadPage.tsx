@@ -1,8 +1,27 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { uploadVideo } from '../api/client'
+import { Button, Card, Chip, Eyebrow } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
+
+/** Shared field label treatment — small caps, low-contrast, dark surface. */
+const LABEL = 'block text-[10px] font-bold uppercase tracking-[0.14em] text-chalk/50'
+
+const WHY_FIELDS = [
+  {
+    k: 'Height',
+    v: 'Converts pixels into km/h and metres. Wrong height means wrong speed.',
+  },
+  { k: 'Bowling arm', v: 'We track that wrist, not the front arm.' },
+  { k: 'Age, weight, style', v: 'Used in the coaching report only.' },
+]
+
+const FILMING = [
+  'Side-on camera, tripod or stable phone',
+  'Full body in frame from run-up through follow-through',
+  'Ball visible in the air after it leaves the hand (needed for a ball-speed estimate)',
+]
 
 type SavedProfile = {
   firstName: string
@@ -115,7 +134,7 @@ export function UploadPage() {
         bowlingStyle: profile.bowlingStyle as 'pace' | 'spin' | 'medium',
         metersPerPixel: metersPerPixel ? Number(metersPerPixel) : undefined,
       })
-      navigate(`/processing/${res.job_id}`)
+      navigate(`/app/processing/${res.job_id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -124,215 +143,344 @@ export function UploadPage() {
   }
 
   return (
-    <section className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-      <div className="animate-rise">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-seam">Action · mechanics lab</p>
-        <h1 className="font-display mt-3 text-5xl font-bold leading-[1.12] tracking-normal sm:text-6xl">
-          <span className="text-pitch">Analyze the</span>{' '}
-          <span className="bg-gradient-to-r from-seam to-ball bg-clip-text pr-1 text-transparent">action</span>
+    <div className="flex flex-col gap-8">
+      {/* ---------------- Page header ---------------- */}
+      <header className="animate-rise flex flex-col items-start gap-4">
+        <Eyebrow>Action · mechanics lab</Eyebrow>
+        <h1 className="font-display text-[2.4rem] font-extrabold leading-[1.05] sm:text-5xl lg:text-[3.4rem]">
+          <span className="text-chalk">Analyze the</span>{' '}
+          <span className="text-gradient-lime">action</span>
         </h1>
-        <p className="mt-5 max-w-xl text-lg leading-relaxed text-pitch/75">
-          Body mechanics from a <span className="font-semibold text-pitch">side-on</span> clip. Ball km/h here is 2D +
-          your height — not a speed gun. For broadcast-style speed, line and length, use{' '}
-          <Link className="font-semibold text-seam underline" to="/ball-flight">
+        <p className="max-w-2xl text-base leading-relaxed text-chalk/65">
+          Body mechanics from a <span className="font-semibold text-chalk">side-on</span> clip. Ball
+          km/h here is estimated from one camera view plus your height — not a speed gun. For
+          broadcast-style speed, line and length, use{' '}
+          <Link
+            className="font-semibold text-lime underline decoration-lime/40 underline-offset-4 transition hover:text-chalk"
+            to="/app/ball-flight"
+          >
             Ball flight
           </Link>
           .
         </p>
-        <ul className="mt-6 space-y-2 text-sm text-pitch/70">
-          <li>
-            <span className="font-semibold text-pitch">Height</span> — converts pixels into km/h and metres. Wrong
-            height means wrong speed.
-          </li>
-          <li>
-            <span className="font-semibold text-pitch">Bowling arm</span> — we track that wrist, not the front arm
-          </li>
-          <li>
-            <span className="font-semibold text-pitch">Age, weight, style</span> — used in the coaching report only
-          </li>
-        </ul>
-        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-          <p className="font-semibold">Two cameras, two truths</p>
-          <p className="mt-1 text-amber-900/80">
-            Action measures how the ball is thrown (sequence, brace, stride, elbow, release). Stump-calibrated ICC
-            speed lives on Ball flight — we will not paste that number onto a front-on pose job.
-          </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip tone="lime">Side-on camera</Chip>
+          <Chip>One delivery</Chip>
+          <Chip>Full body in frame</Chip>
         </div>
-        <div className="mt-4 rounded-2xl border border-pitch/10 bg-white/70 p-4 text-sm text-pitch/75">
-          <p className="font-semibold text-pitch">Film it this way</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Side-on camera, tripod or stable phone</li>
-            <li>Full body in frame from run-up through follow-through</li>
-            <li>Ball visible in the air after it leaves the hand (needed for a 2D ball-speed estimate)</li>
-          </ul>
-        </div>
-        <div className="relative mt-8 h-56 overflow-hidden rounded-3xl border border-pitch/10 shadow-lg sm:h-72">
-          <img
-            src="/hero-bowling.jpg"
-            alt="Cricket pitch ready for bowling analysis"
-            className="h-full w-full object-cover"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-pitch-deep/65 via-pitch-deep/25 to-transparent" />
-          <p className="absolute bottom-4 left-4 font-display text-lg font-bold text-white drop-shadow">
-            Side-on · Stable camera · Full body in frame
-          </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+        {/* ---------------- Capture form ---------------- */}
+        <form
+          onSubmit={onSubmit}
+          className="glass card-sheen animate-rise rounded-[var(--radius-card)] border-white/10 p-5 sm:p-6 lg:order-2"
+          style={{ animationDelay: '80ms' }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="font-display text-xl font-bold text-chalk sm:text-2xl">
+                Bowler profile
+              </h2>
+              <p className="mt-1 text-sm leading-relaxed text-chalk/55">
+                Required before we can measure this video correctly.
+              </p>
+            </div>
+            {ready ? <Chip tone="ok">Ready</Chip> : <Chip>Incomplete</Chip>}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={LABEL} htmlFor="first-name">
+                First name
+              </label>
+              <input
+                id="first-name"
+                required
+                className="field field-dark mt-1.5"
+                value={profile.firstName}
+                onChange={(e) => setField('firstName', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className={LABEL} htmlFor="last-name">
+                Last name
+              </label>
+              <input
+                id="last-name"
+                required
+                className="field field-dark mt-1.5"
+                value={profile.lastName}
+                onChange={(e) => setField('lastName', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className={LABEL} htmlFor="dob">
+              Date of birth
+            </label>
+            <input
+              id="dob"
+              required
+              type="date"
+              className="field field-dark mt-1.5 [color-scheme:dark]"
+              value={profile.dob}
+              onChange={(e) => setField('dob', e.target.value)}
+            />
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="min-w-0">
+              <label className={LABEL} htmlFor="height-ft">
+                Height ft
+              </label>
+              <input
+                id="height-ft"
+                required
+                inputMode="numeric"
+                className="field field-dark mt-1.5"
+                value={profile.heightFt}
+                onChange={(e) => setField('heightFt', e.target.value)}
+                placeholder="5"
+              />
+            </div>
+            <div className="min-w-0">
+              <label className={LABEL} htmlFor="height-in">
+                Height in
+              </label>
+              <input
+                id="height-in"
+                inputMode="numeric"
+                className="field field-dark mt-1.5"
+                value={profile.heightIn}
+                onChange={(e) => setField('heightIn', e.target.value)}
+                placeholder="10"
+              />
+            </div>
+            <div className="min-w-0">
+              <label className={LABEL} htmlFor="weight-lbs">
+                Weight lbs
+              </label>
+              <input
+                id="weight-lbs"
+                required
+                inputMode="decimal"
+                className="field field-dark mt-1.5"
+                value={profile.weightLbs}
+                onChange={(e) => setField('weightLbs', e.target.value)}
+                placeholder="165"
+              />
+            </div>
+          </div>
+          {heightM ? (
+            <p className="mt-2 text-[11px] leading-snug text-chalk/45">
+              {heightM.toFixed(2)} m — used to convert pixels into km/h and metres
+            </p>
+          ) : null}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={LABEL} htmlFor="bowling-arm">
+                Bowling arm
+              </label>
+              <select
+                id="bowling-arm"
+                required
+                className="field field-dark mt-1.5"
+                value={profile.bowlingArm}
+                onChange={(e) => setField('bowlingArm', e.target.value as SavedProfile['bowlingArm'])}
+              >
+                <option className="bg-charcoal" value="">
+                  Select
+                </option>
+                <option className="bg-charcoal" value="right">
+                  Right-arm
+                </option>
+                <option className="bg-charcoal" value="left">
+                  Left-arm
+                </option>
+              </select>
+            </div>
+            <div>
+              <label className={LABEL} htmlFor="bowling-style">
+                Bowling style
+              </label>
+              <select
+                id="bowling-style"
+                required
+                className="field field-dark mt-1.5"
+                value={profile.bowlingStyle}
+                onChange={(e) =>
+                  setField('bowlingStyle', e.target.value as SavedProfile['bowlingStyle'])
+                }
+              >
+                <option className="bg-charcoal" value="">
+                  Select
+                </option>
+                <option className="bg-charcoal" value="pace">
+                  Pace
+                </option>
+                <option className="bg-charcoal" value="medium">
+                  Medium
+                </option>
+                <option className="bg-charcoal" value="spin">
+                  Spin
+                </option>
+              </select>
+            </div>
+          </div>
+
+          {/* ---------------- Drop zone ---------------- */}
+          <div className="mt-6 border-t border-white/10 pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className={LABEL} htmlFor="bowling-video">
+                Bowling video
+              </label>
+              {file ? <Chip tone="ok">Clip selected</Chip> : null}
+            </div>
+
+            <div className="relative mt-2 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] px-4 py-8 text-center transition hover:border-lime/50 hover:bg-lime/5 focus-within:border-lime/60">
+              <input
+                id="bowling-video"
+                required
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm,video/x-msvideo,.mp4,.mov,.webm,.avi,.mkv"
+                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
+              <span className="grid h-11 w-11 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  className="h-5 w-5"
+                  aria-hidden
+                >
+                  <path
+                    d="M12 16V4m0 0L8 8m4-4 4 4M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span className="max-w-full break-words px-2 text-sm font-semibold text-chalk">
+                {file ? file.name : 'Drop your clip here, or tap to browse'}
+              </span>
+              <span className="text-[11px] text-chalk/45">
+                MP4, MOV, or WebM · one delivery, side-on
+              </span>
+            </div>
+
+            {previewUrl ? (
+              <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-night">
+                <p className="border-b border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-chalk/50">
+                  Before · your upload
+                </p>
+                <video className="aspect-video w-full object-contain" src={previewUrl} controls playsInline />
+              </div>
+            ) : null}
+          </div>
+
+          <details className="group mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-semibold text-chalk/80 transition hover:text-lime">
+              Advanced scale (optional)
+              <span
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/15 text-base leading-none text-lime transition-transform duration-300 group-open:rotate-45"
+                aria-hidden
+              >
+                +
+              </span>
+            </summary>
+            <div className="mt-3">
+              <label className={LABEL} htmlFor="meters-per-pixel">
+                Meters per pixel
+              </label>
+              <input
+                id="meters-per-pixel"
+                className="field field-dark mt-1.5"
+                value={metersPerPixel}
+                onChange={(e) => setMetersPerPixel(e.target.value)}
+                placeholder="e.g. 0.008 — overrides height if set"
+                inputMode="decimal"
+              />
+            </div>
+          </details>
+
+          {error ? (
+            <p className="mt-4 rounded-xl border border-bad/30 bg-bad/10 px-3.5 py-2.5 text-sm font-medium leading-relaxed text-bad">
+              {error}
+            </p>
+          ) : null}
+          {!ready && !error ? (
+            <p className="mt-4 text-[11px] leading-relaxed text-chalk/50">
+              Still needed: {blockers.join(', ')}.
+            </p>
+          ) : null}
+
+          <Button type="submit" size="lg" disabled={busy || !ready} className="mt-5 w-full">
+            {busy ? 'Uploading…' : ready ? 'Analyze delivery' : 'Complete player details to continue'}
+          </Button>
+        </form>
+
+        {/* ---------------- Guidance ---------------- */}
+        <div className="animate-rise flex flex-col gap-4 lg:order-1" style={{ animationDelay: '140ms' }}>
+          <Card interactive={false} className="p-5">
+            <h2 className="font-display text-base font-bold text-chalk">What each detail does</h2>
+            <ul className="mt-3 flex flex-col divide-y divide-white/10">
+              {WHY_FIELDS.map((r) => (
+                <li key={r.k} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-lime">
+                    {r.k}
+                  </span>
+                  <span className="text-sm leading-relaxed text-chalk/60">{r.v}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          <Card interactive={false} className="p-5 ring-1 ring-warn/25">
+            <p className="font-display text-base font-bold text-warn">Two cameras, two truths</p>
+            <p className="mt-2 text-sm leading-relaxed text-chalk/65">
+              Action measures how the ball is thrown (sequence, brace, stride, elbow, release).
+              Stump-calibrated ICC speed lives on Ball flight — we will not paste that number onto a
+              clip filmed for mechanics.
+            </p>
+          </Card>
+
+          <Card interactive={false} className="p-5">
+            <h2 className="font-display text-base font-bold text-chalk">Film it this way</h2>
+            <ul className="mt-3 flex flex-col gap-2.5">
+              {FILMING.map((t) => (
+                <li key={t} className="flex items-start gap-2.5 text-sm leading-relaxed text-chalk/65">
+                  <span className="mt-[0.45rem] h-1.5 w-1.5 shrink-0 rounded-full bg-lime" />
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ul>
+            <Button to="/record" variant="secondary" size="sm" className="mt-4">
+              Read the filming guide
+              <span aria-hidden>→</span>
+            </Button>
+          </Card>
+
+          <div className="relative h-48 overflow-hidden rounded-[var(--radius-card)] border border-white/10 sm:h-60">
+            <img
+              src="/hero-bowling.jpg"
+              alt="Cricket pitch ready for bowling analysis"
+              className="h-full w-full object-cover opacity-80"
+            />
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night via-night/45 to-transparent"
+              aria-hidden
+            />
+            <p className="absolute inset-x-4 bottom-4 font-display text-sm font-bold text-chalk sm:text-base">
+              Side-on · Stable camera · Full body in frame
+            </p>
+          </div>
         </div>
       </div>
-
-      <form
-        onSubmit={onSubmit}
-        className="animate-rise rounded-3xl border border-pitch/10 bg-white/80 p-6 shadow-xl backdrop-blur"
-        style={{ animationDelay: '80ms' }}
-      >
-        <h2 className="font-display text-2xl font-bold text-pitch">Bowler profile</h2>
-        <p className="mt-1 text-sm text-pitch/60">Required before we can measure this video correctly.</p>
-
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-pitch">First name</label>
-            <input
-              required
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.firstName}
-              onChange={(e) => setField('firstName', e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-pitch">Last name</label>
-            <input
-              required
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.lastName}
-              onChange={(e) => setField('lastName', e.target.value)}
-            />
-          </div>
-        </div>
-
-        <label className="mt-4 block text-sm font-medium text-pitch">Date of birth</label>
-        <input
-          required
-          type="date"
-          className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-          value={profile.dob}
-          onChange={(e) => setField('dob', e.target.value)}
-        />
-
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-pitch">Height (ft)</label>
-            <input
-              required
-              inputMode="numeric"
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.heightFt}
-              onChange={(e) => setField('heightFt', e.target.value)}
-              placeholder="5"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-pitch">Height (in)</label>
-            <input
-              inputMode="numeric"
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.heightIn}
-              onChange={(e) => setField('heightIn', e.target.value)}
-              placeholder="10"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-pitch">Weight (lbs)</label>
-            <input
-              required
-              inputMode="decimal"
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.weightLbs}
-              onChange={(e) => setField('weightLbs', e.target.value)}
-              placeholder="165"
-            />
-          </div>
-        </div>
-        {heightM ? (
-          <p className="mt-1 text-xs text-pitch/55">
-            {heightM.toFixed(2)} m — used to convert pixels into km/h and metres
-          </p>
-        ) : null}
-
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-pitch">Bowling arm</label>
-            <select
-              required
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.bowlingArm}
-              onChange={(e) => setField('bowlingArm', e.target.value as SavedProfile['bowlingArm'])}
-            >
-              <option value="">Select</option>
-              <option value="right">Right-arm</option>
-              <option value="left">Left-arm</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-pitch">Bowling style</label>
-            <select
-              required
-              className="mt-1 w-full rounded-xl border border-pitch/15 bg-white px-3 py-2.5 outline-none ring-seam/40 focus:ring-2"
-              value={profile.bowlingStyle}
-              onChange={(e) => setField('bowlingStyle', e.target.value as SavedProfile['bowlingStyle'])}
-            >
-              <option value="">Select</option>
-              <option value="pace">Pace</option>
-              <option value="medium">Medium</option>
-              <option value="spin">Spin</option>
-            </select>
-          </div>
-        </div>
-
-        <label className="mt-5 block text-sm font-medium text-pitch">Bowling video</label>
-        <p className="mt-0.5 text-xs text-pitch/50">MP4, MOV, or WebM · one delivery, side-on</p>
-        <input
-          required
-          type="file"
-          accept="video/mp4,video/quicktime,video/webm,video/x-msvideo,.mp4,.mov,.webm,.avi,.mkv"
-          className="mt-1 block w-full text-sm text-pitch/80 file:mr-3 file:rounded-lg file:border-0 file:bg-pitch file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-        {file ? <p className="mt-2 text-xs text-pitch/55">{file.name}</p> : null}
-        {previewUrl ? (
-          <div className="mt-3 overflow-hidden rounded-2xl border border-pitch/10 bg-black">
-            <p className="border-b border-white/10 bg-pitch-deep px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white/70">
-              Before · your upload
-            </p>
-            <video className="aspect-video w-full object-contain" src={previewUrl} controls playsInline />
-          </div>
-        ) : null}
-
-        <details className="mt-4 rounded-xl bg-mist/80 p-3 text-sm text-pitch/70">
-          <summary className="cursor-pointer font-medium text-pitch">Advanced scale (optional)</summary>
-          <div className="mt-3">
-            <label className="block text-xs font-medium">Meters per pixel</label>
-            <input
-              className="mt-1 w-full rounded-lg border border-pitch/15 px-3 py-2"
-              value={metersPerPixel}
-              onChange={(e) => setMetersPerPixel(e.target.value)}
-              placeholder="e.g. 0.008 — overrides height if set"
-              inputMode="decimal"
-            />
-          </div>
-        </details>
-
-        {error ? <p className="mt-4 text-sm text-ball">{error}</p> : null}
-        {!ready && !error ? (
-          <p className="mt-4 text-xs text-pitch/55">Still needed: {blockers.join(', ')}.</p>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={busy || !ready}
-          className="mt-6 w-full rounded-xl bg-pitch px-4 py-3 font-semibold text-white transition hover:bg-pitch-deep disabled:opacity-60"
-        >
-          {busy ? 'Uploading…' : ready ? 'Analyze delivery' : 'Complete player details to continue'}
-        </button>
-      </form>
-    </section>
+    </div>
   )
 }

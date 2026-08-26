@@ -23,7 +23,50 @@ The UI never invents km/h, angles, or drill YouTube IDs. Display what the API re
 - Label physical metrics as **estimated** when the API says so
 - Overlay video, PDF, and cards all consume the **same** metrics JSON from the delivery/job payload
 
-## Frontend screens
+## Two surfaces: marketing site and workspace
+
+The repo serves a public **marketing site** at the root and the **application
+workspace** under `/app`. They share one design system but not one chrome.
+
+| Surface | Routes | Shell |
+|---------|--------|-------|
+| Marketing | `/`, `/features`, `/how-it-works`, `/record`, `/pricing`, `/about`, `/careers`, `/testimonials`, `/resources`, `/faq`, `/contact`, `/privacy`, `/terms` | `components/site/MarketingLayout` (floating header over a dark hero + full footer) |
+| Workspace | `/app`, `/app/processing/:jobId`, `/app/results/:deliveryId`, `/app/ball-flight[...]`, `/app/train`, `/app/history` | `components/Layout` (dark sidebar shell) |
+
+Pre-`/app` links (`/results/:id`, `/train`, …) redirect in `App.tsx`. Keep those
+redirects when adding routes — they are the only thing holding old bookmarks.
+
+## Design system (read before writing any UI)
+
+One system, defined in three places. Do not style outside it:
+
+1. `src/index.css` — Tailwind v4 `@theme` tokens (`night`, `charcoal`, `pitch`,
+   `pitch-soft`, `lime`, `lime-deep`, `seam`, `chalk`, `mist`, `ok/warn/bad`) and
+   utilities (`.bg-stadium`, `.bg-pitch-gradient`, `.bg-chalk-gradient`,
+   `.glass`, `.glass-light`, `.card-sheen`, `.lift`, `.reveal`, `.field`,
+   `.field-dark`, `.text-gradient-lime`, `.sweep-on-hover`).
+2. `src/components/site/ui.tsx` — `Button`, `Card`, `Chip`, `Container`,
+   `Eyebrow`, `Section`, `SectionHeading`, `Stat`, `CountUp`, `Reveal`,
+   `Accordion`.
+3. `src/components/site/visuals.tsx` — the cricket visual language, drawn as SVG
+   rather than photographed: `StadiumAtmosphere`, `SeamBall`, `TrajectoryArc`,
+   `BowlerSkeleton`, `MetricBars`, `PitchFloor`, `PhotoFrame`.
+
+Rules that keep it coherent:
+
+- **Alternate section tones.** `<Section tone="dark|light|pitch|plain">`, never
+  two identical tones adjacent — the depth comes from the rhythm.
+- **Everything reveals.** Wrap section content in `Reveal` with staggered
+  `delay`. Motion is CSS + IntersectionObserver; there is no animation library
+  and adding one needs a reason.
+- **`Chip` is a dark-surface component.** Its palette is unreadable on light
+  sections.
+- **`PhotoFrame` is the photography slot.** It renders a drawn fallback when
+  `src` is absent or fails, so no screen depends on stock imagery existing.
+- Respect `prefers-reduced-motion` — the primitives already do; anything bespoke
+  must too.
+
+## Frontend screens (workspace)
 
 - **Action (upload) → Processing → Results**
 - **Ball flight** (stump calibration → poll → overlay + pitch map)
@@ -53,6 +96,17 @@ Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → P
 2. Frontend adds a card / chart that respects `metricReady`
 3. Do not compute biomechanics in the browser
 
+## Privacy rule — never expose how the analysis works
+
+Public copy and workspace copy describe **what the user gets**, never how it is
+produced. Do not name or imply backend technologies, APIs, databases, model
+names, pipelines, algorithms, libraries, servers, or internal processing stages.
+This includes job stage labels: show "Following the ball", not the internal
+stage key. Say "CricLab measures / tracks / reports".
+
+Field names inside API payloads are not user-visible text and are exempt; any
+string that reaches the screen is not.
+
 ## Anti-patterns (do not introduce)
 
 - Using the LLM (or inventing values) as the motion engine in the UI
@@ -61,6 +115,8 @@ Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → P
 - Fat React components that reimplement backend metrics
 - Talking to MongoDB or Ollama from the browser
 - Reintroducing Notera (notes/PWA) or Next.js-as-frontend assumptions
+- Styling a page outside the design system, or adding a one-off colour
+- Naming internals in any user-visible string
 - Merging backend source into this repo (keep the split)
 
 ## MVP UI checklist

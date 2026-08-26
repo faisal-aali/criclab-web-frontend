@@ -42,3 +42,11 @@ High-level features. Detail lives in `tasks/`.
 - **24 Aug 2026 (audit):** Results now shows pace band, ICC 15° screening, capture
   rate, and ball-vs-arm consistency from the metrics JSON. Compare is same-player
   ball speed only. Ball-flight length rejects off-pitch bounces instead of clipping.
+- **26 Aug 2026:** Full frontend redesign. Added a public marketing site (Home,
+  Features, How It Works, Record a Video, Pricing, About, Careers, Testimonials,
+  Resources, FAQ, Contact, Privacy, Terms) at the root and moved the workspace
+  under `/app`, both on one CricLab design system — floodlit-night palette,
+  drawn cricket visual language (SVG, no stock photography dependency), scroll
+  reveals and animated statistics with no animation dependency. The workspace was
+  rebuilt on a dark sidebar shell to match. Routes are code-split per page.
+  All user-visible copy was audited so nothing names how the analysis works.
