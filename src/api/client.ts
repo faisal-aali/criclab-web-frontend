@@ -1,18 +1,28 @@
+import { authFetch, ApiError } from './auth'
+
+// Only for building a direct <img>/<video> URL to a public artifact file —
+// those are served unauthenticated (see `get_artifact` in the backend) since
+// an <img> tag cannot carry a bearer header. Every actual API call below goes
+// through `authFetch` instead.
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
+/**
+ * Every call here now goes through `authFetch` — see the note in
+ * `TASK-012-admin-panel.md` (memory bank). Analyses were previously uploaded
+ * and fetched with no bearer token at all: the workspace route was gated on
+ * the frontend, but the API calls themselves carried no identity, so a job
+ * could not actually be attributed to the account that created it, and any
+ * caller with the URL could reach these endpoints directly. `authFetch`
+ * attaches the token, renews it when it has expired, and throws the same
+ * shape of error this module's callers already expect.
+ */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init)
-  if (!res.ok) {
-    let detail = res.statusText
-    try {
-      const data = await res.json()
-      detail = data.detail || data.message || detail
-    } catch {
-      /* ignore */
-    }
-    throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail))
+  try {
+    return await authFetch<T>(path, init)
+  } catch (err) {
+    if (err instanceof ApiError) throw new Error(err.message)
+    throw err
   }
-  return res.json() as Promise<T>
 }
 
 export type Job = {
@@ -26,6 +36,8 @@ export type Job = {
   delivery_id?: string
   result?: DeliveryResult
   error?: string
+  /** Seconds remaining, blended from this job's own pace and recent history. Absent while too little is known. */
+  eta_seconds?: number | null
 }
 
 export type MetricValue = {

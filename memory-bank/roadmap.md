@@ -85,3 +85,13 @@ High-level features. Detail lives in `tasks/`.
   assistant widget; and a full reschedule flow for coaching bookings
   (`BookingPanel` gained a `reschedule` mode) — three gaps the original
   TASK-011 spec asked for but that were missed the first time.
+- **27 Aug 2026:** Video-analysis ETA, chatbot overhaul (icon, streaming,
+  markdown rendering, formatting), and an admin panel. **Done**: `src/lib/eta.ts`
+  + ETA display in both processing pages; new AI-sparkle launcher icon on
+  `AssistantWidget`; a hand-rolled `Markdown` renderer (`src/components/app/Markdown.tsx`);
+  `src/api/assistant.ts` `askStream()`; `src/api/client.ts`'s `request()` now
+  goes through `authFetch`. Admin panel: `src/api/admin.ts`, `AdminLayout` +
+  `charts.tsx`, all six pages (Dashboard, Users, Analyses, Coaching, Support,
+  Notifications), `/admin/*` routes behind `RequireAdmin`, and an AccountMenu
+  entry shown only when `user.role === 'admin'`. The assistant is hidden on
+  `/admin/*`. Deferred: coach profile CRUD UI, booking calendar view.

@@ -70,6 +70,12 @@ export const STATUS_TONE: Record<TicketStatus, 'lime' | 'ok' | 'warn' | 'neutral
   closed: 'neutral',
 }
 
+/** Staff queue shape — the owner's identity is only present on this path. */
+export type StaffTicket = Ticket & {
+  user: { id: string; name: string; email: string }
+  unread_for_staff: number
+}
+
 function form(fields: Record<string, string>, files: File[]): FormData {
   const body = new FormData()
   Object.entries(fields).forEach(([key, value]) => body.append(key, value))
@@ -128,6 +134,39 @@ export const support = {
 
   setStatus: (id: string, status: 'resolved' | 'awaiting_support') =>
     authFetch<{ ticket: Ticket }>(`/support/tickets/${id}/status`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    }),
+
+  /**
+   * Staff queue. Every call here is gated by `AdminUser` on the backend —
+   * the same control as `/admin/*`. Reused from the admin tickets page so
+   * there is one queue, not a duplicate list that would drift.
+   */
+  queue: (opts: { status?: string; liveOnly?: boolean; before?: string } = {}) => {
+    const q = new URLSearchParams()
+    if (opts.status) q.set('status', opts.status)
+    if (opts.liveOnly === false) q.set('live_only', 'false')
+    if (opts.before) q.set('before', opts.before)
+    const qs = q.toString()
+    return authFetch<{ items: StaffTicket[]; counts: Record<string, number>; next_cursor: string | null }>(
+      `/support/queue${qs ? `?${qs}` : ''}`,
+    )
+  },
+
+  queueRead: (id: string) =>
+    authFetch<{ ticket: StaffTicket; messages: TicketMessage[]; context: Record<string, string> }>(
+      `/support/queue/${id}`,
+    ),
+
+  queueReply: (id: string, body: string, resolve = false) =>
+    authFetch<{ ticket: StaffTicket }>(`/support/queue/${id}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ body, resolve }),
+    }),
+
+  queueSetStatus: (id: string, status: TicketStatus) =>
+    authFetch<{ ticket: StaffTicket }>(`/support/queue/${id}/status`, {
       method: 'POST',
       body: JSON.stringify({ status }),
     }),

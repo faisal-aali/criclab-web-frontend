@@ -97,6 +97,10 @@ export const coaching = {
       method: 'POST',
       body: JSON.stringify({ starts_at }),
     }),
+
+  /** Staff roster, including inactive coaches. Gated by `AdminUser`. */
+  adminCoaches: () =>
+    authFetch<{ items: (Coach & { active: boolean; display_order: number })[] }>('/coaching/admin/coaches'),
 }
 
 /**

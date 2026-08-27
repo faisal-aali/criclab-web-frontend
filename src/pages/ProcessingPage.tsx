@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { BowlerSkeleton, SeamBall, TrajectoryArc } from '../components/site/visuals'
+import { formatEta } from '../lib/eta'
 
 /**
  * Stage keys are the contract with the job feed; the labels are what the
@@ -108,6 +109,7 @@ export function ProcessingPage() {
 
   const pct = Math.max(0, Math.min(100, progress))
   const current = TIPS[tip]
+  const etaLabel = failed ? null : formatEta(job?.eta_seconds)
 
   return (
     <div className="min-w-0 space-y-6">
@@ -124,7 +126,7 @@ export function ProcessingPage() {
           <span
             className={`h-1.5 w-1.5 rounded-full bg-current ${failed ? '' : 'animate-pulse-bar'}`}
           />
-          {failed ? 'Stopped' : 'In progress'}
+          {failed ? 'Stopped' : `In progress — ${Math.round(pct)}%`}
         </Chip>
       </Reveal>
 
@@ -171,6 +173,9 @@ export function ProcessingPage() {
                   <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-chalk/40">
                     Complete
                   </div>
+                  {etaLabel ? (
+                    <div className="mt-2 text-[11px] font-semibold text-chalk/55">{etaLabel} left</div>
+                  ) : null}
                 </div>
               </div>
               {!failed ? (
@@ -188,7 +193,29 @@ export function ProcessingPage() {
               <p className="font-display mt-1.5 break-words text-lg font-bold text-chalk">
                 {job?.message || 'Getting your clip ready…'}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-chalk/55">
+              {!failed ? (
+                <div className="mt-2.5 inline-flex items-center gap-2 rounded-lg border border-lime/20 bg-lime/[0.06] px-3 py-1.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="h-3.5 w-3.5 shrink-0 text-lime"
+                    aria-hidden
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="text-xs font-semibold text-chalk/80">
+                    {etaLabel ? (
+                      <>Estimated time remaining: {etaLabel.toLowerCase()}</>
+                    ) : (
+                      'Estimating time remaining…'
+                    )}
+                  </span>
+                </div>
+              ) : null}
+              <p className="mt-2.5 text-sm leading-relaxed text-chalk/55">
                 A long clip filmed at a high frame rate can take a few minutes. Keep this
                 tab open — you will be taken to the report the moment it is ready.
               </p>

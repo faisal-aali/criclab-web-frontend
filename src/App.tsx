@@ -1,7 +1,8 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
-import { RedirectIfAuthenticated, RequireAuth, RequireVerified } from './auth/guards'
+import { RedirectIfAuthenticated, RequireAdmin, RequireAuth, RequireVerified } from './auth/guards'
+import { AdminLayout } from './components/admin/AdminLayout'
 import { AssistantWidget } from './components/app/AssistantWidget'
 import { Layout } from './components/Layout'
 import { ConfirmProvider } from './components/site/ConfirmDialog'
@@ -68,6 +69,26 @@ const CoachingPage = lazy(() =>
   import('./pages/app/CoachingPage').then((m) => ({ default: m.CoachingPage })),
 )
 
+// Admin — own shell, never the workspace chrome
+const AdminDashboardPage = lazy(() =>
+  import('./pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })),
+)
+const AdminUsersPage = lazy(() =>
+  import('./pages/admin/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })),
+)
+const AdminAnalysesPage = lazy(() =>
+  import('./pages/admin/AdminAnalysesPage').then((m) => ({ default: m.AdminAnalysesPage })),
+)
+const AdminCoachingPage = lazy(() =>
+  import('./pages/admin/AdminCoachingPage').then((m) => ({ default: m.AdminCoachingPage })),
+)
+const AdminTicketsPage = lazy(() =>
+  import('./pages/admin/AdminTicketsPage').then((m) => ({ default: m.AdminTicketsPage })),
+)
+const AdminNotificationsPage = lazy(() =>
+  import('./pages/admin/AdminNotificationsPage').then((m) => ({ default: m.AdminNotificationsPage })),
+)
+
 /** Shown while a route chunk loads. Dark, so it never flashes white. */
 function RouteFallback() {
   return (
@@ -91,6 +112,10 @@ function RouteFallback() {
 /** The workspace shares one chrome; marketing pages bring their own. */
 function AppShell({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>
+}
+
+function AdminShell({ children }: { children: React.ReactNode }) {
+  return <AdminLayout>{children}</AdminLayout>
 }
 
 export default function App() {
@@ -164,6 +189,21 @@ export default function App() {
                 <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
                   <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
                 </Route>
+              </Route>
+
+              {/* ---------------- Admin ----------------
+                Own shell, own guard. Sharing the workspace Layout would put
+                "Disable account" one click from a player's delivery review. */}
+              <Route element={<RequireAdmin />}>
+                <Route path="/admin" element={<AdminShell><AdminDashboardPage /></AdminShell>} />
+                <Route path="/admin/users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
+                <Route path="/admin/analyses" element={<AdminShell><AdminAnalysesPage /></AdminShell>} />
+                <Route path="/admin/coaching" element={<AdminShell><AdminCoachingPage /></AdminShell>} />
+                <Route path="/admin/tickets" element={<AdminShell><AdminTicketsPage /></AdminShell>} />
+                <Route
+                  path="/admin/notifications"
+                  element={<AdminShell><AdminNotificationsPage /></AdminShell>}
+                />
               </Route>
 
               {/* Links minted before the workspace moved under /app */}

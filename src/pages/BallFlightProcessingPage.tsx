@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getBalltrackJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { SeamBall } from '../components/site/visuals'
+import { formatEta } from '../lib/eta'
 
 /** Plain-language names for what the viewer is waiting on. */
 const STAGES = [
@@ -58,6 +59,7 @@ export function BallFlightProcessingPage() {
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
   const pct = Math.max(0, Math.min(100, progress))
+  const etaLabel = failed ? null : formatEta(job?.eta_seconds)
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
@@ -66,7 +68,9 @@ export function BallFlightProcessingPage() {
           <div className="flex flex-col items-center text-center">
             <SeamBall size={72} spin={!failed} className="animate-float-slow" />
             <div className="mt-4">
-              <Chip tone={failed ? 'bad' : 'lime'}>{failed ? 'Stopped' : 'Ball flight'}</Chip>
+              <Chip tone={failed ? 'bad' : 'lime'}>
+              {failed ? 'Stopped' : `Ball flight — ${Math.round(pct)}%`}
+            </Chip>
             </div>
             <h1 className="font-display mt-3 text-2xl font-extrabold text-chalk sm:text-3xl">
               {failed ? 'We could not finish this one' : 'Tracking the ball'}
@@ -75,9 +79,26 @@ export function BallFlightProcessingPage() {
               {job?.message || 'Getting your clip ready…'}
             </p>
             {!failed ? (
-              <p className="mt-1.5 text-xs text-chalk/40">
-                This usually takes a couple of minutes. Keep this tab open.
-              </p>
+              <div className="mt-2.5 inline-flex items-center gap-2 rounded-lg border border-lime/20 bg-lime/[0.06] px-3 py-1.5">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="h-3.5 w-3.5 shrink-0 text-lime"
+                  aria-hidden
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-xs font-semibold text-chalk/80">
+                  {etaLabel ? (
+                    <>Estimated time remaining: {etaLabel.toLowerCase()}</>
+                  ) : (
+                    'Estimating time remaining…'
+                  )}
+                </span>
+              </div>
             ) : null}
           </div>
 

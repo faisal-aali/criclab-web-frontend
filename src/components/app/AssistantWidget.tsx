@@ -11,12 +11,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { assistant, type AssistantSource, type ChatTurn } from '../../api/assistant'
+import { Markdown } from './Markdown'
 
 type Message = ChatTurn & {
   id: number
   sources?: AssistantSource[]
   escalate?: boolean
   failed?: boolean
+  /** Still receiving deltas — suppresses the "From:" footer until settled. */
+  streaming?: boolean
 }
 
 const GREETING =
@@ -68,18 +71,53 @@ export function AssistantWidget() {
       setMessages((prev) => [...prev, { id: nextId++, role: 'user', content: text }])
       setDraft('')
       setThinking(true)
+
+      // Populated by `onMeta`, which always arrives before the first `onDelta`
+      // — held here rather than in state because the assistant bubble itself
+      // is not created until text actually starts arriving.
+      let meta: { sources?: AssistantSource[]; escalate?: boolean } = {}
+      let assistantId: number | null = null
+
       try {
-        const reply = await assistant.ask(text, history)
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId++,
-            role: 'assistant',
-            content: reply.answer,
-            sources: reply.sources,
-            escalate: reply.escalate,
+        await assistant.askStream(text, history, {
+          onMeta: (m) => {
+            meta = { sources: m.sources, escalate: m.escalate }
           },
-        ])
+          onDelta: (delta) => {
+            setThinking(false)
+            setMessages((prev) => {
+              if (assistantId == null) {
+                assistantId = nextId++
+                return [
+                  ...prev,
+                  {
+                    id: assistantId,
+                    role: 'assistant',
+                    content: delta,
+                    sources: meta.sources,
+                    escalate: meta.escalate,
+                    streaming: true,
+                  },
+                ]
+              }
+              return prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + delta } : m))
+            })
+          },
+          onRedacted: (answer) => {
+            setThinking(false)
+            setMessages((prev) => {
+              if (assistantId == null) {
+                assistantId = nextId++
+                return [...prev, { id: assistantId, role: 'assistant', content: answer, sources: meta.sources }]
+              }
+              return prev.map((m) => (m.id === assistantId ? { ...m, content: answer } : m))
+            })
+          },
+        })
+        if (assistantId != null) {
+          const settledId = assistantId
+          setMessages((prev) => prev.map((m) => (m.id === settledId ? { ...m, streaming: false } : m)))
+        }
       } catch (err) {
         setMessages((prev) => [
           ...prev,
@@ -100,15 +138,24 @@ export function AssistantWidget() {
     [messages, thinking],
   )
 
+  // The admin panel is a third surface — the assistant belongs to the product
+  // the player uses, not the staff tools sitting next to it.
+  if (location.pathname.startsWith('/admin')) return null
+
   return (
     <>
-      {/* ---------------- Launcher ---------------- */}
+      {/* ---------------- Launcher ----------------
+          A chat bubble alone reads as generic support chat, not specifically
+          "AI". Pairing it with a sparkle — the shape every major assistant
+          (ChatGPT, Gemini, Copilot, Notion AI) now uses for "generated" or
+          "AI-powered" — makes what this button opens legible at a glance,
+          without needing a label. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Close the CricLab assistant' : 'Ask the CricLab assistant'}
+        aria-label={open ? 'Close the CricLab AI Assistant' : 'Open the CricLab AI Assistant'}
         aria-expanded={open}
-        className={`fixed bottom-5 right-5 z-[60] grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-lime to-lime-deep text-night shadow-xl shadow-black/40 transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 ${
+        className={`group fixed bottom-5 right-5 z-[60] grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-lime to-lime-deep text-night shadow-xl shadow-black/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-lime/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-night active:scale-95 ${
           open ? 'rotate-90 scale-95' : ''
         }`}
       >
@@ -117,13 +164,26 @@ export function AssistantWidget() {
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className="h-6 w-6">
+          <svg viewBox="0 0 24 24" className="h-7 w-7 overflow-visible" aria-hidden>
             <path
-              d="M21 12a8 8 0 0 1-8 8H8l-4 3v-4.5A8 8 0 0 1 13 4a8 8 0 0 1 8 8Z"
+              d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8.2L4 21.5v-4.2A7.5 7.5 0 0 1 6.3 5.8 7.5 7.5 0 0 1 20 11.5Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
               strokeLinecap="round"
               strokeLinejoin="round"
+              opacity="0.55"
             />
-            <path d="M9.5 11h5M9.5 14h3" strokeLinecap="round" />
+            <path
+              d="M12.5 7.2c.55 1.9 1.05 2.4 2.95 2.95-1.9.55-2.4 1.05-2.95 2.95-.55-1.9-1.05-2.4-2.95-2.95 1.9-.55 2.4-1.05 2.95-2.95Z"
+              fill="currentColor"
+              className="origin-center transition-transform duration-500 group-hover:rotate-45 group-hover:scale-110"
+            />
+            <path
+              d="M16.7 12.3c.32 1.1.6 1.38 1.7 1.7-1.1.32-1.38.6-1.7 1.7-.32-1.1-.6-1.38-1.7-1.7 1.1-.32 1.38-.6 1.7-1.7Z"
+              fill="currentColor"
+              className="origin-center transition-transform delay-75 duration-500 group-hover:-rotate-45"
+            />
           </svg>
         )}
       </button>
@@ -193,8 +253,20 @@ export function AssistantWidget() {
                             : 'border border-white/10 bg-white/[0.04] text-chalk/85'
                       }`}
                     >
-                      <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                      {m.escalate ? (
+                      {m.role === 'assistant' ? (
+                        <>
+                          <Markdown text={m.content} />
+                          {m.streaming ? (
+                            <span
+                              className="ml-0.5 inline-block h-3 w-[2px] animate-pulse bg-lime/70 align-middle"
+                              aria-hidden
+                            />
+                          ) : null}
+                        </>
+                      ) : (
+                        <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                      )}
+                      {m.escalate && !m.streaming ? (
                         <Link
                           to="/app/support"
                           className="mt-2 inline-block text-[11px] font-semibold text-lime hover:underline"
@@ -202,7 +274,7 @@ export function AssistantWidget() {
                           Open a support ticket →
                         </Link>
                       ) : null}
-                      {m.sources?.length ? (
+                      {m.sources?.length && !m.streaming ? (
                         <p className="mt-2 border-t border-white/8 pt-2 text-[10px] text-chalk/35">
                           From: {m.sources.map((s) => s.title).join(' · ')}
                         </p>

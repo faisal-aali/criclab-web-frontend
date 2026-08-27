@@ -52,6 +52,7 @@ export function AccountMenu() {
           </div>
           <div className="flex flex-col py-1.5">
             {[
+              ...(user.role === 'admin' ? [{ to: '/admin', label: 'Admin panel' }] : []),
               { to: '/app/settings', label: 'Account settings' },
               { to: '/app/history', label: 'Your sessions' },
               { to: '/app/support', label: 'Support' },

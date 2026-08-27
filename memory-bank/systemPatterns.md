@@ -111,6 +111,56 @@ Poll job status; never block the UI on long CV work without progress.
 
 All writes go through FastAPI; React does not talk to MongoDB or Ollama directly.
 
+## The assistant: streaming and Markdown
+
+- **`Markdown.tsx` is hand-rolled on purpose, not a missing dependency.** The
+  assistant's output subset is fixed and small (headings, lists, bold, inline
+  code, links, callouts) — see the backend's `SYSTEM_PROMPT`. Every token is
+  parsed into a specific React element; raw HTML in the source text is never
+  interpreted, so there is no `dangerouslySetInnerHTML`-shaped hole for a
+  crafted answer to open. A general Markdown library plus a sanitizer would
+  cover more syntax than the assistant ever produces, for more surface area,
+  not less.
+- **A markdown link's `href` is only ever one of a fixed set of internal
+  routes** (see `PAGE_LINKS` on the backend) — rendered via `<Link>`, not a
+  full page navigation, and anything not `/`-prefixed opens in a new tab
+  (`target="_blank" rel="noopener noreferrer"`) rather than being trusted as
+  internal.
+- **`askStream()` in `api/assistant.ts` always has a non-streaming fallback**,
+  used when the initial connection fails, when the response isn't OK, and
+  when a per-read timeout (`READ_TIMEOUT_MS`, currently 20s) fires with
+  nothing received yet. Once *something* has streamed, a later stall just
+  ends the turn with what arrived rather than re-issuing the question — a
+  fresh call after partial content would risk showing the answer twice.
+- **A streamed response can be split across `TextDecoder`/NDJSON boundaries
+  in ways a non-streamed test never exercises.** Test the actual chunked
+  output (`curl -N`), not just the final assembled text, before trusting a
+  streaming code path — see the backend TASK-012 for four link-formatting
+  bugs that only appeared once real chunk boundaries were observed.
+
+## Admin panel — a third surface, not a mode of the workspace
+
+`AdminLayout.tsx` is its own shell (sidebar + topbar), deliberately not built
+on the user workspace's `Layout.tsx` — the spec calls for the admin
+experience to be "completely separate from the normal user experience," and
+sharing chrome would put "Users" / "Disable account" one click from a
+player's own delivery review. The actual boundary is `RequireAdmin` (frontend
+guard, hides UI) plus every backend route depending on `AdminUser`
+(enforces it) — not this file. Written dark-first with no `dark:` variants,
+same convention as the workspace (see "Workspace theming" below) — this is
+authenticated-app chrome, not marketing chrome, and inherits that surface's
+theming rule, not the marketing site's.
+
+Wired in `App.tsx` at `/admin`, `/admin/users`, `/admin/analyses`,
+`/admin/coaching`, `/admin/tickets`, `/admin/notifications`. The only way an
+admin finds it from the workspace is the AccountMenu "Admin panel" link,
+shown only when `user.role === 'admin'`. `AssistantWidget` returns null on
+`/admin/*` so the player-facing assistant is not sitting on staff tools.
+
+No charting library: `components/admin/charts.tsx` hand-rolls a line+area
+trend, a donut, and a horizontal bar list — three shapes, all in brand
+colours, not worth a dependency.
+
 ## API / env coupling
 
 1. Dev proxy in `vite.config.ts`: `/api` → `VITE_BACKEND_URL` (default `http://127.0.0.1:8000`)

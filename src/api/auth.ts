@@ -231,6 +231,44 @@ export async function authFetchBlob(path: string): Promise<Blob> {
   return res.blob()
 }
 
+/**
+ * Raw authenticated request — for a streamed response body, which `authFetch`
+ * cannot hand back because it always parses the body as JSON.
+ */
+export async function authFetchRaw(path: string, init?: RequestInit): Promise<Response> {
+  if (!accessToken || Date.now() >= accessExpiry) {
+    await refreshSession()
+  }
+  const send = (token: string | null) =>
+    fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+    })
+
+  let res = await send(accessToken)
+  if (res.status === 401) {
+    const renewed = await refreshSession()
+    if (!renewed) {
+      endSession()
+      throw new ApiError('Your session has ended. Sign in again.', 401)
+    }
+    res = await send(renewed)
+  }
+  return res
+}
+
+/** Raw unauthenticated request — the anonymous counterpart to `authFetchRaw`. */
+export async function publicFetchRaw(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
+  })
+}
+
 // --------------------------------------------------------------------------
 // Endpoints
 // --------------------------------------------------------------------------
