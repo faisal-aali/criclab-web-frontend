@@ -529,7 +529,7 @@ export function AboutPage() {
                       <h3 className="font-display text-lg font-bold leading-snug text-ink dark:text-chalk">
                         {t.role}
                       </h3>
-                      <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-pitch/15 bg-pitch/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-pitch">
+                      <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-pitch/15 bg-pitch/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-pitch dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
                         Profile coming soon
                       </span>
                     </div>

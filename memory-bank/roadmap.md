@@ -69,3 +69,19 @@ High-level features. Detail lives in `tasks/`.
   `assistant.ts`; `auth.ts` gained `authFetchBlob` for authenticated file
   downloads. Same pass also fixed a workspace-wide dark-mode bug found while
   verifying these pages — see "Workspace theming" in systemPatterns.md.
+- **27 Aug 2026 (dark-mode sweep):** Follow-up pass after a user report that
+  dark mode was "wasted and wrong" on the homepage. Traced to a sitewide bug,
+  not a one-off: every marketing page had light-only literal colors
+  (`text-ink`, `text-pitch`, solid `bg-white`) with no `dark:` counterpart —
+  112 + 44 + 17 instances fixed across all 12 marketing pages. Also fixed the
+  pricing page's "Most popular" card, whose thin gradient border was bleeding
+  across the whole card face because the card's own glass background is only
+  6% opaque. Verified with a computed-style contrast probe (not screenshots,
+  which can render blank at non-zero scroll in this environment) across all 16
+  marketing + workspace routes — zero contrast failures. Also added: a
+  sitewide toast system and confirm-dialog primitive (`ToastProvider`,
+  `ConfirmProvider`), wired to sign-out-everywhere, ending a device session,
+  and cancelling a coaching booking; a "Clear conversation" control on the
+  assistant widget; and a full reschedule flow for coaching bookings
+  (`BookingPanel` gained a `reschedule` mode) — three gaps the original
+  TASK-011 spec asked for but that were missed the first time.

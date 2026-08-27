@@ -463,14 +463,14 @@ export function ResourcesPage() {
                 <Link to={g.to} className="group block h-full">
                   <Card tone="light" className="ring-glow flex h-full flex-col gap-4 p-6">
                     <div className="flex items-center justify-between">
-                      <span className="font-display text-4xl font-extrabold text-pitch/15">
+                      <span className="font-display text-4xl font-extrabold text-pitch/15 dark:text-lime/15">
                         {g.n}
                       </span>
                       <span className="h-px flex-1 bg-gradient-to-r from-pitch/25 to-transparent" />
                     </div>
                     <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{g.title}</h3>
                     <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{g.body}</p>
-                    <span className="mt-auto pt-2 text-sm font-semibold text-pitch transition group-hover:translate-x-1">
+                    <span className="mt-auto pt-2 text-sm font-semibold text-pitch dark:text-lime transition group-hover:translate-x-1">
                       {g.cta} →
                     </span>
                   </Card>

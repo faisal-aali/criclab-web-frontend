@@ -185,6 +185,56 @@ Two consequences that are easy to reintroduce by accident:
   dark token values for that subtree only, rather than being left unstyled and
   accidentally inheriting the light remap.
 
+**The marketing site (`src/pages/site/`) had the mirror-image bug**, found and
+fixed in the same pass: dozens of elements across every marketing page wrote a
+light-only text or background color literally (`text-ink`, `text-pitch`, solid
+`bg-white`) with no `dark:` counterpart at all — not an inverted pairing like
+the workspace bug, just a missing one. The parent `Section` correctly flips its
+own background and default text colour between themes, but a child that
+re-asserts its own explicit color class overrides that default and does not
+follow it. This was not one section — it was systemic across the whole site
+(112 `text-ink`, 44 `text-pitch`, and 17 solid `bg-white` instances fixed).
+The fix, and the rule to hold the line going forward:
+
+- Any literal `text-ink[/N]` needs `dark:text-chalk[/N]` beside it.
+- Any literal `text-pitch[/N]` needs `dark:text-lime[/N]` beside it — `pitch`
+  is the light-mode brand green, `lime` is its dark-mode counterpart; this is
+  the same substitution the shared `Eyebrow` component already made correctly.
+- A **solid, opaque** `bg-white` (a real card background, not a translucent
+  `bg-white/NN` glass overlay — those are intentionally theme-agnostic and
+  correct as-is) needs a dark counterpart or it renders as a bright floating
+  box on a night background. The established idiom is `dark:bg-white/6` (or
+  `!bg-charcoal` when it needs to be forced opaque — see the pricing card note
+  below), matching how the shared `Card` component's light tone already
+  handles it.
+- A boolean-driven ternary (`dark ? 'text-chalk' : 'text-ink'`, keyed off a
+  per-component `tone` prop rather than the CSS `dark:` variant) is legitimate
+  *only* when something else keeps `tone` synced to the actual page theme. If
+  it isn't — as in `TestimonialsPage`'s `Attribution`/quote-card ternaries,
+  which used a component-level `light`/`dark` prop but were never told when the
+  *site* theme changed — the same bug applies: pair the literal branch with its
+  own `dark:` class too (`'text-ink dark:text-chalk'`), don't assume the prop
+  makes it exempt.
+
+**Verification note:** screenshots taken at a non-zero scroll position in the
+Browser pane can render blank (a pane bug, not a real rendering issue) — do not
+trust a blank screenshot as evidence of a blank page. A `getComputedStyle`-based
+contrast probe injected via `javascript_tool` is reliable where scrolled
+screenshots are not; forcing `document.documentElement.classList` to `dark` and
+`.reveal` elements to `.is-visible` before running it lets one script audit a
+route without waiting on the real toggle or scroll animations.
+
+**A card with a solid-color gradient border needs an opaque backdrop, not just
+a slimmer gradient.** The pricing page's "Most popular" plan card wraps a
+`Card` in an outer `div` with a `bg-gradient-to-b` and a few pixels of padding,
+so only a thin rim shows. But `Card`'s own `.glass` background is deliberately
+translucent (6% white) for glassmorphism — placed a few pixels from a vivid
+lime gradient instead of the plain page background it normally sits on, that
+6% wasn't enough to stop the gradient bleeding through the whole card face
+instead of staying a rim. Toning down the gradient's opacity did not fix this;
+the actual fix was forcing the inner card opaque (`!bg-charcoal`) so only the
+padding gap shows colour.
+
 ## Privacy rule — never expose how the analysis works
 
 Public copy and workspace copy describe **what the user gets**, never how it is

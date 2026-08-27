@@ -168,7 +168,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
           directly at{' '}
           <a
             href="mailto:privacy@criclab.com"
-            className="font-semibold text-pitch underline underline-offset-4"
+            className="font-semibold text-pitch dark:text-lime underline underline-offset-4"
           >
             privacy@criclab.com
           </a>{' '}
@@ -238,7 +238,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
           Write to{' '}
           <a
             href="mailto:privacy@criclab.com"
-            className="font-semibold text-pitch underline underline-offset-4"
+            className="font-semibold text-pitch dark:text-lime underline underline-offset-4"
           >
             privacy@criclab.com
           </a>{' '}
@@ -289,19 +289,19 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
           we hold — go to{' '}
           <a
             href="mailto:privacy@criclab.com"
-            className="font-semibold text-pitch underline underline-offset-4"
+            className="font-semibold text-pitch dark:text-lime underline underline-offset-4"
           >
             privacy@criclab.com
           </a>
           , or through the{' '}
-          <Link to="/contact" className="font-semibold text-pitch underline underline-offset-4">
+          <Link to="/contact" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
             contact page
           </Link>
           .
         </P>
         <P>
           Our{' '}
-          <Link to="/terms" className="font-semibold text-pitch underline underline-offset-4">
+          <Link to="/terms" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
             terms of service
           </Link>{' '}
           cover the rest of the relationship: accounts, subscriptions and what CricLab’s
@@ -354,7 +354,7 @@ export function PrivacyPage() {
             {SUMMARY.map((s, i) => (
               <Reveal key={s.tag} delay={i * 80}>
                 <Card tone="light" className="flex h-full flex-col gap-2.5 p-6">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-pitch">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-pitch dark:text-lime">
                     {s.tag}
                   </span>
                   <h2 className="font-display text-lg font-bold text-ink dark:text-chalk">{s.title}</h2>
@@ -381,7 +381,7 @@ export function PrivacyPage() {
                       <a
                         key={s.id}
                         href={`#${s.id}`}
-                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 dark:text-chalk/60 transition hover:bg-pitch/5 hover:text-pitch"
+                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 dark:text-chalk/60 transition hover:bg-pitch/5 hover:text-pitch dark:hover:text-lime"
                       >
                         <span className="font-mono text-[11px] leading-5 text-ink/30 dark:text-chalk/30">
                           {String(i + 1).padStart(2, '0')}
@@ -400,7 +400,7 @@ export function PrivacyPage() {
                   <Reveal>
                     <div className="flex flex-col gap-4">
                       <h2 className="font-display text-2xl font-extrabold leading-tight text-ink dark:text-chalk sm:text-[1.75rem]">
-                        <span className="pr-3 font-mono text-base font-bold text-pitch/40">
+                        <span className="pr-3 font-mono text-base font-bold text-pitch/40 dark:text-lime/40">
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         {s.title}

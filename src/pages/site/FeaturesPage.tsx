@@ -283,7 +283,7 @@ export function FeaturesPage() {
                       </svg>
                     </span>
                     <div className="flex flex-col gap-2">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pitch/60">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pitch/60 dark:text-lime/60">
                         {f.tag}
                       </span>
                       <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{f.title}</h3>
@@ -531,7 +531,7 @@ export function FeaturesPage() {
             <Reveal>
               <div className="hidden gap-4 px-2 text-[11px] font-bold uppercase tracking-[0.16em] sm:grid sm:grid-cols-2">
                 <span className="text-ink/40 dark:text-chalk/40">By eye, from the boundary</span>
-                <span className="text-pitch">With CricLab</span>
+                <span className="text-pitch dark:text-lime">With CricLab</span>
               </div>
             </Reveal>
 
@@ -547,7 +547,7 @@ export function FeaturesPage() {
                     </p>
                   </div>
                   <div className="rounded-2xl border border-pitch/20 bg-white dark:bg-white/6 px-5 py-4 shadow-lg shadow-pitch/5">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-pitch sm:hidden">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-pitch dark:text-lime sm:hidden">
                       With CricLab
                     </span>
                     <p className="pt-1 text-sm font-medium leading-relaxed text-ink/80 dark:text-chalk/80 sm:pt-0">
@@ -564,7 +564,7 @@ export function FeaturesPage() {
               {SEEN_ON_SCREEN.map((s) => (
                 <span
                   key={s}
-                  className="inline-flex items-center gap-2 rounded-full border border-pitch/15 bg-pitch/5 px-3.5 py-1.5 text-xs font-semibold text-pitch"
+                  className="inline-flex items-center gap-2 rounded-full border border-pitch/15 bg-pitch/5 px-3.5 py-1.5 text-xs font-semibold text-pitch dark:border-lime/30 dark:bg-lime/10 dark:text-lime"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                   {s}

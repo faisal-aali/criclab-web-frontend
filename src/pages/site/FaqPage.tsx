@@ -96,7 +96,7 @@ const GETTING_STARTED = [
         — their height and which arm they bowl with. Height is what turns pixels
         into metres, so a rough guess will cost you accuracy on release height and
         stride. That is the whole set-up. The{' '}
-        <Link to="/record" className="font-semibold text-pitch underline underline-offset-2">
+        <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-2">
           filming guide
         </Link>{' '}
         covers the rest in about a minute.
@@ -311,7 +311,7 @@ export function FaqPage() {
                   </span>
                   <span className="font-display text-lg font-bold text-ink dark:text-chalk">{c.label}</span>
                   <span className="text-sm leading-relaxed text-ink/60 dark:text-chalk/60">{c.blurb}</span>
-                  <span className="mt-auto pt-2 text-sm font-semibold text-pitch opacity-0 transition group-hover:opacity-100">
+                  <span className="mt-auto pt-2 text-sm font-semibold text-pitch dark:text-lime opacity-0 transition group-hover:opacity-100">
                     Jump down →
                   </span>
                 </a>
@@ -466,7 +466,7 @@ export function FaqPage() {
                   </Button>
                   <Link
                     to="/record"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-pitch/20 px-8 py-4 text-base font-semibold text-pitch transition duration-300 hover:border-pitch/40 hover:bg-pitch/5"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-pitch/20 px-8 py-4 text-base font-semibold text-pitch dark:text-lime transition duration-300 hover:border-pitch/40 hover:bg-pitch/5"
                   >
                     Re-read the filming guide
                   </Link>
@@ -475,7 +475,7 @@ export function FaqPage() {
                   Comparing plans instead?{' '}
                   <Link
                     to="/pricing"
-                    className="font-semibold text-pitch underline underline-offset-4 hover:text-lime-deep"
+                    className="font-semibold text-pitch dark:text-lime underline underline-offset-4 hover:text-lime-deep"
                   >
                     Head to pricing →
                   </Link>
@@ -498,7 +498,7 @@ export function FaqPage() {
                         <span className="text-sm text-ink/60 dark:text-chalk/60">{l.b}</span>
                       </span>
                       <span
-                        className="text-lg font-bold text-pitch transition group-hover:translate-x-1"
+                        className="text-lg font-bold text-pitch dark:text-lime transition group-hover:translate-x-1"
                         aria-hidden
                       >
                         →

@@ -396,7 +396,9 @@ export function TestimonialsPage() {
                   tone="light"
                   className={`ring-glow flex flex-col gap-4 ${t.lead ? 'p-7 sm:p-8' : 'p-6'}`}
                 >
-                  <QuoteMark className={t.lead ? 'text-pitch/40' : 'h-5 w-7 text-pitch/30'} />
+                  <QuoteMark
+                    className={t.lead ? 'text-pitch/40 dark:text-lime/40' : 'h-5 w-7 text-pitch/30 dark:text-lime/30'}
+                  />
                   <p
                     className={
                       t.lead
@@ -416,7 +418,7 @@ export function TestimonialsPage() {
             <p className="text-sm text-ink/55 dark:text-chalk/55">
               Quotes are attributed by role and club type at the request of the players
               and coaches who gave them.{' '}
-              <Link to="/how-it-works" className="font-semibold text-pitch hover:text-lime-deep">
+              <Link to="/how-it-works" className="font-semibold text-pitch dark:text-lime hover:text-lime-deep">
                 See what a session returns →
               </Link>
             </p>

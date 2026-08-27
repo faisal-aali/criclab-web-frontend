@@ -164,7 +164,7 @@ const FAQS = [
         Side-on, square of the crease, is the angle that supports the most
         measurements. Front-on clips still give you movement and the ball’s path,
         but stride and release height read best from the side. The{' '}
-        <Link to="/record" className="font-semibold text-pitch underline underline-offset-2">
+        <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-2">
           filming guide
         </Link>{' '}
         walks through it in a minute.
@@ -235,7 +235,7 @@ export function HowItWorksPage() {
           items={FLOW_WORDS.map((t) => (
             <span
               key={t}
-              className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-pitch/55"
+              className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.2em] text-pitch/55 dark:text-lime/55"
             >
               {t}
             </span>
@@ -300,7 +300,7 @@ export function HowItWorksPage() {
                       </div>
                       <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{s.title}</h3>
                       <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{s.body}</p>
-                      <span className="mt-auto pt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-pitch/70">
+                      <span className="mt-auto pt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-pitch/70 dark:text-lime/70">
                         {s.note}
                       </span>
                     </Card>
@@ -315,7 +315,7 @@ export function HowItWorksPage() {
               Step one takes about a minute.{' '}
               <Link
                 to="/features"
-                className="font-semibold text-pitch underline underline-offset-2"
+                className="font-semibold text-pitch dark:text-lime underline underline-offset-2"
               >
                 See everything step three covers →
               </Link>
@@ -606,7 +606,7 @@ export function HowItWorksPage() {
           </div>
 
           <Reveal delay={200} className="mt-10 text-center">
-            <Link to="/faq" className="text-sm font-semibold text-pitch hover:text-ink dark:hover:text-chalk">
+            <Link to="/faq" className="text-sm font-semibold text-pitch dark:text-lime hover:text-ink dark:hover:text-chalk">
               Read the full FAQ →
             </Link>
           </Reveal>

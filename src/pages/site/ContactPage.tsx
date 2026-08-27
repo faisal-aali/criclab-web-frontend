@@ -54,7 +54,7 @@ const HELP = [
     a: (
       <>
         Nine times out of ten it is the camera angle or the light. Run through the{' '}
-        <Link to="/record" className="font-semibold text-pitch underline underline-offset-4">
+        <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
           filming guide
         </Link>{' '}
         first — side-on, whole body in frame, one delivery per clip — then send us the
@@ -75,7 +75,7 @@ const HELP = [
     a: (
       <>
         Sensible. Film one delivery and see what comes back —{' '}
-        <Link to="/app" className="font-semibold text-pitch underline underline-offset-4">
+        <Link to="/app" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
           open CricLab
         </Link>{' '}
         and upload it. The questions get sharper once you have a report in front of you.
@@ -87,7 +87,7 @@ const HELP = [
     a: (
       <>
         On the{' '}
-        <Link to="/pricing" className="font-semibold text-pitch underline underline-offset-4">
+        <Link to="/pricing" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
           pricing page
         </Link>
         . If none of the plans match how your squad trains, say so in a message and we
@@ -211,7 +211,7 @@ export function ContactPage() {
                       <button
                         type="button"
                         onClick={reset}
-                        className="rounded-full border border-pitch/20 px-6 py-3 text-sm font-semibold text-pitch transition hover:border-pitch/45 hover:bg-pitch/5"
+                        className="rounded-full border border-pitch/20 px-6 py-3 text-sm font-semibold text-pitch dark:text-lime transition hover:border-pitch/45 hover:bg-pitch/5"
                       >
                         Send another message
                       </button>
@@ -346,7 +346,7 @@ export function ContactPage() {
                           By sending, you agree to our{' '}
                           <Link
                             to="/privacy"
-                            className="font-semibold text-pitch underline underline-offset-4"
+                            className="font-semibold text-pitch dark:text-lime underline underline-offset-4"
                           >
                             privacy policy
                           </Link>
@@ -468,7 +468,7 @@ export function ContactPage() {
                   </Button>
                   <Link
                     to="/resources"
-                    className="inline-flex items-center px-2 py-3 text-sm font-semibold text-pitch transition hover:text-ink dark:hover:text-chalk"
+                    className="inline-flex items-center px-2 py-3 text-sm font-semibold text-pitch dark:text-lime transition hover:text-ink dark:hover:text-chalk"
                   >
                     Coaching resources →
                   </Link>

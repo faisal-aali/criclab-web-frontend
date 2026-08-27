@@ -157,7 +157,7 @@ const PRICING_FAQ = [
         A recent phone filming side-on at 60 frames per second is enough for the full
         read. A higher frame rate sharpens the timing splits, and better light helps
         more than better kit does. The{' '}
-        <Link to="/record" className="font-semibold text-pitch underline underline-offset-2">
+        <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-2">
           filming guide
         </Link>{' '}
         takes a minute and is worth the minute.
@@ -521,7 +521,7 @@ export function PricingPage() {
                     </th>
                     <th
                       scope="col"
-                      className="px-5 py-4 text-center font-display text-sm font-bold text-pitch"
+                      className="px-5 py-4 text-center font-display text-sm font-bold text-pitch dark:text-lime"
                     >
                       Coach
                     </th>
@@ -577,7 +577,7 @@ export function PricingPage() {
               Want the detail behind each line?{' '}
               <Link
                 to="/features"
-                className="font-semibold text-pitch underline underline-offset-4 hover:text-lime-deep"
+                className="font-semibold text-pitch dark:text-lime underline underline-offset-4 hover:text-lime-deep"
               >
                 See what CricLab measures →
               </Link>
@@ -677,14 +677,14 @@ export function PricingPage() {
               Still turning it over?{' '}
               <Link
                 to="/faq"
-                className="font-semibold text-pitch underline underline-offset-4 hover:text-lime-deep"
+                className="font-semibold text-pitch dark:text-lime underline underline-offset-4 hover:text-lime-deep"
               >
                 Read the full FAQ
               </Link>{' '}
               or{' '}
               <Link
                 to="/contact"
-                className="font-semibold text-pitch underline underline-offset-4 hover:text-lime-deep"
+                className="font-semibold text-pitch dark:text-lime underline underline-offset-4 hover:text-lime-deep"
               >
                 have a word with us
               </Link>

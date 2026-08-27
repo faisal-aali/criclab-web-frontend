@@ -155,7 +155,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode; highlight?: boolea
         <P>
           Read a low confidence as an instruction to re-film rather than a number to argue
           with. The{' '}
-          <Link to="/record" className="font-semibold text-pitch underline underline-offset-4">
+          <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
             filming guide
           </Link>{' '}
           sets out how to get a clip that supports a confident reading.
@@ -264,19 +264,19 @@ const SECTIONS: { id: string; title: string; body: ReactNode; highlight?: boolea
           Questions about these terms go to{' '}
           <a
             href="mailto:legal@criclab.com"
-            className="font-semibold text-pitch underline underline-offset-4"
+            className="font-semibold text-pitch dark:text-lime underline underline-offset-4"
           >
             legal@criclab.com
           </a>
           , or through the{' '}
-          <Link to="/contact" className="font-semibold text-pitch underline underline-offset-4">
+          <Link to="/contact" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
             contact page
           </Link>
           .
         </P>
         <P>
           How we handle your footage and your details is set out separately in the{' '}
-          <Link to="/privacy" className="font-semibold text-pitch underline underline-offset-4">
+          <Link to="/privacy" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
             privacy policy
           </Link>
           .
@@ -329,7 +329,7 @@ export function TermsPage() {
             {SUMMARY.map((s, i) => (
               <Reveal key={s.tag} delay={i * 80}>
                 <Card tone="light" className="flex h-full flex-col gap-2.5 p-6">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-pitch">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-pitch dark:text-lime">
                     {s.tag}
                   </span>
                   <h2 className="font-display text-lg font-bold text-ink dark:text-chalk">{s.title}</h2>
@@ -356,7 +356,7 @@ export function TermsPage() {
                       <a
                         key={s.id}
                         href={`#${s.id}`}
-                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 dark:text-chalk/60 transition hover:bg-pitch/5 hover:text-pitch"
+                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 dark:text-chalk/60 transition hover:bg-pitch/5 hover:text-pitch dark:hover:text-lime"
                       >
                         <span className="font-mono text-[11px] leading-5 text-ink/30 dark:text-chalk/30">
                           {String(i + 1).padStart(2, '0')}
@@ -381,13 +381,13 @@ export function TermsPage() {
                       }
                     >
                       {s.highlight ? (
-                        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-pitch/15 bg-pitch/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-pitch">
+                        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-pitch/15 bg-pitch/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-pitch dark:border-lime/30 dark:bg-lime/10 dark:text-lime">
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           Read this one twice
                         </span>
                       ) : null}
                       <h2 className="font-display text-2xl font-extrabold leading-tight text-ink dark:text-chalk sm:text-[1.75rem]">
-                        <span className="pr-3 font-mono text-base font-bold text-pitch/40">
+                        <span className="pr-3 font-mono text-base font-bold text-pitch/40 dark:text-lime/40">
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         {s.title}
