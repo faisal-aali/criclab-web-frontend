@@ -327,7 +327,7 @@ export function ResourcesPage() {
           />
 
           <Reveal delay={120} className="mt-10">
-            <div className="grid gap-8 overflow-hidden rounded-[2rem] border border-pitch/10 bg-white p-6 shadow-xl shadow-pitch/5 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="grid gap-8 overflow-hidden rounded-[2rem] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-xl shadow-pitch/5 sm:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
               <PhotoFrame
                 src="/hero-bowling.jpg"
                 alt="A bowler in the delivery stride, front foot landing"
@@ -346,15 +346,15 @@ export function ResourcesPage() {
               </PhotoFrame>
 
               <div className="flex flex-col items-start gap-5">
-                <h3 className="font-display text-2xl font-extrabold leading-[1.15] text-ink sm:text-3xl">
+                <h3 className="font-display text-2xl font-extrabold leading-[1.15] text-ink dark:text-chalk sm:text-3xl">
                   {FEATURED.title}
                 </h3>
-                <p className="text-base leading-relaxed text-ink/65">{FEATURED.excerpt}</p>
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">{FEATURED.excerpt}</p>
                 <ul className="flex flex-col gap-3">
                   {FEATURED.points.map((p) => (
                     <li
                       key={p}
-                      className="flex items-start gap-3 text-sm font-medium leading-relaxed text-ink/75"
+                      className="flex items-start gap-3 text-sm font-medium leading-relaxed text-ink/75 dark:text-chalk/75"
                     >
                       <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-pitch text-[11px] font-bold text-lime">
                         ✓
@@ -363,7 +363,7 @@ export function ResourcesPage() {
                     </li>
                   ))}
                 </ul>
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 text-xs font-semibold uppercase tracking-[0.14em] text-ink/40 dark:text-chalk/40">
                   <span>{FEATURED.read}</span>
                   <span>Written with club coaches</span>
                 </div>
@@ -468,8 +468,8 @@ export function ResourcesPage() {
                       </span>
                       <span className="h-px flex-1 bg-gradient-to-r from-pitch/25 to-transparent" />
                     </div>
-                    <h3 className="font-display text-xl font-bold text-ink">{g.title}</h3>
-                    <p className="text-sm leading-relaxed text-ink/65">{g.body}</p>
+                    <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{g.title}</h3>
+                    <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{g.body}</p>
                     <span className="mt-auto pt-2 text-sm font-semibold text-pitch transition group-hover:translate-x-1">
                       {g.cta} →
                     </span>

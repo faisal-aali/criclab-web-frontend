@@ -189,8 +189,8 @@ function Attribution({
         {role.charAt(0)}
       </span>
       <div className="min-w-0">
-        <div className={`text-sm font-semibold ${dark ? 'text-chalk' : 'text-ink'}`}>{role}</div>
-        <div className={`text-xs ${dark ? 'text-chalk/45' : 'text-ink/50'}`}>{org}</div>
+        <div className={`text-sm font-semibold ${dark ? 'text-chalk' : 'text-ink dark:text-chalk'}`}>{role}</div>
+        <div className={`text-xs ${dark ? 'text-chalk/45' : 'text-ink/50 dark:text-chalk/45'}`}>{org}</div>
       </div>
     </div>
   )
@@ -400,8 +400,8 @@ export function TestimonialsPage() {
                   <p
                     className={
                       t.lead
-                        ? 'font-display text-lg font-bold leading-snug text-ink sm:text-xl'
-                        : 'text-sm leading-relaxed text-ink/70'
+                        ? 'font-display text-lg font-bold leading-snug text-ink dark:text-chalk sm:text-xl'
+                        : 'text-sm leading-relaxed text-ink/70 dark:text-chalk/70'
                     }
                   >
                     “{t.quote}”
@@ -413,7 +413,7 @@ export function TestimonialsPage() {
           </div>
 
           <Reveal delay={200} className="mt-12 text-center">
-            <p className="text-sm text-ink/55">
+            <p className="text-sm text-ink/55 dark:text-chalk/55">
               Quotes are attributed by role and club type at the request of the players
               and coaches who gave them.{' '}
               <Link to="/how-it-works" className="font-semibold text-pitch hover:text-lime-deep">

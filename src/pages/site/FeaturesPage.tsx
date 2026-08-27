@@ -286,9 +286,9 @@ export function FeaturesPage() {
                       <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-pitch/60">
                         {f.tag}
                       </span>
-                      <h3 className="font-display text-xl font-bold text-ink">{f.title}</h3>
+                      <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{f.title}</h3>
                     </div>
-                    <p className="text-sm leading-relaxed text-ink/65">{f.body}</p>
+                    <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{f.body}</p>
                   </Card>
                 </TiltCard>
               </Reveal>
@@ -363,10 +363,10 @@ export function FeaturesPage() {
             <Reveal>
               <div className="flex flex-col items-start gap-5">
                 <Eyebrow tone="light">Ball tracking</Eyebrow>
-                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink sm:text-4xl">
+                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink dark:text-chalk sm:text-4xl">
                   Follow the ball from the hand to the pitch point
                 </h2>
-                <p className="text-base leading-relaxed text-ink/65">
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">
                   The flight is drawn over the delivery you filmed, with the sample
                   points kept visible and the bounce marked. Length stops being a
                   feeling and becomes a distance from the stumps you can quote back
@@ -379,7 +379,7 @@ export function FeaturesPage() {
                     'Length measured from the stumps',
                     'Every over kept for comparison',
                   ].map((t) => (
-                    <li key={t} className="flex items-start gap-3 text-sm font-medium text-ink/75">
+                    <li key={t} className="flex items-start gap-3 text-sm font-medium text-ink/75 dark:text-chalk/75">
                       <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-pitch text-[11px] font-bold text-lime">
                         ✓
                       </span>
@@ -530,7 +530,7 @@ export function FeaturesPage() {
           <div className="mt-14 grid gap-4">
             <Reveal>
               <div className="hidden gap-4 px-2 text-[11px] font-bold uppercase tracking-[0.16em] sm:grid sm:grid-cols-2">
-                <span className="text-ink/40">By eye, from the boundary</span>
+                <span className="text-ink/40 dark:text-chalk/40">By eye, from the boundary</span>
                 <span className="text-pitch">With CricLab</span>
               </div>
             </Reveal>
@@ -539,18 +539,18 @@ export function FeaturesPage() {
               <Reveal key={row.lab} delay={i * 70}>
                 <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   <div className="rounded-2xl border border-pitch/10 bg-mist/60 px-5 py-4">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/40 sm:hidden">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-ink/40 dark:text-chalk/40 sm:hidden">
                       By eye
                     </span>
-                    <p className="pt-1 text-sm leading-relaxed text-ink/55 sm:pt-0">
+                    <p className="pt-1 text-sm leading-relaxed text-ink/55 dark:text-chalk/55 sm:pt-0">
                       “{row.eye}”
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-pitch/20 bg-white px-5 py-4 shadow-lg shadow-pitch/5">
+                  <div className="rounded-2xl border border-pitch/20 bg-white dark:bg-white/6 px-5 py-4 shadow-lg shadow-pitch/5">
                     <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-pitch sm:hidden">
                       With CricLab
                     </span>
-                    <p className="pt-1 text-sm font-medium leading-relaxed text-ink/80 sm:pt-0">
+                    <p className="pt-1 text-sm font-medium leading-relaxed text-ink/80 dark:text-chalk/80 sm:pt-0">
                       {row.lab}
                     </p>
                   </div>

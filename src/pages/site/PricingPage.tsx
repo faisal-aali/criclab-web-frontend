@@ -214,12 +214,12 @@ function CompareCell({ value }: { value: CellValue }) {
         ✓
       </span>
     ) : (
-      <span className="text-base font-semibold text-ink/20" aria-label="Not included">
+      <span className="text-base font-semibold text-ink/20 dark:text-chalk/20" aria-label="Not included">
         —
       </span>
     )
   }
-  return <span className="text-sm font-semibold text-ink/75">{value}</span>
+  return <span className="text-sm font-semibold text-ink/75 dark:text-chalk/75">{value}</span>
 }
 
 function Tick({ children }: { children: string }) {
@@ -316,7 +316,14 @@ export function PricingPage() {
                   tone="dark"
                   interactive={!tier.featured}
                   className={`ring-glow flex h-full flex-col gap-6 p-7 sm:p-8 ${
-                    tier.featured ? 'bg-night/40' : ''
+                    // `.glass`'s own translucent background (6% white) is what
+                    // gives every dark card its glassmorphism — but sitting a
+                    // hair's width from the featured card's solid lime rim, it
+                    // let almost all of that colour bleed through the whole
+                    // face instead of just the intended thin edge. `!bg-charcoal`
+                    // forces a properly opaque backdrop so the gradient only
+                    // ever reads as a rim.
+                    tier.featured ? '!bg-charcoal' : ''
                   }`}
                 >
                   <div className="flex flex-col gap-4">
@@ -384,7 +391,7 @@ export function PricingPage() {
                 <Reveal key={tier.id} delay={i * 110} className="h-full">
                   <TiltCard className="h-full" max={tier.featured ? 5 : 7}>
                     {tier.featured ? (
-                      <div className="ring-glow h-full rounded-[calc(var(--radius-card)+2px)] bg-gradient-to-b from-lime via-lime/45 to-lime/10 p-[2px] shadow-[0_34px_80px_-34px_rgba(182,242,74,0.6)]">
+                      <div className="ring-glow h-full rounded-[calc(var(--radius-card)+2px)] bg-gradient-to-b from-lime/50 via-lime/15 to-transparent p-[1.5px] shadow-[0_18px_46px_-30px_rgba(182,242,74,0.45)] dark:from-lime/70 dark:via-lime/25 dark:to-lime/5 dark:shadow-[0_30px_70px_-32px_rgba(182,242,74,0.55)]">
                         {body}
                       </div>
                     ) : (
@@ -496,19 +503,19 @@ export function PricingPage() {
           />
 
           <Reveal delay={120} className="mt-12">
-            <div className="overflow-x-auto rounded-[var(--radius-card)] border border-pitch/10 bg-white shadow-xl shadow-pitch/5">
+            <div className="overflow-x-auto rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 shadow-xl shadow-pitch/5">
               <table className="w-full min-w-[720px] border-collapse text-left">
                 <caption className="sr-only">
                   Feature comparison of the Player, Coach and Academy plans
                 </caption>
                 <thead>
                   <tr className="border-b border-pitch/10">
-                    <th scope="col" className="px-5 py-4 font-display text-sm font-bold text-ink">
+                    <th scope="col" className="px-5 py-4 font-display text-sm font-bold text-ink dark:text-chalk">
                       Feature
                     </th>
                     <th
                       scope="col"
-                      className="px-5 py-4 text-center font-display text-sm font-bold text-ink"
+                      className="px-5 py-4 text-center font-display text-sm font-bold text-ink dark:text-chalk"
                     >
                       Player
                     </th>
@@ -520,7 +527,7 @@ export function PricingPage() {
                     </th>
                     <th
                       scope="col"
-                      className="px-5 py-4 text-center font-display text-sm font-bold text-ink"
+                      className="px-5 py-4 text-center font-display text-sm font-bold text-ink dark:text-chalk"
                     >
                       Academy
                     </th>
@@ -532,7 +539,7 @@ export function PricingPage() {
                       <th
                         scope="colgroup"
                         colSpan={4}
-                        className="bg-mist px-5 py-2.5 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-ink/45"
+                        className="bg-mist px-5 py-2.5 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-ink/45 dark:text-chalk/45"
                       >
                         {group.name}
                       </th>
@@ -541,7 +548,7 @@ export function PricingPage() {
                       <tr key={row.label} className="border-b border-crease last:border-b-0">
                         <th
                           scope="row"
-                          className="px-5 py-3.5 text-left text-sm font-medium text-ink/80"
+                          className="px-5 py-3.5 text-left text-sm font-medium text-ink/80 dark:text-chalk/80"
                         >
                           {row.label}
                         </th>
@@ -560,13 +567,13 @@ export function PricingPage() {
                 ))}
               </table>
             </div>
-            <p className="pt-3 text-xs font-medium text-ink/45 sm:hidden">
+            <p className="pt-3 text-xs font-medium text-ink/45 dark:text-chalk/45 sm:hidden">
               Swipe the table sideways to compare all three plans.
             </p>
           </Reveal>
 
           <Reveal delay={180} className="mt-8 text-center">
-            <p className="text-sm text-ink/55">
+            <p className="text-sm text-ink/55 dark:text-chalk/55">
               Want the detail behind each line?{' '}
               <Link
                 to="/features"
@@ -666,7 +673,7 @@ export function PricingPage() {
             <Accordion items={PRICING_FAQ} tone="light" />
           </div>
           <Reveal delay={160} className="mt-10 text-center">
-            <p className="text-sm text-ink/55">
+            <p className="text-sm text-ink/55 dark:text-chalk/55">
               Still turning it over?{' '}
               <Link
                 to="/faq"

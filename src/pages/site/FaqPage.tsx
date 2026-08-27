@@ -304,13 +304,13 @@ export function FaqPage() {
               <Reveal key={c.id} delay={i * 80} className="h-full">
                 <a
                   href={`#${c.id}`}
-                  className="ring-glow group flex h-full flex-col gap-2 rounded-2xl border border-pitch/10 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:border-pitch/30 hover:shadow-lg hover:shadow-pitch/10"
+                  className="ring-glow group flex h-full flex-col gap-2 rounded-2xl border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-5 transition duration-300 hover:-translate-y-1 hover:border-pitch/30 hover:shadow-lg hover:shadow-pitch/10"
                 >
                   <span className="font-display text-xs font-extrabold uppercase tracking-[0.16em] text-lime-deep">
                     0{i + 1}
                   </span>
-                  <span className="font-display text-lg font-bold text-ink">{c.label}</span>
-                  <span className="text-sm leading-relaxed text-ink/60">{c.blurb}</span>
+                  <span className="font-display text-lg font-bold text-ink dark:text-chalk">{c.label}</span>
+                  <span className="text-sm leading-relaxed text-ink/60 dark:text-chalk/60">{c.blurb}</span>
                   <span className="mt-auto pt-2 text-sm font-semibold text-pitch opacity-0 transition group-hover:opacity-100">
                     Jump down →
                   </span>
@@ -409,11 +409,11 @@ export function FaqPage() {
           </div>
 
           <Reveal delay={160} className="mx-auto mt-12 max-w-3xl">
-            <div className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-pitch/10 bg-white p-6 shadow-lg shadow-pitch/5 sm:flex-row sm:items-center sm:gap-8">
+            <div className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-lg shadow-pitch/5 sm:flex-row sm:items-center sm:gap-8">
               <div className="h-20 w-full sm:w-48">
                 <MetricBars bars={[46, 58, 63, 71, 84, 92]} />
               </div>
-              <p className="text-sm leading-relaxed text-ink/65">
+              <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">
                 The value is not in one delivery. It is in six of them, filmed the
                 same way across a block, where a genuine change in the action stops
                 being a feeling and starts being a line you can point at.
@@ -448,13 +448,13 @@ export function FaqPage() {
       <Section tone="light" className="py-20 sm:py-28">
         <Container>
           <Reveal>
-            <div className="grid gap-10 rounded-[2rem] border border-pitch/10 bg-white p-8 shadow-xl shadow-pitch/5 sm:p-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="grid gap-10 rounded-[2rem] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-8 shadow-xl shadow-pitch/5 sm:p-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
               <div className="flex flex-col items-start gap-5">
                 <Eyebrow tone="light">Still stuck</Eyebrow>
-                <h2 className="font-display text-3xl font-extrabold leading-[1.12] text-ink sm:text-4xl">
+                <h2 className="font-display text-3xl font-extrabold leading-[1.12] text-ink dark:text-chalk sm:text-4xl">
                   Not found your question?
                 </h2>
-                <p className="text-base leading-relaxed text-ink/65">
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">
                   Send us the clip and the question together — it is far quicker to
                   answer “why did this come back unavailable” when we can see the
                   delivery you are asking about. We read everything that comes in.
@@ -471,7 +471,7 @@ export function FaqPage() {
                     Re-read the filming guide
                   </Link>
                 </div>
-                <p className="text-sm text-ink/50">
+                <p className="text-sm text-ink/50 dark:text-chalk/50">
                   Comparing plans instead?{' '}
                   <Link
                     to="/pricing"
@@ -491,11 +491,11 @@ export function FaqPage() {
                   <Reveal key={l.to} delay={i * 80}>
                     <Link
                       to={l.to}
-                      className="ring-glow group flex items-center justify-between gap-4 rounded-2xl border border-pitch/10 bg-chalk p-5 transition duration-300 hover:border-pitch/30 hover:bg-white"
+                      className="ring-glow group flex items-center justify-between gap-4 rounded-2xl border border-pitch/10 dark:border-white/10 bg-chalk dark:bg-white/[0.04] p-5 transition duration-300 hover:border-pitch/30 hover:bg-white dark:hover:bg-white/[0.08]"
                     >
                       <span className="flex flex-col gap-1">
-                        <span className="font-display text-base font-bold text-ink">{l.t}</span>
-                        <span className="text-sm text-ink/60">{l.b}</span>
+                        <span className="font-display text-base font-bold text-ink dark:text-chalk">{l.t}</span>
+                        <span className="text-sm text-ink/60 dark:text-chalk/60">{l.b}</span>
                       </span>
                       <span
                         className="text-lg font-bold text-pitch transition group-hover:translate-x-1"

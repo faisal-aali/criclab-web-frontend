@@ -187,20 +187,20 @@ export function ContactPage() {
           <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             {/* --- Form --- */}
             <Reveal>
-              <div className="rounded-[var(--radius-card)] border border-pitch/10 bg-white p-6 shadow-xl shadow-pitch/5 sm:p-8">
+              <div className="rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-xl shadow-pitch/5 sm:p-8">
                 {sent ? (
                   <div className="flex flex-col items-start gap-5 py-6">
                     <span className="grid h-14 w-14 place-items-center rounded-2xl bg-pitch text-2xl font-bold text-lime">
                       ✓
                     </span>
-                    <h2 className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+                    <h2 className="font-display text-2xl font-extrabold text-ink dark:text-chalk sm:text-3xl">
                       Message noted — thank you
                     </h2>
-                    <p className="max-w-md text-sm leading-relaxed text-ink/65">
+                    <p className="max-w-md text-sm leading-relaxed text-ink/65 dark:text-chalk/65">
                       Thanks, {name.split(' ')[0] || 'there'}. Your note about{' '}
-                      <span className="font-semibold text-ink">{chosenSubject.toLowerCase()}</span>{' '}
+                      <span className="font-semibold text-ink dark:text-chalk">{chosenSubject.toLowerCase()}</span>{' '}
                       is with us and we will come back to{' '}
-                      <span className="font-semibold text-ink">{email}</span> within one working
+                      <span className="font-semibold text-ink dark:text-chalk">{email}</span> within one working
                       day. If it is faster to show than tell, have a clip ready when we reply.
                     </p>
                     <div className="flex flex-wrap gap-3 pt-1">
@@ -221,10 +221,10 @@ export function ContactPage() {
                   <>
                     <div className="flex flex-col gap-2 pb-6">
                       <Eyebrow tone="light">Send a message</Eyebrow>
-                      <h2 className="font-display text-2xl font-extrabold text-ink sm:text-3xl">
+                      <h2 className="font-display text-2xl font-extrabold text-ink dark:text-chalk sm:text-3xl">
                         Tell us what you are trying to work out
                       </h2>
-                      <p className="text-sm leading-relaxed text-ink/60">
+                      <p className="text-sm leading-relaxed text-ink/60 dark:text-chalk/60">
                         The more specific the question — a bowler, a session, a squad — the
                         more useful the answer.
                       </p>
@@ -235,7 +235,7 @@ export function ContactPage() {
                         <div className="flex flex-col gap-1.5">
                           <label
                             htmlFor="contact-name"
-                            className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50"
+                            className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50 dark:text-chalk/50"
                           >
                             Name
                           </label>
@@ -259,7 +259,7 @@ export function ContactPage() {
                         <div className="flex flex-col gap-1.5">
                           <label
                             htmlFor="contact-email"
-                            className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50"
+                            className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50 dark:text-chalk/50"
                           >
                             Email
                           </label>
@@ -285,7 +285,7 @@ export function ContactPage() {
                       <div className="flex flex-col gap-1.5">
                         <label
                           htmlFor="contact-subject"
-                          className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50"
+                          className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50 dark:text-chalk/50"
                         >
                           Subject
                         </label>
@@ -315,7 +315,7 @@ export function ContactPage() {
                       <div className="flex flex-col gap-1.5">
                         <label
                           htmlFor="contact-message"
-                          className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50"
+                          className="text-xs font-bold uppercase tracking-[0.14em] text-ink/50 dark:text-chalk/50"
                         >
                           Message
                         </label>
@@ -342,7 +342,7 @@ export function ContactPage() {
                           Send message
                           <span aria-hidden>→</span>
                         </Button>
-                        <p className="text-xs leading-relaxed text-ink/45">
+                        <p className="text-xs leading-relaxed text-ink/45 dark:text-chalk/45">
                           By sending, you agree to our{' '}
                           <Link
                             to="/privacy"
@@ -468,7 +468,7 @@ export function ContactPage() {
                   </Button>
                   <Link
                     to="/resources"
-                    className="inline-flex items-center px-2 py-3 text-sm font-semibold text-pitch transition hover:text-ink"
+                    className="inline-flex items-center px-2 py-3 text-sm font-semibold text-pitch transition hover:text-ink dark:hover:text-chalk"
                   >
                     Coaching resources →
                   </Link>

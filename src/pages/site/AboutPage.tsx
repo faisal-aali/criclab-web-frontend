@@ -240,16 +240,16 @@ export function AboutPage() {
             <Reveal>
               <div className="flex flex-col items-start gap-5">
                 <Eyebrow tone="light">Our mission</Eyebrow>
-                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink sm:text-4xl">
+                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink dark:text-chalk sm:text-4xl">
                   Put a performance lab in every cricketer’s pocket
                 </h2>
-                <p className="text-base leading-relaxed text-ink/65">
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">
                   Cricket has never been short of coaching knowledge. What it has
                   lacked is a way to measure a delivery where the delivery actually
                   happens — at the top of someone’s mark, on a Tuesday, with twenty
                   minutes of light left.
                 </p>
-                <p className="text-base leading-relaxed text-ink/65">
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">
                   Our job is to close that distance. One clip, one honest read on the
                   action, and a record that still means something in three months’
                   time.
@@ -259,7 +259,7 @@ export function AboutPage() {
 
             <Reveal delay={120}>
               <Card tone="light" className="p-7 sm:p-8" interactive={false}>
-                <p className="font-display text-xl font-bold leading-snug text-ink sm:text-2xl">
+                <p className="font-display text-xl font-bold leading-snug text-ink dark:text-chalk sm:text-2xl">
                   “Every cricketer deserves to know what their action is doing —
                   not just how it felt.”
                 </p>
@@ -358,14 +358,14 @@ export function AboutPage() {
                 className="max-w-none"
               />
               <Reveal delay={120}>
-                <div className="rounded-2xl border border-pitch/10 bg-white p-5 shadow-lg shadow-pitch/5">
-                  <div className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">
+                <div className="rounded-2xl border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-5 shadow-lg shadow-pitch/5">
+                  <div className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40 dark:text-chalk/40">
                     Six sessions, one bowler
                   </div>
                   <div className="h-28">
                     <MetricBars bars={[46, 55, 52, 71, 83, 91]} />
                   </div>
-                  <p className="pt-4 text-xs leading-relaxed text-ink/50">
+                  <p className="pt-4 text-xs leading-relaxed text-ink/50 dark:text-chalk/50">
                     Kept side by side, so a change in action is something you can show
                     the player rather than something you both hope happened.
                   </p>
@@ -381,8 +381,8 @@ export function AboutPage() {
                       <span className="grid h-10 w-10 place-items-center rounded-xl bg-pitch text-lime">
                         <span className="font-display text-sm font-extrabold">{i + 1}</span>
                       </span>
-                      <h3 className="font-display text-lg font-bold text-ink">{d.title}</h3>
-                      <p className="text-sm leading-relaxed text-ink/65">{d.body}</p>
+                      <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">{d.title}</h3>
+                      <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{d.body}</p>
                     </Card>
                   </TiltCard>
                 </Reveal>
@@ -526,14 +526,14 @@ export function AboutPage() {
                       {t.initials}
                     </span>
                     <div>
-                      <h3 className="font-display text-lg font-bold leading-snug text-ink">
+                      <h3 className="font-display text-lg font-bold leading-snug text-ink dark:text-chalk">
                         {t.role}
                       </h3>
                       <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-pitch/15 bg-pitch/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-pitch">
                         Profile coming soon
                       </span>
                     </div>
-                    <p className="text-sm leading-relaxed text-ink/65">{t.focus}</p>
+                    <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{t.focus}</p>
                   </Card>
                 </TiltCard>
               </Reveal>
@@ -541,12 +541,12 @@ export function AboutPage() {
           </div>
 
           <Reveal delay={340} className="mt-8">
-            <div className="flex flex-col items-start justify-between gap-5 rounded-[var(--radius-card)] border border-pitch/10 bg-white p-6 shadow-lg shadow-pitch/5 sm:flex-row sm:items-center sm:p-7">
+            <div className="flex flex-col items-start justify-between gap-5 rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-lg shadow-pitch/5 sm:flex-row sm:items-center sm:p-7">
               <div>
-                <h3 className="font-display text-lg font-bold text-ink">
+                <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">
                   There is a seat open for a cricket person
                 </h3>
-                <p className="pt-1 text-sm leading-relaxed text-ink/60">
+                <p className="pt-1 text-sm leading-relaxed text-ink/60 dark:text-chalk/60">
                   If you have coached, played or analysed at any level and want to build
                   the tools you wished you had, we would rather hear from you than from a
                   recruiter.

@@ -16,6 +16,7 @@ import {
   type TicketMessage,
 } from '../../api/support'
 import { Button, Card, Chip, Reveal } from '../../components/site/ui'
+import { useToast } from '../../components/site/Toast'
 
 function when(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -94,6 +95,7 @@ function Bubble({ message, ticketId }: { message: TicketMessage; ticketId: strin
 export function TicketPage() {
   const { ticketId = '' } = useParams()
   const navigate = useNavigate()
+  const toast = useToast()
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [messages, setMessages] = useState<TicketMessage[]>([])
   const [loading, setLoading] = useState(true)
@@ -192,7 +194,12 @@ export function TicketPage() {
                 type="button"
                 onClick={async () => {
                   const r = await support.setStatus(ticket.id, 'resolved').catch(() => null)
-                  if (r) setTicket(r.ticket)
+                  if (r) {
+                    setTicket(r.ticket)
+                    toast.push('Marked resolved. Reply any time to reopen it.', 'ok')
+                  } else {
+                    toast.push('Could not update that ticket — try again.', 'error')
+                  }
                 }}
                 className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-chalk/70 transition hover:border-ok/50 hover:text-ok"
               >

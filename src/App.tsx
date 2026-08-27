@@ -4,6 +4,8 @@ import { AuthProvider } from './auth/AuthProvider'
 import { RedirectIfAuthenticated, RequireAuth, RequireVerified } from './auth/guards'
 import { AssistantWidget } from './components/app/AssistantWidget'
 import { Layout } from './components/Layout'
+import { ConfirmProvider } from './components/site/ConfirmDialog'
+import { ToastProvider } from './components/site/Toast'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { HomePage } from './pages/site/HomePage'
 
@@ -95,9 +97,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
+        <ToastProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <Suspense fallback={<RouteFallback />}>
+                <Routes>
               {/* ---------------- Public marketing ---------------- */}
               <Route path="/" element={<HomePage />} />
               <Route path="/features" element={<FeaturesPage />} />
@@ -171,11 +175,14 @@ export default function App() {
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </Suspense>
-          {/* Outside Suspense: the assistant should be reachable while a route
-              chunk is still loading, which is exactly when someone is stuck. */}
-          <AssistantWidget />
-        </AuthProvider>
+              </Suspense>
+              {/* Outside Suspense: the assistant should be reachable while a
+                  route chunk is still loading, which is exactly when someone
+                  is stuck. */}
+              <AssistantWidget />
+            </AuthProvider>
+          </ConfirmProvider>
+        </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

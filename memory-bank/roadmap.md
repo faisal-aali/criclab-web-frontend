@@ -63,3 +63,9 @@ High-level features. Detail lives in `tasks/`.
   access token with a persisted rotating refresh token, a notification centre in
   the app shell, and an account settings page (profile, password, active
   devices). Support, coaching and the assistant UIs are not built.
+- **27 Aug 2026 (TASK-011):** Support, coaching and the assistant UIs built —
+  `SupportPage`/`TicketPage`, `CoachingPage`, and a floating `AssistantWidget`
+  mounted at the app root. New API clients: `support.ts`, `coaching.ts`,
+  `assistant.ts`; `auth.ts` gained `authFetchBlob` for authenticated file
+  downloads. Same pass also fixed a workspace-wide dark-mode bug found while
+  verifying these pages — see "Workspace theming" in systemPatterns.md.

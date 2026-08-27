@@ -9,7 +9,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth } from '../../api/auth'
 import { useAuth } from '../../auth/AuthProvider'
+import { useConfirm } from '../../components/site/ConfirmDialog'
 import { Button, Card, Chip, Reveal } from '../../components/site/ui'
+import { useToast } from '../../components/site/Toast'
 import { useTheme, type ThemePreference } from '../../theme/ThemeProvider'
 
 type Session = { id: string; device: string; created_at: string; last_used_at: string }
@@ -49,6 +51,8 @@ export function AccountSettingsPage() {
   const { user, setUser, signOut, adopt } = useAuth()
   const { preference, setPreference } = useTheme()
   const navigate = useNavigate()
+  const confirm = useConfirm()
+  const toast = useToast()
 
   const [name, setName] = useState(user?.name ?? '')
   const [profileBusy, setProfileBusy] = useState(false)
@@ -269,7 +273,21 @@ export function AccountSettingsPage() {
                     <button
                       type="button"
                       onClick={async () => {
-                        await auth.endSession(s.id).catch(() => undefined)
+                        const ok = await confirm({
+                          title: 'End this session?',
+                          body: `${s.device} will be signed out immediately.`,
+                          confirmLabel: 'End session',
+                          tone: 'danger',
+                        })
+                        if (!ok) return
+                        const worked = await auth.endSession(s.id).then(
+                          () => true,
+                          () => false,
+                        )
+                        toast.push(
+                          worked ? 'Session ended.' : 'Could not end that session — try again.',
+                          worked ? 'ok' : 'error',
+                        )
                         loadSessions()
                       }}
                       className="shrink-0 rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-chalk/70 transition hover:border-bad/50 hover:text-bad"
@@ -286,6 +304,13 @@ export function AccountSettingsPage() {
                 variant="secondary"
                 size="sm"
                 onClick={async () => {
+                  const ok = await confirm({
+                    title: 'Sign out everywhere?',
+                    body: 'Every device signed in to this account — including this one — will be signed out immediately.',
+                    confirmLabel: 'Sign out everywhere',
+                    tone: 'danger',
+                  })
+                  if (!ok) return
                   await auth.signOutEverywhere().catch(() => undefined)
                   await signOut()
                   navigate('/login', { replace: true })

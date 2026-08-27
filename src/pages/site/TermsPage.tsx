@@ -20,14 +20,14 @@ const LAST_UPDATED = '27 August 2026'
 --------------------------------------------------------------------------- */
 
 function P({ children }: { children: ReactNode }) {
-  return <p className="text-sm leading-relaxed text-ink/70 sm:text-[15px]">{children}</p>
+  return <p className="text-sm leading-relaxed text-ink/70 dark:text-chalk/70 sm:text-[15px]">{children}</p>
 }
 
 function Bullets({ items }: { items: ReactNode[] }) {
   return (
     <ul className="flex flex-col gap-2.5">
       {items.map((item, i) => (
-        <li key={i} className="flex gap-3 text-sm leading-relaxed text-ink/70 sm:text-[15px]">
+        <li key={i} className="flex gap-3 text-sm leading-relaxed text-ink/70 dark:text-chalk/70 sm:text-[15px]">
           <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pitch" aria-hidden />
           <span>{item}</span>
         </li>
@@ -140,7 +140,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode; highlight?: boolea
     body: (
       <>
         <P>
-          CricLab reports <strong className="font-semibold text-ink">estimates</strong> read
+          CricLab reports <strong className="font-semibold text-ink dark:text-chalk">estimates</strong> read
           from the footage you provide. It is a coaching and performance tool. It is not
           officiating equipment, and it is not a medical device.
         </P>
@@ -239,11 +239,11 @@ const SECTIONS: { id: string; title: string; body: ReactNode; highlight?: boolea
       <>
         <P>
           These terms are governed by the laws of{' '}
-          <span className="rounded bg-warn/20 px-1.5 py-0.5 font-semibold text-ink">
+          <span className="rounded bg-warn/20 px-1.5 py-0.5 font-semibold text-ink dark:text-chalk">
             [jurisdiction to be confirmed]
           </span>
           , and the courts of{' '}
-          <span className="rounded bg-warn/20 px-1.5 py-0.5 font-semibold text-ink">
+          <span className="rounded bg-warn/20 px-1.5 py-0.5 font-semibold text-ink dark:text-chalk">
             [jurisdiction to be confirmed]
           </span>{' '}
           have exclusive jurisdiction over any dispute arising from them.
@@ -311,10 +311,10 @@ export function TermsPage() {
         <Container>
           <Reveal>
             <div className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-warn/40 bg-warn/10 p-6 sm:p-7">
-              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/60">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/60 dark:text-chalk/60">
                 Please read before launch
               </span>
-              <p className="text-sm leading-relaxed text-ink/75 sm:text-[15px]">
+              <p className="text-sm leading-relaxed text-ink/75 dark:text-chalk/75 sm:text-[15px]">
                 This page is a working template, written to be readable rather than to be
                 final. It has not been reviewed by a lawyer. Before CricLab is offered
                 publicly, these terms — and in particular the measurement disclaimer, the
@@ -332,8 +332,8 @@ export function TermsPage() {
                   <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-pitch">
                     {s.tag}
                   </span>
-                  <h2 className="font-display text-lg font-bold text-ink">{s.title}</h2>
-                  <p className="text-sm leading-relaxed text-ink/65">{s.body}</p>
+                  <h2 className="font-display text-lg font-bold text-ink dark:text-chalk">{s.title}</h2>
+                  <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{s.body}</p>
                 </Card>
               </Reveal>
             ))}
@@ -347,8 +347,8 @@ export function TermsPage() {
           <div className="grid gap-10 lg:grid-cols-[250px_1fr] lg:gap-14">
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <Reveal>
-                <div className="rounded-[var(--radius-card)] border border-pitch/10 bg-white p-5 shadow-lg shadow-pitch/5">
-                  <p className="pb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-ink/40">
+                <div className="rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-5 shadow-lg shadow-pitch/5">
+                  <p className="pb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-ink/40 dark:text-chalk/40">
                     On this page
                   </p>
                   <nav className="flex flex-col gap-0.5">
@@ -356,9 +356,9 @@ export function TermsPage() {
                       <a
                         key={s.id}
                         href={`#${s.id}`}
-                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 transition hover:bg-pitch/5 hover:text-pitch"
+                        className="flex gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-ink/60 dark:text-chalk/60 transition hover:bg-pitch/5 hover:text-pitch"
                       >
-                        <span className="font-mono text-[11px] leading-5 text-ink/30">
+                        <span className="font-mono text-[11px] leading-5 text-ink/30 dark:text-chalk/30">
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         {s.title}
@@ -376,7 +376,7 @@ export function TermsPage() {
                     <div
                       className={
                         s.highlight
-                          ? 'flex flex-col gap-4 rounded-[var(--radius-card)] border border-pitch/20 bg-white p-6 shadow-xl shadow-pitch/5 sm:p-8'
+                          ? 'flex flex-col gap-4 rounded-[var(--radius-card)] border border-pitch/20 bg-white dark:bg-white/6 p-6 shadow-xl shadow-pitch/5 sm:p-8'
                           : 'flex flex-col gap-4'
                       }
                     >
@@ -386,7 +386,7 @@ export function TermsPage() {
                           Read this one twice
                         </span>
                       ) : null}
-                      <h2 className="font-display text-2xl font-extrabold leading-tight text-ink sm:text-[1.75rem]">
+                      <h2 className="font-display text-2xl font-extrabold leading-tight text-ink dark:text-chalk sm:text-[1.75rem]">
                         <span className="pr-3 font-mono text-base font-bold text-pitch/40">
                           {String(i + 1).padStart(2, '0')}
                         </span>
@@ -399,7 +399,7 @@ export function TermsPage() {
               ))}
 
               <Reveal>
-                <div className="rounded-[var(--radius-card)] border border-pitch/10 bg-white p-6 text-xs leading-relaxed text-ink/50">
+                <div className="rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 text-xs leading-relaxed text-ink/50 dark:text-chalk/50">
                   Last updated {LAST_UPDATED}. This document is a template prepared for
                   review and must be signed off by legal counsel before CricLab is offered
                   publicly.

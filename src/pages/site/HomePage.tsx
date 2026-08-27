@@ -363,10 +363,10 @@ export function HomePage() {
             <Reveal>
               <div className="flex flex-col items-start gap-5">
                 <Eyebrow tone="light">The review clip</Eyebrow>
-                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink sm:text-4xl">
+                <h2 className="font-display text-3xl font-extrabold leading-[1.1] text-ink dark:text-chalk sm:text-4xl">
                   Watch the delivery the way a coach reads it
                 </h2>
-                <p className="text-base leading-relaxed text-ink/65">
+                <p className="text-base leading-relaxed text-ink/65 dark:text-chalk/65">
                   The moments that matter are held on screen and labelled — back-foot
                   contact, front-foot contact, arm horizontal, release,
                   follow-through — with the ball’s path drawn in and the key numbers
@@ -379,7 +379,7 @@ export function HomePage() {
                     'Metrics panel matched to the frame',
                     'Shareable with player or squad',
                   ].map((t) => (
-                    <li key={t} className="flex items-center gap-3 text-sm font-medium text-ink/75">
+                    <li key={t} className="flex items-center gap-3 text-sm font-medium text-ink/75 dark:text-chalk/75">
                       <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-pitch text-[11px] font-bold text-lime">
                         ✓
                       </span>
@@ -496,8 +496,8 @@ export function HomePage() {
                 className="max-w-none"
               />
               <Reveal delay={120}>
-                <div className="h-44 rounded-2xl border border-pitch/10 bg-white p-5 shadow-lg shadow-pitch/5">
-                  <div className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">
+                <div className="h-44 rounded-2xl border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-5 shadow-lg shadow-pitch/5">
+                  <div className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40 dark:text-chalk/40">
                     Session comparison
                   </div>
                   <div className="h-28">
@@ -514,8 +514,8 @@ export function HomePage() {
                     <span className="grid h-10 w-10 place-items-center rounded-xl bg-pitch text-lime">
                       <span className="font-display text-sm font-extrabold">{i + 1}</span>
                     </span>
-                    <h3 className="font-display text-lg font-bold text-ink">{b.title}</h3>
-                    <p className="text-sm leading-relaxed text-ink/65">{b.body}</p>
+                    <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">{b.title}</h3>
+                    <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{b.body}</p>
                   </Card>
                 </Reveal>
               ))}

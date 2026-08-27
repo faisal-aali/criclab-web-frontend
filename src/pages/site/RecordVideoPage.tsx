@@ -529,11 +529,11 @@ export function RecordVideoPage() {
                 </Reveal>
               </div>
               <Reveal delay={300}>
-                <p className="text-sm leading-relaxed text-ink/55">
+                <p className="text-sm leading-relaxed text-ink/55 dark:text-chalk/55">
                   Two clip types, two positions.{' '}
-                  <span className="font-semibold text-ink">Action</span> is filmed side-on
+                  <span className="font-semibold text-ink dark:text-chalk">Action</span> is filmed side-on
                   for the bowling action;{' '}
-                  <span className="font-semibold text-ink">Ball flight</span> is filmed from
+                  <span className="font-semibold text-ink dark:text-chalk">Ball flight</span> is filmed from
                   behind for the path of the ball. Both are below.
                 </p>
               </Reveal>
@@ -714,19 +714,19 @@ export function RecordVideoPage() {
                     >
                       {i + 1}
                     </span>
-                    <h3 className="font-display text-lg font-bold text-ink">{d.topic}</h3>
+                    <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">{d.topic}</h3>
                   </div>
                   <div className="flex gap-3">
                     <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-pitch text-[12px] font-bold text-lime">
                       ✓
                     </span>
-                    <p className="text-sm leading-relaxed text-ink/75">{d.good}</p>
+                    <p className="text-sm leading-relaxed text-ink/75 dark:text-chalk/75">{d.good}</p>
                   </div>
                   <div className="flex gap-3 border-t border-pitch/10 pt-4">
                     <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-ball/10 text-[12px] font-bold text-ball">
                       ✗
                     </span>
-                    <p className="text-sm leading-relaxed text-ink/50">{d.bad}</p>
+                    <p className="text-sm leading-relaxed text-ink/50 dark:text-chalk/50">{d.bad}</p>
                   </div>
                 </Card>
                 </TiltCard>
@@ -817,8 +817,8 @@ export function RecordVideoPage() {
                       {s.n}
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <h3 className="font-display text-lg font-bold text-ink">{s.title}</h3>
-                      <p className="text-sm leading-relaxed text-ink/65">{s.body}</p>
+                      <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">{s.title}</h3>
+                      <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{s.body}</p>
                     </div>
                   </Card>
                 </Reveal>

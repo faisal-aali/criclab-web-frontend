@@ -144,10 +144,23 @@ export function AssistantWidget() {
                 <path d="M18 6.5 Q12 12 18 17.5" fill="none" stroke="#b6f24a" strokeWidth="1.7" strokeLinecap="round" />
               </svg>
             </span>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-display text-sm font-bold text-chalk">CricLab assistant</p>
               <p className="text-[10px] text-chalk/40">Answers from the CricLab guide</p>
             </div>
+            {messages.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setMessages([])}
+                title="Clear conversation"
+                aria-label="Clear conversation"
+                className="shrink-0 rounded-lg p-1.5 text-chalk/35 transition hover:bg-white/5 hover:text-chalk/70"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-.7 12a2 2 0 0 1-2 1.8H9.7a2 2 0 0 1-2-1.8L7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ) : null}
           </header>
 
           <div className="scroll-slim flex-1 overflow-y-auto px-5 py-4">

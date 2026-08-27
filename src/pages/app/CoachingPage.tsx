@@ -16,7 +16,9 @@ import {
   type Booking,
   type Coach,
 } from '../../api/coaching'
+import { useConfirm } from '../../components/site/ConfirmDialog'
 import { Button, Card, Chip, Reveal } from '../../components/site/ui'
+import { useToast } from '../../components/site/Toast'
 
 const ACCENT: Record<string, string> = {
   lime: 'from-lime to-lime-deep text-night',
@@ -40,12 +42,16 @@ function Avatar({ coach, size = 'md' }: { coach: Coach; size?: 'sm' | 'md' }) {
 function BookingCard({
   booking,
   onChanged,
+  onReschedule,
 }: {
   booking: Booking
   onChanged: () => void
+  onReschedule: (booking: Booking) => void
 }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const confirm = useConfirm()
+  const toast = useToast()
   const past = booking.status === 'completed'
   const cancelled = booking.status === 'cancelled'
   const hint = localHint(booking.starts_at, booking.timezone)
@@ -76,25 +82,48 @@ function BookingCard({
 
         {booking.can_cancel ? (
           <div className="flex flex-col items-end gap-1.5">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={async () => {
-                setBusy(true)
-                setError('')
-                try {
-                  await coaching.cancel(booking.id)
-                  onChanged()
-                } catch (err) {
-                  setError(err instanceof Error ? err.message : 'Could not cancel')
-                } finally {
-                  setBusy(false)
-                }
-              }}
-              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-chalk/70 transition hover:border-bad/50 hover:text-bad disabled:opacity-50"
-            >
-              {busy ? 'Cancelling…' : 'Cancel'}
-            </button>
+            <div className="flex gap-2">
+              {booking.can_reschedule ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onReschedule(booking)}
+                  className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-chalk/70 transition hover:border-lime/45 hover:text-lime disabled:opacity-50"
+                >
+                  Reschedule
+                </button>
+              ) : null}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: 'Cancel this session?',
+                    body: `Your ${slotTime(booking.starts_at, booking.timezone)} session with ${booking.coach.name} on ${slotDay(booking.starts_at, booking.timezone)} will be cancelled. The slot goes back on their calendar.`,
+                    confirmLabel: 'Cancel session',
+                    cancelLabel: 'Keep it',
+                    tone: 'danger',
+                  })
+                  if (!ok) return
+                  setBusy(true)
+                  setError('')
+                  try {
+                    await coaching.cancel(booking.id)
+                    toast.push('Session cancelled.', 'ok')
+                    onChanged()
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : 'Could not cancel'
+                    setError(message)
+                    toast.push(message, 'error')
+                  } finally {
+                    setBusy(false)
+                  }
+                }}
+                className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-chalk/70 transition hover:border-bad/50 hover:text-bad disabled:opacity-50"
+              >
+                {busy ? 'Cancelling…' : 'Cancel'}
+              </button>
+            </div>
             <span className="text-[10px] text-chalk/30">
               Free up to {booking.cancel_window_hours}h before
             </span>
@@ -115,19 +144,25 @@ function BookingCard({
 
 function BookingPanel({
   coach,
+  reschedule,
   onBooked,
   onClose,
 }: {
   coach: Coach
+  /** Present when moving an existing session rather than creating a new one. */
+  reschedule?: Booking
   onBooked: () => void
   onClose: () => void
 }) {
-  const [sessionType, setSessionType] = useState(coach.session_types[0]?.id ?? '')
+  const [sessionType, setSessionType] = useState(
+    reschedule?.session_type ?? coach.session_types[0]?.id ?? '',
+  )
   const [availability, setAvailability] = useState<Availability | null>(null)
   const [loading, setLoading] = useState(true)
   const [slot, setSlot] = useState<string | null>(null)
   const [focus, setFocus] = useState('')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
   const [error, setError] = useState('')
 
   const loadSlots = useCallback(async () => {
@@ -151,15 +186,28 @@ function BookingPanel({
     setBusy(true)
     setError('')
     try {
-      await coaching.book({
-        coach: coach.slug,
-        starts_at: slot,
-        session_type: sessionType,
-        focus: focus.trim(),
-      })
+      if (reschedule) {
+        await coaching.reschedule(reschedule.id, slot)
+        toast.push('Session moved — the new time is confirmed.', 'ok')
+      } else {
+        await coaching.book({
+          coach: coach.slug,
+          starts_at: slot,
+          session_type: sessionType,
+          focus: focus.trim(),
+        })
+        toast.push(`Booked with ${coach.name} — check your email for the confirmation.`, 'ok')
+      }
       onBooked()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'That slot could not be booked')
+      const message =
+        err instanceof Error
+          ? err.message
+          : reschedule
+            ? 'Could not move to that time'
+            : 'That slot could not be booked'
+      setError(message)
+      toast.push(message, 'error')
       // The calendar has moved on — reload it rather than leaving a stale grid.
       loadSlots()
     } finally {
@@ -173,8 +221,14 @@ function BookingPanel({
         <div className="flex items-center gap-4">
           <Avatar coach={coach} />
           <div>
-            <h2 className="font-display text-xl font-bold text-chalk">{coach.name}</h2>
-            <p className="text-sm text-chalk/55">{coach.title}</p>
+            <h2 className="font-display text-xl font-bold text-chalk">
+              {reschedule ? `Move your session with ${coach.name}` : coach.name}
+            </h2>
+            <p className="text-sm text-chalk/55">
+              {reschedule
+                ? `Was ${slotDay(reschedule.starts_at, reschedule.timezone)}, ${slotTime(reschedule.starts_at, reschedule.timezone)}`
+                : coach.title}
+            </p>
           </div>
         </div>
         <button
@@ -187,31 +241,33 @@ function BookingPanel({
       </div>
 
       <div className="flex flex-col gap-5 pt-6">
-        <div className="flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-chalk/55">
-            Kind of session
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {coach.session_types.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setSessionType(s.id)}
-                className={`rounded-xl border px-4 py-3 text-left transition ${
-                  sessionType === s.id
-                    ? 'border-lime/50 bg-lime/10'
-                    : 'border-white/12 bg-white/[0.03] hover:border-white/25'
-                }`}
-              >
-                <span className="block text-sm font-semibold text-chalk">{s.label}</span>
-                <span className="block text-[11px] text-chalk/45">{s.minutes} minutes</span>
-                <span className="block max-w-[15rem] pt-1 text-[11px] leading-relaxed text-chalk/40">
-                  {s.description}
-                </span>
-              </button>
-            ))}
+        {reschedule ? null : (
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-chalk/55">
+              Kind of session
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {coach.session_types.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSessionType(s.id)}
+                  className={`rounded-xl border px-4 py-3 text-left transition ${
+                    sessionType === s.id
+                      ? 'border-lime/50 bg-lime/10'
+                      : 'border-white/12 bg-white/[0.03] hover:border-white/25'
+                  }`}
+                >
+                  <span className="block text-sm font-semibold text-chalk">{s.label}</span>
+                  <span className="block text-[11px] text-chalk/45">{s.minutes} minutes</span>
+                  <span className="block max-w-[15rem] pt-1 text-[11px] leading-relaxed text-chalk/40">
+                    {s.description}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between gap-3">
@@ -268,18 +324,20 @@ function BookingPanel({
           ) : null}
         </div>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-chalk/55">
-            What do you want to work on <span className="text-chalk/30">(optional)</span>
-          </span>
-          <input
-            value={focus}
-            onChange={(e) => setFocus(e.target.value)}
-            maxLength={200}
-            placeholder="Release is drifting when I go for pace"
-            className="field field-dark"
-          />
-        </label>
+        {reschedule ? null : (
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-chalk/55">
+              What do you want to work on <span className="text-chalk/30">(optional)</span>
+            </span>
+            <input
+              value={focus}
+              onChange={(e) => setFocus(e.target.value)}
+              maxLength={200}
+              placeholder="Release is drifting when I go for pace"
+              className="field field-dark"
+            />
+          </label>
+        )}
 
         {error ? (
           <div role="alert" className="rounded-xl border border-bad/30 bg-bad/10 px-4 py-2.5 text-sm text-bad">
@@ -289,7 +347,13 @@ function BookingPanel({
 
         <div>
           <Button onClick={book} disabled={!slot || busy}>
-            {busy ? 'Booking…' : slot ? `Book ${slotTime(slot, availability?.timezone ?? coach.timezone)}` : 'Pick a time'}
+            {busy
+              ? reschedule
+                ? 'Moving…'
+                : 'Booking…'
+              : slot
+                ? `${reschedule ? 'Move to' : 'Book'} ${slotTime(slot, availability?.timezone ?? coach.timezone)}`
+                : 'Pick a time'}
           </Button>
         </div>
       </div>
@@ -302,6 +366,21 @@ export function CoachingPage() {
   const [bookings, setBookings] = useState<Booking[] | null>(null)
   const [selected, setSelected] = useState<Coach | null>(null)
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming')
+  const [reschedulingBooking, setReschedulingBooking] = useState<Booking | null>(null)
+  const toast = useToast()
+
+  const startReschedule = useCallback(
+    async (booking: Booking) => {
+      try {
+        const { coach } = await coaching.coach(booking.coach.slug)
+        setReschedulingBooking(booking)
+        setSelected(coach)
+      } catch {
+        toast.push('Could not load that coach right now — try again.', 'error')
+      }
+    },
+    [toast],
+  )
 
   const loadBookings = useCallback(async () => {
     try {
@@ -339,9 +418,14 @@ export function CoachingPage() {
         <Reveal>
           <BookingPanel
             coach={selected}
-            onClose={() => setSelected(null)}
+            reschedule={reschedulingBooking ?? undefined}
+            onClose={() => {
+              setSelected(null)
+              setReschedulingBooking(null)
+            }}
             onBooked={() => {
               setSelected(null)
+              setReschedulingBooking(null)
               setTab('upcoming')
               loadBookings()
             }}
@@ -439,7 +523,12 @@ export function CoachingPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {bookings.map((b) => (
-              <BookingCard key={b.id} booking={b} onChanged={loadBookings} />
+              <BookingCard
+                key={b.id}
+                booking={b}
+                onChanged={loadBookings}
+                onReschedule={startReschedule}
+              />
             ))}
           </div>
         )}

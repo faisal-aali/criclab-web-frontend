@@ -298,8 +298,8 @@ export function HowItWorksPage() {
                         </span>
                         <span className="h-px flex-1 bg-gradient-to-r from-pitch/25 to-transparent" />
                       </div>
-                      <h3 className="font-display text-xl font-bold text-ink">{s.title}</h3>
-                      <p className="text-sm leading-relaxed text-ink/65">{s.body}</p>
+                      <h3 className="font-display text-xl font-bold text-ink dark:text-chalk">{s.title}</h3>
+                      <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{s.body}</p>
                       <span className="mt-auto pt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-pitch/70">
                         {s.note}
                       </span>
@@ -311,7 +311,7 @@ export function HowItWorksPage() {
           </div>
 
           <Reveal delay={220} className="mt-12 text-center">
-            <p className="text-sm text-ink/55">
+            <p className="text-sm text-ink/55 dark:text-chalk/55">
               Step one takes about a minute.{' '}
               <Link
                 to="/features"
@@ -606,7 +606,7 @@ export function HowItWorksPage() {
           </div>
 
           <Reveal delay={200} className="mt-10 text-center">
-            <Link to="/faq" className="text-sm font-semibold text-pitch hover:text-ink">
+            <Link to="/faq" className="text-sm font-semibold text-pitch hover:text-ink dark:hover:text-chalk">
               Read the full FAQ →
             </Link>
           </Reveal>

@@ -285,8 +285,8 @@ export function CareersPage() {
                   >
                     <span className="font-display text-sm font-extrabold">{i + 1}</span>
                   </span>
-                  <h3 className="font-display text-lg font-bold text-ink">{h.title}</h3>
-                  <p className="text-sm leading-relaxed text-ink/65">{h.body}</p>
+                  <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">{h.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{h.body}</p>
                 </Card>
               </Reveal>
             ))}
@@ -356,11 +356,11 @@ export function CareersPage() {
                 className="max-w-none"
               />
               <Reveal delay={120}>
-                <div className="rounded-2xl border border-pitch/10 bg-white p-6 shadow-lg shadow-pitch/5">
-                  <div className="pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40">
+                <div className="rounded-2xl border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-lg shadow-pitch/5">
+                  <div className="pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/40 dark:text-chalk/40">
                     Where we hire
                   </div>
-                  <p className="text-sm leading-relaxed text-ink/65">
+                  <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">
                     We are set up for the UK and India, and open to anywhere within a few
                     hours of those working days. Every role is written remote-first, with
                     a desk available in London if you would rather not work from the
@@ -374,8 +374,8 @@ export function CareersPage() {
               {BENEFITS.map((b, i) => (
                 <Reveal key={b.title} delay={i * 70}>
                   <Card tone="light" className="ring-glow flex h-full flex-col gap-2.5 p-6">
-                    <h3 className="font-display text-base font-bold text-ink">{b.title}</h3>
-                    <p className="text-sm leading-relaxed text-ink/65">{b.body}</p>
+                    <h3 className="font-display text-base font-bold text-ink dark:text-chalk">{b.title}</h3>
+                    <p className="text-sm leading-relaxed text-ink/65 dark:text-chalk/65">{b.body}</p>
                   </Card>
                 </Reveal>
               ))}

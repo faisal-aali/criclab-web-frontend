@@ -147,6 +147,43 @@ Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → P
   independently; the guard only decides what to render.
 - Poll counts, not lists: the notification badge polls `unread-count` and pauses
   while the tab is hidden; the list loads when the panel opens.
+- **Protected, added TASK-011** — `/app/support`, `/app/support/:ticketId`
+  outside `RequireVerified` (someone who cannot get verified still needs a way
+  to report it); `/app/coaching` inside it (booking creates data and sends
+  mail). The assistant widget is mounted outside `<Suspense>` at the app root so
+  it is reachable even while a route chunk is still loading.
+
+## Workspace theming — dark-first, remapped for light
+
+`Layout.tsx` and everything under `src/pages/app/` are written **once**, in
+dark-first tokens (`text-chalk`, `bg-charcoal`, `bg-white/5`,
+`border-white/10`) and **never with a `dark:` variant**. Light mode is produced
+entirely by `.app-shell` in `index.css` remapping those CSS custom properties
+under `html.light`.
+
+This is the opposite convention from the marketing site (`src/pages/site/`),
+which is light-first with `dark:` overrides — the two surfaces are themed in
+mirror-image ways, and copying one page's convention onto the other silently
+inverts it. A `dark:` pair added to workspace markup is applied *on top of* an
+already-remapped token: `bg-chalk dark:bg-night` paints a dark surface under
+dark text once the remap has already turned `--color-chalk` dark, and
+`text-ink` puts near-black text on it. This is exactly what shipped and had to
+be found and rewritten — see TASK-011 for the full account.
+
+Two consequences that are easy to reintroduce by accident:
+
+- **A plain CSS class (not a Tailwind utility) needs an explicit `html.dark`
+  counterpart, not a `dark:` call-site pair.** `.glass-light`,
+  `.bg-chalk-gradient` and `.bg-chalk-warm` are defined once in `index.css`;
+  Tailwind's `dark:` variant only wins by specificity against *utility*
+  classes, so a `dark:bg-something` sitting next to one of these in markup does
+  nothing — stylesheet order decides, and these plain classes are emitted after
+  the utilities. Give each its own `html.dark .the-class { … }` rule beside its
+  light definition instead.
+- **A surface meant to stay dark in both themes** (a header over a floodlit
+  photo, a video frame) should carry the `on-night` class, which restores the
+  dark token values for that subtree only, rather than being left unstyled and
+  accidentally inheriting the light remap.
 
 ## Privacy rule — never expose how the analysis works
 
