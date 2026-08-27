@@ -14,11 +14,13 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
 import { CricLabMark } from '../site/SiteHeader'
+import { InstallAppButton } from '../site/InstallAppButton'
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/users', label: 'Users' },
   { to: '/admin/analyses', label: 'Analyses' },
+  { to: '/admin/drills', label: 'Drills' },
   { to: '/admin/coaching', label: 'Coaching' },
   { to: '/admin/tickets', label: 'Support' },
   { to: '/admin/notifications', label: 'Notifications' },
@@ -38,11 +40,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           key={l.to}
           to={l.to}
           end={l.end}
-          className={({ isActive }) =>
-            `rounded-lg px-3.5 py-2.5 text-sm font-semibold transition ${
-              isActive ? 'bg-lime/12 text-lime' : 'text-chalk/60 hover:bg-white/5 hover:text-chalk'
+          className={({ isActive }) => {
+            const onReports = l.to === '/admin/analyses' && location.pathname.startsWith('/admin/reports')
+            const active = isActive || onReports
+            return `rounded-lg px-3.5 py-2.5 text-sm font-semibold transition ${
+              active ? 'bg-lime/12 text-lime' : 'text-chalk/60 hover:bg-white/5 hover:text-chalk'
             }`
-          }
+          }}
         >
           {l.label}
         </NavLink>
@@ -71,19 +75,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/8 bg-night/70 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/8 bg-night/70 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
           <Link to="/admin" className="flex items-center gap-2">
             <CricLabMark />
             <span className="rounded-md border border-warn/30 bg-warn/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-warn">
               Admin
             </span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            className="grid h-9 w-9 place-items-center rounded-lg border border-white/15 bg-white/5"
-          >
+          <div className="flex items-center gap-2">
+            <InstallAppButton compact />
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              className="grid h-10 w-10 place-items-center rounded-lg border border-white/15 bg-white/5"
+            >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4.5 w-4.5">
               {open ? (
                 <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -92,16 +98,26 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               )}
             </svg>
           </button>
+          </div>
         </header>
         {open ? <div className="border-b border-white/8 bg-night px-4 py-4 lg:hidden">{nav}</div> : null}
 
         <div className="hidden items-center justify-between border-b border-white/8 bg-night/40 px-8 py-3 lg:flex">
           <p className="text-xs text-chalk/40">Platform administration</p>
-          <p className="text-xs font-semibold text-chalk/70">{user?.name}</p>
+          <div className="flex items-center gap-3">
+            <InstallAppButton />
+            <p className="text-xs font-semibold text-chalk/70">{user?.name}</p>
+          </div>
         </div>
 
         <main className="scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+          <div
+            className={`mx-auto w-full ${
+              location.pathname.startsWith('/admin/reports') ? 'max-w-7xl' : 'max-w-6xl'
+            }`}
+          >
+            {children}
+          </div>
         </main>
       </div>
     </div>

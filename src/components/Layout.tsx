@@ -4,6 +4,7 @@ import { CricLabMark } from './site/SiteHeader'
 import { AccountMenu } from './app/AccountMenu'
 import { NotificationBell } from './app/NotificationBell'
 import { ThemeToggle } from './ThemeToggle'
+import { InstallAppButton } from './site/InstallAppButton'
 
 /**
  * Application shell.
@@ -82,6 +83,18 @@ const NAV = [
     ),
   },
   {
+    to: '/app/leaderboard',
+    label: 'Leaderboard',
+    hint: 'Top 20 throws',
+    icon: (
+      <path
+        d="M8 21h8M12 17v4M7 4h10v5a5 5 0 1 1-10 0V4Zm-3 2h3v4a3 3 0 0 1-3-3V6Zm16 0h-3v4a3 3 0 0 0 3-3V6Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
     to: '/app/support',
     label: 'Support',
     hint: 'Ask for help',
@@ -104,9 +117,28 @@ const TITLES: [string, string][] = [
   ['/app/coaching', 'Coaching'],
   ['/app/support', 'Support'],
   ['/app/train', 'Train'],
+  ['/app/leaderboard', 'Leaderboard'],
   ['/app/history', 'History'],
   ['/app/settings', 'Account'],
 ]
+
+const TABS = [
+  { to: '/app', label: 'Action', end: true },
+  { to: '/app/ball-flight', label: 'Flight', end: false },
+  { to: '/app/history', label: 'History', end: false },
+  { to: '/app/train', label: 'Train', end: false },
+]
+
+function tabActive(to: string, pathname: string) {
+  if (to === '/app') {
+    return (
+      pathname === '/app' ||
+      pathname.startsWith('/app/processing') ||
+      pathname.startsWith('/app/results')
+    )
+  }
+  return pathname === to || pathname.startsWith(`${to}/`)
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
@@ -163,9 +195,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="app-shell flex min-h-screen bg-charcoal text-chalk">
+    <div className="app-shell flex min-h-dvh bg-charcoal text-chalk">
       {/* ---------------- Desktop sidebar ---------------- */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/8 bg-charcoal/80 px-4 py-6 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-white/8 bg-charcoal/80 px-4 py-6 lg:flex">
         <Link to="/" className="px-2 pb-8 text-chalk transition hover:opacity-85">
           <CricLabMark />
         </Link>
@@ -193,39 +225,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* ---------------- Mobile header ---------------- */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-white/8 bg-charcoal/85 px-4 py-3 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-white/8 bg-charcoal/85 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
           <Link to="/" className="text-chalk">
             <CricLabMark />
           </Link>
           <div className="flex items-center gap-2">
-          <ThemeToggle variant="on-dark" />
-          <NotificationBell />
-          <AccountMenu />
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/5"
-          >
-            <span className="relative block h-4 w-5">
-              <span
-                className={`absolute left-0 h-0.5 w-5 rounded bg-current transition-all duration-300 ${
-                  open ? 'top-[7px] rotate-45' : 'top-0'
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-[7px] h-0.5 w-5 rounded bg-current transition-all ${
-                  open ? 'opacity-0' : 'opacity-100'
-                }`}
-              />
-              <span
-                className={`absolute left-0 h-0.5 w-5 rounded bg-current transition-all duration-300 ${
-                  open ? 'top-[7px] -rotate-45' : 'top-[14px]'
-                }`}
-              />
-            </span>
-          </button>
+            <InstallAppButton compact />
+            <ThemeToggle variant="on-dark" />
+            <NotificationBell />
+            <AccountMenu />
           </div>
         </header>
 
@@ -242,16 +250,56 @@ export function Layout({ children }: { children: React.ReactNode }) {
         ) : null}
 
         <div className="sticky top-0 z-30 hidden items-center justify-end gap-2.5 border-b border-white/8 bg-charcoal/80 px-9 py-3 backdrop-blur-xl lg:flex">
+          <InstallAppButton />
           <ThemeToggle variant="on-dark" />
           <NotificationBell />
           <AccountMenu />
         </div>
 
-        <main className="scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 sm:px-7 lg:px-9 lg:py-10">
+        <main className="scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:px-7 lg:px-9 lg:py-10 lg:pb-10">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
 
-        <footer className="border-t border-white/8 bg-charcoal/60 px-5 py-4">
+        <nav
+          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-charcoal/95 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden"
+          aria-label="Primary"
+        >
+          {TABS.map((t) => {
+            const item = NAV.find((n) => n.to === t.to)
+            const active = tabActive(t.to, location.pathname)
+            return (
+              <NavLink
+                key={t.to}
+                to={t.to}
+                end={t.end}
+                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+                  active ? 'text-lime' : 'text-chalk/50'
+                }`}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden>
+                  {item?.icon}
+                </svg>
+                {t.label}
+              </NavLink>
+            )
+          })}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? 'Close menu' : 'More'}
+            aria-expanded={open}
+            className={`flex min-h-12 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
+              open ? 'text-lime' : 'text-chalk/50'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden>
+              <path d="M5 7h14M5 12h14M5 17h14" strokeLinecap="round" />
+            </svg>
+            More
+          </button>
+        </nav>
+
+        <footer className="hidden border-t border-white/8 bg-charcoal/60 px-5 py-4 lg:block">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 text-[11px] text-chalk/55">
             <span>CricLab — the cricket performance lab</span>
             <span>

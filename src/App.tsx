@@ -8,6 +8,7 @@ import { Layout } from './components/Layout'
 import { ConfirmProvider } from './components/site/ConfirmDialog'
 import { ToastProvider } from './components/site/Toast'
 import { ThemeProvider } from './theme/ThemeProvider'
+import { PwaInstallProvider } from './pwa/PwaInstall'
 import { HomePage } from './pages/site/HomePage'
 
 /**
@@ -60,6 +61,9 @@ const BallFlightResultsPage = lazy(() =>
 )
 const TrainPage = lazy(() => import('./pages/TrainPage').then((m) => ({ default: m.TrainPage })))
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
+const LeaderboardPage = lazy(() =>
+  import('./pages/LeaderboardPage').then((m) => ({ default: m.LeaderboardPage })),
+)
 const AccountSettingsPage = lazy(() =>
   import('./pages/app/AccountSettingsPage').then((m) => ({ default: m.AccountSettingsPage })),
 )
@@ -87,6 +91,12 @@ const AdminTicketsPage = lazy(() =>
 )
 const AdminNotificationsPage = lazy(() =>
   import('./pages/admin/AdminNotificationsPage').then((m) => ({ default: m.AdminNotificationsPage })),
+)
+const AdminPlayerHistoryPage = lazy(() =>
+  import('./pages/admin/AdminPlayerHistoryPage').then((m) => ({ default: m.AdminPlayerHistoryPage })),
+)
+const AdminDrillsPage = lazy(() =>
+  import('./pages/admin/AdminDrillsPage').then((m) => ({ default: m.AdminDrillsPage })),
 )
 
 /** Shown while a route chunk loads. Dark, so it never flashes white. */
@@ -125,6 +135,7 @@ export default function App() {
         <ToastProvider>
           <ConfirmProvider>
             <AuthProvider>
+              <PwaInstallProvider>
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
               {/* ---------------- Public marketing ---------------- */}
@@ -188,6 +199,7 @@ export default function App() {
                   <Route path="/app/coaching" element={<AppShell><CoachingPage /></AppShell>} />
                 <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
                   <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
+                  <Route path="/app/leaderboard" element={<AppShell><LeaderboardPage /></AppShell>} />
                 </Route>
               </Route>
 
@@ -197,7 +209,20 @@ export default function App() {
               <Route element={<RequireAdmin />}>
                 <Route path="/admin" element={<AdminShell><AdminDashboardPage /></AdminShell>} />
                 <Route path="/admin/users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
+                <Route
+                  path="/admin/users/:userId/history"
+                  element={<AdminShell><AdminPlayerHistoryPage /></AdminShell>}
+                />
                 <Route path="/admin/analyses" element={<AdminShell><AdminAnalysesPage /></AdminShell>} />
+                <Route path="/admin/drills" element={<AdminShell><AdminDrillsPage /></AdminShell>} />
+                <Route
+                  path="/admin/reports/:deliveryId"
+                  element={<AdminShell><ResultsPage /></AdminShell>}
+                />
+                <Route
+                  path="/admin/reports/ball-flight/:sessionId"
+                  element={<AdminShell><BallFlightResultsPage /></AdminShell>}
+                />
                 <Route path="/admin/coaching" element={<AdminShell><AdminCoachingPage /></AdminShell>} />
                 <Route path="/admin/tickets" element={<AdminShell><AdminTicketsPage /></AdminShell>} />
                 <Route
@@ -220,6 +245,7 @@ export default function App() {
                   route chunk is still loading, which is exactly when someone
                   is stuck. */}
               <AssistantWidget />
+              </PwaInstallProvider>
             </AuthProvider>
           </ConfirmProvider>
         </ToastProvider>

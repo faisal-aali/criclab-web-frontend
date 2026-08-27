@@ -25,6 +25,20 @@ type Message = ChatTurn & {
 const GREETING =
   'Ask me anything about using CricLab — filming a clip that reads well, what a number in your report means, your account, or booking a session.'
 
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-1 py-0.5" aria-label="Thinking">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 animate-bounce rounded-full bg-lime"
+          style={{ animationDelay: `${i * 160}ms`, animationDuration: '0.9s' }}
+        />
+      ))}
+    </span>
+  )
+}
+
 let nextId = 1
 
 export function AssistantWidget() {
@@ -68,15 +82,27 @@ export function AssistantWidget() {
       const text = question.trim()
       if (!text || thinking) return
       const history: ChatTurn[] = messages.map((m) => ({ role: m.role, content: m.content }))
-      setMessages((prev) => [...prev, { id: nextId++, role: 'user', content: text }])
+
+      // Ids are minted *outside* the setState updater. Putting `nextId++` (or
+      // "create the bubble on first delta") inside the updater is impure —
+      // React Strict Mode runs updaters twice in development, the second pass
+      // sees the mutated flag and returns the previous state, and the
+      // assistant message never lands. That is why greetings (one fast delta)
+      // showed the user's bubble and nothing else.
+      const userId = nextId++
+      const assistantId = nextId++
+      setMessages((prev) => [
+        ...prev,
+        { id: userId, role: 'user', content: text },
+        { id: assistantId, role: 'assistant', content: '', streaming: true },
+      ])
       setDraft('')
       setThinking(true)
 
-      // Populated by `onMeta`, which always arrives before the first `onDelta`
-      // — held here rather than in state because the assistant bubble itself
-      // is not created until text actually starts arriving.
       let meta: { sources?: AssistantSource[]; escalate?: boolean } = {}
-      let assistantId: number | null = null
+      const patchAssistant = (patch: Partial<Message>) => {
+        setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, ...patch } : m)))
+      }
 
       try {
         await assistant.askStream(text, history, {
@@ -85,52 +111,42 @@ export function AssistantWidget() {
           },
           onDelta: (delta) => {
             setThinking(false)
-            setMessages((prev) => {
-              if (assistantId == null) {
-                assistantId = nextId++
-                return [
-                  ...prev,
-                  {
-                    id: assistantId,
-                    role: 'assistant',
-                    content: delta,
-                    sources: meta.sources,
-                    escalate: meta.escalate,
-                    streaming: true,
-                  },
-                ]
-              }
-              return prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + delta } : m))
-            })
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, content: m.content + delta, streaming: true } : m,
+              ),
+            )
           },
           onRedacted: (answer) => {
             setThinking(false)
-            setMessages((prev) => {
-              if (assistantId == null) {
-                assistantId = nextId++
-                return [...prev, { id: assistantId, role: 'assistant', content: answer, sources: meta.sources }]
-              }
-              return prev.map((m) => (m.id === assistantId ? { ...m, content: answer } : m))
-            })
+            patchAssistant({ content: answer, sources: meta.sources, streaming: false })
           },
         })
-        if (assistantId != null) {
-          const settledId = assistantId
-          setMessages((prev) => prev.map((m) => (m.id === settledId ? { ...m, streaming: false } : m)))
-        }
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? {
+                  ...m,
+                  streaming: false,
+                  sources: meta.sources,
+                  escalate: meta.escalate,
+                  failed: !m.content.trim(),
+                  content:
+                    m.content.trim() ||
+                    'I could not answer that just now. Try again in a moment.',
+                }
+              : m,
+          ),
+        )
       } catch (err) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId++,
-            role: 'assistant',
-            content:
-              err instanceof Error && err.message
-                ? err.message
-                : 'I could not answer that just now. Try again in a moment.',
-            failed: true,
-          },
-        ])
+        patchAssistant({
+          content:
+            err instanceof Error && err.message
+              ? err.message
+              : 'I could not answer that just now. Try again in a moment.',
+          failed: true,
+          streaming: false,
+        })
       } finally {
         setThinking(false)
       }
@@ -145,18 +161,15 @@ export function AssistantWidget() {
   return (
     <>
       {/* ---------------- Launcher ----------------
-          A chat bubble alone reads as generic support chat, not specifically
-          "AI". Pairing it with a sparkle — the shape every major assistant
-          (ChatGPT, Gemini, Copilot, Notion AI) now uses for "generated" or
-          "AI-powered" — makes what this button opens legible at a glance,
-          without needing a label. */}
+          A speech bubble with three dots — the shape people already read as
+          "chat", not a sparkle that reads as a generic AI button. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close the CricLab AI Assistant' : 'Open the CricLab AI Assistant'}
         aria-expanded={open}
-        className={`group fixed bottom-5 right-5 z-[60] grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-lime to-lime-deep text-night shadow-xl shadow-black/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-lime/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-night active:scale-95 ${
-          open ? 'rotate-90 scale-95' : ''
+        className={`fixed right-5 z-[60] grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-lime to-lime-deep text-night shadow-xl shadow-black/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-lime/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-night active:scale-95 max-lg:bottom-[calc(5.25rem+env(safe-area-inset-bottom))] lg:bottom-5 ${
+          open ? 'scale-95' : ''
         }`}
       >
         {open ? (
@@ -164,26 +177,16 @@ export function AssistantWidget() {
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" className="h-7 w-7 overflow-visible" aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" aria-hidden>
             <path
-              d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8.2L4 21.5v-4.2A7.5 7.5 0 0 1 6.3 5.8 7.5 7.5 0 0 1 20 11.5Z"
-              fill="none"
+              d="M4.5 6.5A3.5 3.5 0 0 1 8 3h8a3.5 3.5 0 0 1 3.5 3.5v6.2A3.5 3.5 0 0 1 16 16.2h-3.15L8.2 20.4a.7.7 0 0 1-1.15-.53v-3.67A3.5 3.5 0 0 1 4.5 12.7V6.5Z"
               stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
+              strokeWidth="1.8"
               strokeLinejoin="round"
-              opacity="0.55"
             />
-            <path
-              d="M12.5 7.2c.55 1.9 1.05 2.4 2.95 2.95-1.9.55-2.4 1.05-2.95 2.95-.55-1.9-1.05-2.4-2.95-2.95 1.9-.55 2.4-1.05 2.95-2.95Z"
-              fill="currentColor"
-              className="origin-center transition-transform duration-500 group-hover:rotate-45 group-hover:scale-110"
-            />
-            <path
-              d="M16.7 12.3c.32 1.1.6 1.38 1.7 1.7-1.1.32-1.38.6-1.7 1.7-.32-1.1-.6-1.38-1.7-1.7 1.1-.32 1.38-.6 1.7-1.7Z"
-              fill="currentColor"
-              className="origin-center transition-transform delay-75 duration-500 group-hover:-rotate-45"
-            />
+            <circle cx="9" cy="9.6" r="1.15" fill="currentColor" />
+            <circle cx="12" cy="9.6" r="1.15" fill="currentColor" />
+            <circle cx="15" cy="9.6" r="1.15" fill="currentColor" />
           </svg>
         )}
       </button>
@@ -194,7 +197,7 @@ export function AssistantWidget() {
           ref={panelRef}
           role="dialog"
           aria-label="CricLab assistant"
-          className="animate-rise fixed bottom-24 right-5 z-[60] flex max-h-[min(34rem,calc(100vh-8rem))] w-[min(94vw,24rem)] flex-col overflow-hidden rounded-3xl border border-white/12 bg-charcoal shadow-2xl shadow-black/60"
+          className="animate-rise fixed z-[60] flex flex-col overflow-hidden border border-white/12 bg-charcoal shadow-2xl shadow-black/60 max-lg:inset-0 max-lg:max-h-none max-lg:w-full max-lg:rounded-none max-lg:pt-[env(safe-area-inset-top)] max-lg:pb-[env(safe-area-inset-bottom)] lg:bottom-24 lg:right-5 lg:max-h-[min(34rem,calc(100vh-8rem))] lg:w-[min(94vw,24rem)] lg:rounded-3xl"
         >
           <header className="flex items-center gap-3 border-b border-white/8 px-5 py-4">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-lime to-lime-deep">
@@ -254,15 +257,11 @@ export function AssistantWidget() {
                       }`}
                     >
                       {m.role === 'assistant' ? (
-                        <>
+                        m.content ? (
                           <Markdown text={m.content} />
-                          {m.streaming ? (
-                            <span
-                              className="ml-0.5 inline-block h-3 w-[2px] animate-pulse bg-lime/70 align-middle"
-                              aria-hidden
-                            />
-                          ) : null}
-                        </>
+                        ) : m.streaming ? (
+                          <TypingDots />
+                        ) : null
                       ) : (
                         <p className="whitespace-pre-wrap break-words">{m.content}</p>
                       )}
@@ -282,18 +281,6 @@ export function AssistantWidget() {
                     </div>
                   </div>
                 ))}
-                {thinking ? (
-                  <div className="flex items-center gap-1.5 px-1" aria-live="polite">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="h-1.5 w-1.5 animate-pulse rounded-full bg-lime/70"
-                        style={{ animationDelay: `${i * 140}ms` }}
-                      />
-                    ))}
-                    <span className="pl-1 text-[11px] text-chalk/35">Looking that up</span>
-                  </div>
-                ) : null}
               </div>
             )}
             <div ref={bottomRef} />
@@ -320,7 +307,7 @@ export function AssistantWidget() {
               rows={1}
               maxLength={800}
               placeholder="Ask about CricLab…"
-              className="max-h-24 min-h-[2.5rem] flex-1 resize-none rounded-xl border border-white/12 bg-white/5 px-3.5 py-2.5 text-[13px] text-chalk placeholder:text-chalk/30 focus:border-lime/45 focus:outline-none"
+              className="max-h-24 min-h-[2.75rem] flex-1 resize-none rounded-xl border border-white/12 bg-white/5 px-3.5 py-2.5 text-base text-chalk placeholder:text-chalk/30 focus:border-lime/45 focus:outline-none"
             />
             <button
               type="submit"

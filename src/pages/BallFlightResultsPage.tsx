@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { assetUrl, getBalltrackSession, metricReady, type BalltrackSession } from '../api/client'
+import { AdminReportChrome, AdminStaffBanner } from '../components/admin/AdminStaffBanner'
 import { DrillShelf } from '../components/DrillShelf'
 import { MetricCard } from '../components/MetricCard'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
@@ -8,6 +9,7 @@ import { TrajectoryArc } from '../components/site/visuals'
 
 export function BallFlightResultsPage() {
   const { sessionId } = useParams()
+  const inAdmin = useLocation().pathname.startsWith('/admin')
   const [data, setData] = useState<BalltrackSession | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,8 +30,8 @@ export function BallFlightResultsPage() {
           <Chip tone="bad">Session unavailable</Chip>
           <p className="mt-3 text-sm leading-relaxed break-words text-bad">{error}</p>
           <div className="mt-5 flex justify-center">
-            <Button to="/app/ball-flight" variant="secondary" size="sm">
-              Start a new session
+            <Button to={inAdmin ? '/admin/analyses' : '/app/ball-flight'} variant="secondary" size="sm">
+              {inAdmin ? 'Back to analyses' : 'Start a new session'}
             </Button>
           </div>
         </div>
@@ -66,6 +68,8 @@ export function BallFlightResultsPage() {
 
   return (
     <div className="space-y-6">
+      <AdminStaffBanner />
+      <AdminReportChrome />
       {/* ---------------- Header ---------------- */}
       <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
@@ -78,8 +82,13 @@ export function BallFlightResultsPage() {
             delivery passed our checks (roughly 45–155 km/h, bouncing on the square).
           </p>
         </div>
-        <Button to="/app/ball-flight" variant="secondary" size="sm" className="self-start sm:self-auto">
-          New session
+        <Button
+          to={inAdmin ? '/admin/analyses' : '/app/ball-flight'}
+          variant="secondary"
+          size="sm"
+          className="self-start sm:self-auto"
+        >
+          {inAdmin ? 'Back to analyses' : 'New session'}
         </Button>
       </Reveal>
 

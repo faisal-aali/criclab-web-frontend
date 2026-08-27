@@ -366,3 +366,19 @@ export function listDrills(tag?: string) {
   const q = tag ? `?tag=${encodeURIComponent(tag)}` : ''
   return request<{ items: DrillCatalogItem[]; tags: string[] }>(`/coaching/drills${q}`)
 }
+
+export type LeaderboardRow = {
+  rank: number
+  player_name: string
+  ball_speed_kmh: number | null
+  arm_speed_kmh: number | null
+  delivery_type: string | null
+  bowling_arm: string | null
+  created_at: string
+  mine: boolean
+  result_id: string | null
+}
+
+export function listLeaderboard() {
+  return request<{ items: LeaderboardRow[] }>('/leaderboard')
+}

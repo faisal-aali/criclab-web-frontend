@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
 import { Button } from './ui'
 import { ThemeToggle } from '../ThemeToggle'
+import { InstallAppButton } from './InstallAppButton'
 
 const NAV = [
   { to: '/', label: 'Home' },
@@ -16,13 +18,13 @@ const NAV = [
 export function CricLabMark({ compact = false }: { compact?: boolean }) {
   return (
     <span className="inline-flex items-center gap-2.5">
-      <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-lime to-lime-deep shadow-[0_8px_22px_-8px_rgba(182,242,74,0.9)]">
-        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-          <circle cx="12" cy="12" r="9" fill="#05090a" />
-          <path d="M6 6.5 Q12 12 6 17.5" fill="none" stroke="#b6f24a" strokeWidth="1.7" strokeLinecap="round" />
-          <path d="M18 6.5 Q12 12 18 17.5" fill="none" stroke="#b6f24a" strokeWidth="1.7" strokeLinecap="round" />
-        </svg>
-      </span>
+      <img
+        src="/icons/icon-192.png"
+        alt=""
+        width={36}
+        height={36}
+        className="h-9 w-9 rounded-[10px] shadow-[0_8px_22px_-8px_rgba(182,242,74,0.9)]"
+      />
       {!compact && (
         <span className="font-display text-lg font-extrabold tracking-tight">
           Cric<span className="text-lime">Lab</span>
@@ -36,6 +38,9 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const { status, user } = useAuth()
+  const signedIn = status === 'authenticated' && Boolean(user)
+  const authReady = status !== 'loading'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16)
@@ -94,16 +99,39 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <InstallAppButton className="hidden md:inline-flex" />
             <ThemeToggle variant="on-dark" />
-            <Link
-              to="/app"
-              className="hidden rounded-full px-3.5 py-2 text-sm font-semibold text-chalk/70 transition hover:text-chalk sm:block"
-            >
-              Sign in
-            </Link>
-            <Button to="/app" size="sm" className="hidden sm:inline-flex">
-              Start Analyzing
-            </Button>
+            {authReady ? (
+              signedIn ? (
+              <>
+                {user?.role === 'admin' ? (
+                  <Link
+                    to="/admin"
+                    className="hidden rounded-full px-3.5 py-2 text-sm font-semibold text-chalk/70 transition hover:text-chalk sm:block"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
+                <Button to="/app" size="sm" className="hidden sm:inline-flex">
+                  Open workspace
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="hidden rounded-full px-3.5 py-2 text-sm font-semibold text-chalk/70 transition hover:text-chalk sm:block"
+                >
+                  Sign in
+                </Link>
+                <Button to="/signup" size="sm" className="hidden sm:inline-flex">
+                  Start Analyzing
+                </Button>
+              </>
+            )
+            ) : (
+              <span className="hidden h-9 w-28 sm:block" aria-hidden />
+            )}
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -167,16 +195,34 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mt-6 flex flex-col gap-3">
+            <InstallAppButton size="lg" className="w-full" />
             <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
               <span className="text-sm font-semibold text-chalk/70">Appearance</span>
               <ThemeToggle variant="on-dark" />
             </div>
-            <Button to="/app" size="lg">
-              Start Analyzing
-            </Button>
-            <Button to="/app" variant="secondary" size="lg">
-              Sign in
-            </Button>
+            {authReady ? (
+              signedIn ? (
+              <>
+                <Button to="/app" size="lg">
+                  Open workspace
+                </Button>
+                {user?.role === 'admin' ? (
+                  <Button to="/admin" variant="secondary" size="lg">
+                    Admin panel
+                  </Button>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <Button to="/signup" size="lg">
+                  Start Analyzing
+                </Button>
+                <Button to="/login" variant="secondary" size="lg">
+                  Sign in
+                </Button>
+              </>
+            )
+            ) : null}
           </div>
         </div>
       </div>

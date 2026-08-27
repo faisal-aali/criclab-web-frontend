@@ -12,9 +12,47 @@ export type DashboardRange = 'today' | '7d' | '30d' | '90d' | 'custom'
 
 export type TrendPoint = { date: string; count: number }
 
+export type ThrowSummary = {
+  ball_speed_kmh: number | null
+  arm_speed_kmh: number | null
+  delivery_type: string | null
+  bowling_arm: string | null
+  bowling_style: string | null
+  overall_score: number | null
+}
+
+export type DashboardThrow = ThrowSummary & {
+  id: string
+  pipeline: 'action' | 'ball_flight'
+  result_id: string | null
+  user_id: string | null
+  user: { name: string; email: string } | null
+  player_name: string | null
+  created_at: string
+  summary?: string | null
+}
+
+export type DashboardJob = {
+  id: string
+  pipeline: 'action' | 'ball_flight'
+  player_name: string | null
+  user: { name: string; email: string } | null
+  status: string
+  stage: string | null
+  progress: number | null
+  updated_at: string
+}
+
 export type DashboardSummary = {
   range: { from: string; to: string }
-  users: { total: number; new: number; active: number; inactive: number; disabled: number }
+  users: {
+    total: number
+    new: number
+    active: number
+    inactive: number
+    disabled: number
+    unverified: number
+  }
   videos: {
     total: number
     range: number
@@ -22,12 +60,16 @@ export type DashboardSummary = {
     week: number
     month: number
     failed_range: number
+    processing: number
+    failed_total: number
     by_pipeline: { action: number; ball_flight: number }
   }
   coaching: { total: number; upcoming: number; completed: number; cancelled: number }
   support: { open: number; resolved: number }
   signups_trend: TrendPoint[]
   analyses_trend: TrendPoint[]
+  recent_throws: DashboardThrow[]
+  in_progress: DashboardJob[]
 }
 
 export type AdminUserRow = {
@@ -45,23 +87,35 @@ export type AdminUserRow = {
 }
 
 export type AdminUserDetail = AdminUserRow & {
-  recent_analyses: { id: string; pipeline: string; status: string; player_name: string | null; created_at: string }[]
+  recent_analyses: AdminAnalysisRow[]
   recent_bookings: { id: string; coach_name: string; status: string; starts_at: string }[]
   recent_tickets: { id: string; subject: string; status: string; updated_at: string }[]
 }
 
-export type AdminAnalysisRow = {
+export type AdminAnalysisRow = Partial<ThrowSummary> & {
   id: string
-  pipeline: 'action' | 'ball_flight'
-  user_id: string | null
-  user: { name: string; email: string } | null
+  pipeline: 'action' | 'ball_flight' | string
+  user_id?: string | null
+  user?: { name: string; email: string } | null
   player_name: string | null
   status: string
-  stage: string | null
-  progress: number | null
-  message: string | null
+  stage?: string | null
+  progress?: number | null
+  message?: string | null
   created_at: string
-  updated_at: string
+  updated_at?: string
+  result_id?: string | null
+  summary?: string | null
+}
+
+export type PlayerHistoryItem = ThrowSummary & {
+  id: string
+  pipeline: 'action' | 'ball_flight'
+  result_id: string | null
+  player_name: string | null
+  created_at: string
+  summary: string | null
+  delivery_count: number
 }
 
 export type AdminBookingRow = {
@@ -91,6 +145,13 @@ export type Broadcast = {
   created_at: string
 }
 
+export type AdminDrill = {
+  id: string
+  youtube_id: string
+  title: string
+  tags: string[]
+}
+
 function qs(params: Record<string, string | number | boolean | undefined | null>): string {
   const q = new URLSearchParams()
   for (const [k, v] of Object.entries(params)) {
@@ -110,6 +171,11 @@ export const admin = {
     ),
 
   userDetail: (id: string) => authFetch<AdminUserDetail>(`/admin/users/${id}`),
+
+  userHistory: (id: string) =>
+    authFetch<{ user: { id: string; name: string; email: string }; items: PlayerHistoryItem[] }>(
+      `/admin/users/${id}/history`,
+    ),
 
   setUserDisabled: (id: string, disabled: boolean) =>
     authFetch<{ user: AdminUserRow }>(`/admin/users/${id}/status`, {
@@ -135,6 +201,23 @@ export const admin = {
 
   ticketMetrics: () => authFetch<TicketMetrics>('/admin/tickets/metrics'),
 
+  drills: () => authFetch<{ items: AdminDrill[]; tags: string[] }>('/admin/drills'),
+
+  createDrill: (body: { title: string; youtube_id: string; tags: string[]; id?: string }) =>
+    authFetch<{ item: AdminDrill }>('/admin/drills', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  updateDrill: (id: string, body: { title: string; youtube_id: string; tags: string[] }) =>
+    authFetch<{ item: AdminDrill }>(`/admin/drills/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+
+  deleteDrill: (id: string) =>
+    authFetch<{ status: string; id: string }>(`/admin/drills/${id}`, { method: 'DELETE' }),
+
   broadcast: (title: string, body: string, userIds?: string[]) =>
     authFetch<{ sent: number; id: string }>('/admin/notifications/broadcast', {
       method: 'POST',
@@ -142,4 +225,16 @@ export const admin = {
     }),
 
   broadcastHistory: () => authFetch<{ items: Broadcast[] }>('/admin/notifications/history'),
+}
+
+/** Report stays inside the admin shell — never jumps to the player workspace. */
+export function adminResultHref(pipeline: string, resultId: string | null | undefined): string | null {
+  if (!resultId) return null
+  return pipeline === 'ball_flight'
+    ? `/admin/reports/ball-flight/${resultId}`
+    : `/admin/reports/${resultId}`
+}
+
+export function fmtKmh(n: number | null | undefined) {
+  return typeof n === 'number' && Number.isFinite(n) ? n.toFixed(1) : '—'
 }

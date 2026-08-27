@@ -53,7 +53,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           onClick={(e) => e.target === e.currentTarget && settle(false)}
           onKeyDown={(e) => e.key === 'Escape' && settle(false)}
         >
-          <div className="animate-pop-in w-full max-w-sm rounded-2xl border border-white/12 bg-charcoal p-6 shadow-2xl shadow-black/50">
+          <div className="animate-pop-in w-full max-w-sm rounded-2xl border border-white/12 bg-charcoal p-6 shadow-2xl shadow-black/50 max-sm:mb-[env(safe-area-inset-bottom)]">
             <h2 id="confirm-dialog-title" className="font-display text-lg font-bold text-chalk">
               {options.title}
             </h2>

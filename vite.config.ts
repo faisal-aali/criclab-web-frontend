@@ -13,6 +13,14 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyRes', (proxyRes, req) => {
+              if (req.url?.includes('/assistant/ask/stream')) {
+                proxyRes.headers['cache-control'] = 'no-cache, no-transform'
+                proxyRes.headers['x-accel-buffering'] = 'no'
+              }
+            })
+          },
         },
       },
     },

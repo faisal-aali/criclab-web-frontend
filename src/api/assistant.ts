@@ -77,8 +77,9 @@ export const assistant = {
     let buffer = ''
     let sawAnything = false
     const dispatch = (line: string) => {
-      sawAnything = true
-      assistant._dispatch(line, handlers)
+      assistant._dispatch(line, handlers, () => {
+        sawAnything = true
+      })
     }
 
     try {
@@ -121,7 +122,7 @@ export const assistant = {
     if (!sawAnything) return assistant._fallback(question, history, handlers)
   },
 
-  _dispatch: (line: string, handlers: StreamHandlers) => {
+  _dispatch: (line: string, handlers: StreamHandlers, onContent?: () => void) => {
     let event: StreamEvent
     try {
       event = JSON.parse(line)
@@ -129,13 +130,22 @@ export const assistant = {
       return
     }
     if (event.type === 'meta') handlers.onMeta?.(event)
-    else if (event.type === 'delta') handlers.onDelta?.(event.text)
-    else if (event.type === 'redacted') handlers.onRedacted?.(event.answer)
+    else if (event.type === 'delta') {
+      onContent?.()
+      handlers.onDelta?.(event.text)
+    } else if (event.type === 'redacted') {
+      onContent?.()
+      handlers.onRedacted?.(event.answer)
+    }
   },
 
   _fallback: async (question: string, history: ChatTurn[], handlers: StreamHandlers): Promise<void> => {
-    const reply = await assistant.ask(question, history)
-    handlers.onMeta?.({ sources: reply.sources, grounded: reply.grounded, refused: reply.refused, escalate: reply.escalate })
-    handlers.onDelta?.(reply.answer)
+    try {
+      const reply = await assistant.ask(question, history)
+      handlers.onMeta?.({ sources: reply.sources, grounded: reply.grounded, refused: reply.refused, escalate: reply.escalate })
+      handlers.onDelta?.(reply.answer)
+    } catch (err) {
+      throw err instanceof Error ? err : new Error('I could not answer that just now. Try again in a moment.')
+    }
   },
 }

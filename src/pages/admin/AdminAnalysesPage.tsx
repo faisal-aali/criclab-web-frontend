@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { admin, type AdminAnalysisRow } from '../../api/admin'
+import { admin, adminResultHref, fmtKmh, type AdminAnalysisRow } from '../../api/admin'
+import { OpenReportButton } from '../../components/admin/OpenReportButton'
 import { Card, Chip, Reveal } from '../../components/site/ui'
 
 const PIPELINE_FILTERS = [
@@ -27,6 +28,12 @@ function when(iso: string) {
   return new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
+function threwLine(a: AdminAnalysisRow) {
+  return (
+    [a.delivery_type, a.bowling_arm ? `${a.bowling_arm}-arm` : null, a.bowling_style].filter(Boolean).join(' · ') || '—'
+  )
+}
+
 export function AdminAnalysesPage() {
   const [items, setItems] = useState<AdminAnalysisRow[] | null>(null)
   const [total, setTotal] = useState(0)
@@ -52,6 +59,32 @@ export function AdminAnalysesPage() {
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
 
+  const pager = (
+    <div className="flex items-center justify-between border-t border-white/8 px-5 py-3 text-xs text-chalk/50">
+      <span>
+        Page {page} of {pages}
+      </span>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={page <= 1}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="min-h-10 rounded-lg border border-white/10 px-3 py-1.5 font-semibold disabled:opacity-30"
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          disabled={page >= pages}
+          onClick={() => setPage((p) => Math.min(pages, p + 1))}
+          className="min-h-10 rounded-lg border border-white/10 px-3 py-1.5 font-semibold disabled:opacity-30"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <div className="flex flex-col gap-6">
       <Reveal>
@@ -68,9 +101,9 @@ export function AdminAnalysesPage() {
               setSearch(e.target.value)
             }}
             placeholder="Search by player name…"
-            className="field field-dark max-w-xs"
+            className="field field-dark w-full max-w-xs"
           />
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {PIPELINE_FILTERS.map((f) => (
               <button
                 key={f.key}
@@ -79,7 +112,7 @@ export function AdminAnalysesPage() {
                   setPage(1)
                   setPipeline(f.key)
                 }}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
+                className={`min-h-10 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
                   pipeline === f.key
                     ? 'border-lime/50 bg-lime/15 text-lime'
                     : 'border-white/10 bg-white/[0.03] text-chalk/60 hover:text-chalk'
@@ -95,7 +128,7 @@ export function AdminAnalysesPage() {
               setPage(1)
               setStatus(e.target.value)
             }}
-            className="field field-dark w-auto"
+            className="field field-dark w-auto min-h-10"
           >
             {STATUS_FILTERS.map((f) => (
               <option key={f.key} value={f.key} className="bg-charcoal">
@@ -107,86 +140,113 @@ export function AdminAnalysesPage() {
       </Reveal>
 
       <Reveal delay={80}>
-        <Card tone="dark" interactive={false} className="overflow-hidden p-0">
+        {/* Mobile: stacked cards so Open stays reachable without sideways scroll. */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {items === null ? (
+            [0, 1, 2].map((i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/5" />)
+          ) : items.length === 0 ? (
+            <Card tone="dark" interactive={false} className="p-8 text-center text-sm text-chalk/40">
+              No analyses match those filters.
+            </Card>
+          ) : (
+            items.map((a) => {
+              const href = a.status === 'completed' ? adminResultHref(a.pipeline, a.result_id) : null
+              return (
+                <Card key={a.id} tone="dark" interactive={false} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-display text-base font-bold text-chalk">{a.player_name ?? '—'}</p>
+                      <p className="truncate text-xs text-chalk/40">{a.user ? a.user.name : 'Unattributed'}</p>
+                      <p className="pt-1 text-xs capitalize text-chalk/55">
+                        {a.pipeline === 'action' ? 'Action' : 'Ball flight'} · {threwLine(a)}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2 pt-2">
+                        <Chip tone={statusTone(a.status)}>{a.status}</Chip>
+                        <span className="text-xs font-semibold text-chalk">{fmtKmh(a.ball_speed_kmh)}</span>
+                        <span className="text-[11px] text-chalk/40">{when(a.created_at)}</span>
+                      </div>
+                    </div>
+                    {href ? <OpenReportButton to={href} /> : null}
+                  </div>
+                </Card>
+              )
+            })
+          )}
+          {items && items.length > 0 ? (
+            <Card tone="dark" interactive={false} className="overflow-hidden p-0">
+              {pager}
+            </Card>
+          ) : null}
+        </div>
+
+        <Card tone="dark" interactive={false} className="hidden overflow-hidden p-0 md:block">
           <div className="scroll-slim overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-white/8 text-[11px] uppercase tracking-[0.1em] text-chalk/40">
                   <th className="px-5 py-3 font-semibold">Player</th>
                   <th className="px-5 py-3 font-semibold">User</th>
-                  <th className="px-5 py-3 font-semibold">Pipeline</th>
+                  <th className="px-5 py-3 font-semibold">Threw</th>
+                  <th className="px-5 py-3 font-semibold">Ball</th>
                   <th className="px-5 py-3 font-semibold">Status</th>
                   <th className="px-5 py-3 font-semibold">Created</th>
+                  <th className="px-5 py-3 text-right font-semibold">Open</th>
                 </tr>
               </thead>
               <tbody>
                 {items === null ? (
                   [0, 1, 2].map((i) => (
                     <tr key={i}>
-                      <td colSpan={5} className="px-5 py-3">
+                      <td colSpan={7} className="px-5 py-3">
                         <div className="h-8 animate-pulse rounded-lg bg-white/5" />
                       </td>
                     </tr>
                   ))
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-5 py-8 text-center text-chalk/40">
+                    <td colSpan={7} className="px-5 py-8 text-center text-chalk/40">
                       No analyses match those filters.
                     </td>
                   </tr>
                 ) : (
-                  items.map((a) => (
-                    <tr key={a.id} className="border-b border-white/6">
-                      <td className="px-5 py-3 font-semibold text-chalk">{a.player_name ?? '—'}</td>
-                      <td className="px-5 py-3 text-chalk/60">
-                        {a.user ? (
-                          <>
-                            <p>{a.user.name}</p>
-                            <p className="text-xs text-chalk/35">{a.user.email}</p>
-                          </>
-                        ) : (
-                          <span className="text-chalk/30">Unattributed</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3 text-chalk/60">
-                        {a.pipeline === 'action' ? 'Action' : 'Ball flight'}
-                      </td>
-                      <td className="px-5 py-3">
-                        <Chip tone={statusTone(a.status)}>{a.status}</Chip>
-                        {a.status === 'failed' && a.message ? (
-                          <p className="pt-1 max-w-xs truncate text-[11px] text-bad/80">{a.message}</p>
-                        ) : null}
-                      </td>
-                      <td className="px-5 py-3 text-chalk/60">{when(a.created_at)}</td>
-                    </tr>
-                  ))
+                  items.map((a) => {
+                    const href = a.status === 'completed' ? adminResultHref(a.pipeline, a.result_id) : null
+                    return (
+                      <tr key={a.id} className="border-b border-white/6">
+                        <td className="px-5 py-3 font-semibold text-chalk">{a.player_name ?? '—'}</td>
+                        <td className="px-5 py-3 text-chalk/60">
+                          {a.user ? (
+                            <>
+                              <p>{a.user.name}</p>
+                              <p className="text-xs text-chalk/35">{a.user.email}</p>
+                            </>
+                          ) : (
+                            <span className="text-chalk/30">Unattributed</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-chalk/60">
+                          <p>{a.pipeline === 'action' ? 'Action' : 'Ball flight'}</p>
+                          <p className="text-xs capitalize text-chalk/40">{threwLine(a)}</p>
+                        </td>
+                        <td className="px-5 py-3 font-semibold text-chalk">{fmtKmh(a.ball_speed_kmh)}</td>
+                        <td className="px-5 py-3">
+                          <Chip tone={statusTone(a.status)}>{a.status}</Chip>
+                          {a.status === 'failed' && a.message ? (
+                            <p className="max-w-xs truncate pt-1 text-[11px] text-bad/80">{a.message}</p>
+                          ) : null}
+                        </td>
+                        <td className="px-5 py-3 whitespace-nowrap text-chalk/60">{when(a.created_at)}</td>
+                        <td className="px-5 py-3 text-right">
+                          {href ? <OpenReportButton to={href} /> : <span className="text-xs text-chalk/25">—</span>}
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between border-t border-white/8 px-5 py-3 text-xs text-chalk/50">
-            <span>
-              Page {page} of {pages}
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-lg border border-white/10 px-3 py-1.5 font-semibold disabled:opacity-30"
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                disabled={page >= pages}
-                onClick={() => setPage((p) => Math.min(pages, p + 1))}
-                className="rounded-lg border border-white/10 px-3 py-1.5 font-semibold disabled:opacity-30"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          {pager}
         </Card>
       </Reveal>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { assetUrl, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
+import { AdminReportChrome, AdminStaffBanner } from '../components/admin/AdminStaffBanner'
 import { DeliveryHonesty } from '../components/DeliveryHonesty'
 import { DrillShelf } from '../components/DrillShelf'
 import { MetricCard } from '../components/MetricCard'
@@ -186,6 +187,7 @@ const APP_LINK =
 
 export function ResultsPage() {
   const { deliveryId } = useParams()
+  const inAdmin = useLocation().pathname.startsWith('/admin')
   const [data, setData] = useState<Delivery | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -227,6 +229,8 @@ export function ResultsPage() {
 
   return (
     <div className="min-w-0 space-y-9">
+      <AdminStaffBanner />
+      <AdminReportChrome />
       {/* ==================== Header ==================== */}
       <Reveal className="flex min-w-0 flex-wrap items-end justify-between gap-5">
         <div className="min-w-0">
@@ -266,12 +270,20 @@ export function ResultsPage() {
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/app" className={APP_LINK}>
-            New Action clip
-          </Link>
-          <Link to="/app/ball-flight" className={APP_LINK}>
-            Ball flight
-          </Link>
+          {inAdmin ? (
+            <Link to="/admin/analyses" className={APP_LINK}>
+              Back to analyses
+            </Link>
+          ) : (
+            <>
+              <Link to="/app" className={APP_LINK}>
+                New Action clip
+              </Link>
+              <Link to="/app/ball-flight" className={APP_LINK}>
+                Ball flight
+              </Link>
+            </>
+          )}
           {pdfHref ? (
             <a
               href={pdfHref}

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { admin, type AdminUserDetail, type AdminUserRow } from '../../api/admin'
+import { Link } from 'react-router-dom'
+import { admin, adminResultHref, type AdminUserDetail, type AdminUserRow } from '../../api/admin'
+import { OpenReportButton } from '../../components/admin/OpenReportButton'
 import { useConfirm } from '../../components/site/ConfirmDialog'
 import { Button, Card, Chip, Reveal } from '../../components/site/ui'
 import { useToast } from '../../components/site/Toast'
@@ -81,6 +83,14 @@ function UserDetailPanel({
           Close
         </button>
       </div>
+      <div className="pt-4">
+        <Link
+          to={`/admin/users/${detail.id}/history`}
+          className="text-xs font-semibold text-lime hover:text-chalk"
+        >
+          View every throw →
+        </Link>
+      </div>
 
       <div className="grid gap-4 pt-5 text-sm sm:grid-cols-3">
         <div>
@@ -106,11 +116,16 @@ function UserDetailPanel({
             <p className="text-xs text-chalk/35">None yet.</p>
           ) : (
             <ul className="flex flex-col gap-1.5">
-              {detail.recent_analyses.map((a) => (
-                <li key={a.id} className="text-xs text-chalk/60">
-                  {a.player_name ?? a.pipeline} · {a.status}
-                </li>
-              ))}
+              {detail.recent_analyses.map((a) => {
+                const href = a.status === 'completed' ? adminResultHref(a.pipeline, a.result_id) : null
+                const label = `${a.player_name ?? a.pipeline} · ${a.status}`
+                return (
+                  <li key={a.id} className="flex items-center justify-between gap-2 text-xs text-chalk/60">
+                    <span className="min-w-0 truncate">{label}</span>
+                    {href ? <OpenReportButton to={href} /> : null}
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
