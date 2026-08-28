@@ -50,7 +50,8 @@ export function DeliveryHonesty({ metrics }: { metrics: Metrics }) {
   const tone = legalityTone(legalOk ? legality?.verdict : null)
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="@container">
+    <div className="grid gap-4 @min-[36rem]:grid-cols-2">
       <Card interactive={false} className="p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <PanelLabel>Capture &amp; view</PanelLabel>
@@ -146,6 +147,7 @@ export function DeliveryHonesty({ metrics }: { metrics: Metrics }) {
           </p>
         </Card>
       )}
+    </div>
     </div>
   )
 }

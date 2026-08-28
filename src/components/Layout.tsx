@@ -23,6 +23,18 @@ import { InstallAppButton } from './site/InstallAppButton'
 
 const NAV = [
   {
+    to: '/app/leaderboard',
+    label: 'Leaderboard',
+    hint: 'Top 20 throws',
+    icon: (
+      <path
+        d="M8 21h8M12 17v4M7 4h10v5a5 5 0 1 1-10 0V4Zm-3 2h3v4a3 3 0 0 1-3-3V6Zm16 0h-3v4a3 3 0 0 0 3-3V6Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
     to: '/app',
     label: 'Action',
     hint: 'Side-on mechanics',
@@ -83,18 +95,6 @@ const NAV = [
     ),
   },
   {
-    to: '/app/leaderboard',
-    label: 'Leaderboard',
-    hint: 'Top 20 throws',
-    icon: (
-      <path
-        d="M8 21h8M12 17v4M7 4h10v5a5 5 0 1 1-10 0V4Zm-3 2h3v4a3 3 0 0 1-3-3V6Zm16 0h-3v4a3 3 0 0 0 3-3V6Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
     to: '/app/support',
     label: 'Support',
     hint: 'Ask for help',
@@ -123,10 +123,10 @@ const TITLES: [string, string][] = [
 ]
 
 const TABS = [
+  { to: '/app/leaderboard', label: 'Leaders', end: false },
   { to: '/app', label: 'Action', end: true },
   { to: '/app/ball-flight', label: 'Flight', end: false },
   { to: '/app/history', label: 'History', end: false },
-  { to: '/app/train', label: 'Train', end: false },
 ]
 
 function tabActive(to: string, pathname: string) {

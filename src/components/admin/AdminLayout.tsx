@@ -8,16 +8,20 @@
  * guard plus every backend endpoint depending on `AdminUser`, not this file.
  *
  * Written dark-first with no `dark:` variants, same convention as the user
- * workspace shell — see "Workspace theming" in the memory bank.
+ * workspace shell — see "Workspace theming" in the memory bank. Light mode
+ * is produced by the `.app-shell` token remap, so this layout carries that
+ * class and the same header theme toggle the player workspace uses.
  */
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
 import { CricLabMark } from '../site/SiteHeader'
 import { InstallAppButton } from '../site/InstallAppButton'
+import { ThemeToggle } from '../ThemeToggle'
 
 const NAV = [
   { to: '/admin', label: 'Dashboard', end: true },
+  { to: '/admin/leaderboard', label: 'Leaderboard' },
   { to: '/admin/users', label: 'Users' },
   { to: '/admin/analyses', label: 'Analyses' },
   { to: '/admin/drills', label: 'Drills' },
@@ -55,8 +59,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="flex min-h-screen bg-charcoal text-chalk">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/8 bg-night/60 px-4 py-6 lg:flex">
+    <div
+      className={`app-shell flex bg-charcoal text-chalk ${
+        location.pathname.startsWith('/admin/leaderboard') ? 'h-dvh overflow-hidden' : 'min-h-screen'
+      }`}
+    >
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/8 bg-charcoal/80 px-4 py-6 lg:flex">
         <Link to="/admin" className="flex items-center gap-2 px-1 pb-8">
           <CricLabMark />
           <span className="rounded-md border border-warn/30 bg-warn/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-warn">
@@ -74,8 +82,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/8 bg-night/70 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/8 bg-charcoal/85 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
           <Link to="/admin" className="flex items-center gap-2">
             <CricLabMark />
             <span className="rounded-md border border-warn/30 bg-warn/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-warn">
@@ -84,6 +92,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </Link>
           <div className="flex items-center gap-2">
             <InstallAppButton compact />
+            <ThemeToggle variant="on-dark" />
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -100,20 +109,29 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </button>
           </div>
         </header>
-        {open ? <div className="border-b border-white/8 bg-night px-4 py-4 lg:hidden">{nav}</div> : null}
+        {open ? <div className="border-b border-white/8 bg-charcoal px-4 py-4 lg:hidden">{nav}</div> : null}
 
-        <div className="hidden items-center justify-between border-b border-white/8 bg-night/40 px-8 py-3 lg:flex">
+        <div className="hidden items-center justify-between border-b border-white/8 bg-charcoal/80 px-8 py-3 lg:flex">
           <p className="text-xs text-chalk/40">Platform administration</p>
           <div className="flex items-center gap-3">
             <InstallAppButton />
+            <ThemeToggle variant="on-dark" />
             <p className="text-xs font-semibold text-chalk/70">{user?.name}</p>
           </div>
         </div>
 
-        <main className="scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
+        <main
+          className={`scroll-slim min-w-0 flex-1 bg-stadium px-4 py-7 sm:px-7 lg:px-9 lg:py-9 ${
+            location.pathname.startsWith('/admin/leaderboard') ? 'flex flex-col overflow-hidden' : ''
+          }`}
+        >
           <div
             className={`mx-auto w-full ${
-              location.pathname.startsWith('/admin/reports') ? 'max-w-7xl' : 'max-w-6xl'
+              location.pathname.startsWith('/admin/leaderboard')
+                ? 'flex min-h-0 max-w-[90rem] flex-1 flex-col'
+                : location.pathname.startsWith('/admin/reports')
+                  ? 'max-w-7xl'
+                  : 'max-w-6xl'
             }`}
           >
             {children}

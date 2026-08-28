@@ -504,6 +504,29 @@ html.light .app-shell .field-dark:focus {
   background: transparent;
 }
 
+/* Always-visible gutter for long lists (admin leaderboard). Overlay
+   scrollbars hide on macOS/iOS until you drag; this keeps a track. */
+.scroll-visible {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(182, 242, 74, 0.55) rgba(255, 255, 255, 0.08);
+}
+.scroll-visible::-webkit-scrollbar {
+  width: 10px;
+}
+.scroll-visible::-webkit-scrollbar-thumb {
+  background: rgba(182, 242, 74, 0.5);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scroll-visible::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  margin: 6px 0;
+}
+
 /* ===========================================================================
    Backdrop plates
    Generated art in /public/backdrops — see the note there. Each is paired with

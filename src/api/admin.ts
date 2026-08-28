@@ -72,6 +72,21 @@ export type DashboardSummary = {
   in_progress: DashboardJob[]
 }
 
+export type AdminLeaderboardRow = {
+  rank: number
+  result_id: string
+  user_id: string | null
+  user: { name: string; email: string } | null
+  player_name: string
+  ball_speed_kmh: number | null
+  arm_speed_kmh: number | null
+  delivery_type: string | null
+  bowling_arm: string | null
+  bowling_style: string | null
+  overall_score: number | null
+  created_at: string
+}
+
 export type AdminUserRow = {
   id: string
   name: string
@@ -182,6 +197,8 @@ export const admin = {
       method: 'PATCH',
       body: JSON.stringify({ disabled }),
     }),
+
+  leaderboard: () => authFetch<{ items: AdminLeaderboardRow[]; total: number }>('/admin/leaderboard'),
 
   analyses: (opts: { pipeline?: string; status?: string; search?: string; page?: number; pageSize?: number } = {}) =>
     authFetch<Paged<AdminAnalysisRow>>(

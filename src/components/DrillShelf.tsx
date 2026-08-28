@@ -39,7 +39,8 @@ export function DrillShelf({
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="@container">
+      <div className="grid gap-4 @min-[36rem]:grid-cols-2">
         {items.map((d) => {
           const yt = youtubeId(d)
           return (
@@ -74,6 +75,7 @@ export function DrillShelf({
             </Card>
           )
         })}
+      </div>
       </div>
     </section>
   )

@@ -98,6 +98,9 @@ const AdminPlayerHistoryPage = lazy(() =>
 const AdminDrillsPage = lazy(() =>
   import('./pages/admin/AdminDrillsPage').then((m) => ({ default: m.AdminDrillsPage })),
 )
+const AdminLeaderboardPage = lazy(() =>
+  import('./pages/admin/AdminLeaderboardPage').then((m) => ({ default: m.AdminLeaderboardPage })),
+)
 
 /** Shown while a route chunk loads. Dark, so it never flashes white. */
 function RouteFallback() {
@@ -208,6 +211,7 @@ export default function App() {
                 "Disable account" one click from a player's delivery review. */}
               <Route element={<RequireAdmin />}>
                 <Route path="/admin" element={<AdminShell><AdminDashboardPage /></AdminShell>} />
+                <Route path="/admin/leaderboard" element={<AdminShell><AdminLeaderboardPage /></AdminShell>} />
                 <Route path="/admin/users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
                 <Route
                   path="/admin/users/:userId/history"

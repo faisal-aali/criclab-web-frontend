@@ -123,8 +123,8 @@ function HeadlineStat({ label, metric, big }: { label: string; metric?: MetricVa
         className={`font-display mt-1 break-words font-extrabold leading-none ${
           big
             ? hasValue
-              ? 'text-5xl text-chalk sm:text-[3.4rem]'
-              : 'text-5xl text-chalk/30 sm:text-[3.4rem]'
+              ? 'text-4xl text-chalk @min-[32rem]:text-5xl @min-[48rem]:text-[3.4rem]'
+              : 'text-4xl text-chalk/30 @min-[32rem]:text-5xl @min-[48rem]:text-[3.4rem]'
             : hasValue
               ? 'text-2xl text-chalk/90'
               : 'text-2xl text-chalk/30'
@@ -185,14 +185,17 @@ function NoteCard({ title, body, accent }: { title: string; body?: string; accen
 const APP_LINK =
   'rounded-full border border-white/25 bg-white/5 px-4 py-2 text-sm font-semibold text-chalk backdrop-blur transition hover:border-lime/60 hover:bg-white/10'
 
-export function ResultsPage() {
-  const { deliveryId } = useParams()
+export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: string } = {}) {
+  const { deliveryId: paramId } = useParams()
+  const deliveryId = deliveryIdProp ?? paramId
   const inAdmin = useLocation().pathname.startsWith('/admin')
   const [data, setData] = useState<Delivery | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!deliveryId) return
+    setData(null)
+    setError(null)
     getDelivery(deliveryId)
       .then(setData)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
@@ -228,17 +231,18 @@ export function ResultsPage() {
   const cmp = a.comparison
 
   return (
-    <div className="min-w-0 space-y-9">
+    <div className="@container min-w-0 space-y-9">
       <AdminStaffBanner />
       <AdminReportChrome />
       {/* ==================== Header ==================== */}
       <Reveal className="flex min-w-0 flex-wrap items-end justify-between gap-5">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-lime">Delivery report</p>
-          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-3">
-            <h1 className="font-display break-words text-3xl font-extrabold leading-tight text-chalk sm:text-4xl lg:text-[2.9rem]">
+          <div className="mt-1.5 flex min-w-0 flex-col gap-2.5 @min-[36rem]:flex-row @min-[36rem]:flex-wrap @min-[36rem]:items-center">
+            <h1 className="font-display min-w-0 break-words text-2xl font-extrabold leading-tight text-chalk @min-[28rem]:text-3xl @min-[48rem]:text-4xl @min-[64rem]:text-[2.9rem]">
               {data.player_name || 'Bowler'}
             </h1>
+            <div className="flex flex-wrap items-center gap-2">
             {side ? <Chip tone="lime">{side}</Chip> : null}
             {profile?.bowling_style ? (
               <Chip tone="neutral">
@@ -247,6 +251,7 @@ export function ResultsPage() {
             ) : null}
             {profile?.height_m ? <Chip tone="neutral">{profile.height_m.toFixed(2)} m</Chip> : null}
             {profile?.age_years ? <Chip tone="neutral">Age {profile.age_years}</Chip> : null}
+            </div>
           </div>
           {created ? <p className="mt-2 text-xs text-chalk/45">{created}</p> : null}
           {cmp?.previous_count && cmp.delta_kmh != null ? (
@@ -269,12 +274,12 @@ export function ResultsPage() {
             </p>
           ) : null}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {inAdmin ? (
+        <div className="flex w-full min-w-0 flex-wrap gap-2">
+          {inAdmin && !deliveryIdProp ? (
             <Link to="/admin/analyses" className={APP_LINK}>
               Back to analyses
             </Link>
-          ) : (
+          ) : !inAdmin ? (
             <>
               <Link to="/app" className={APP_LINK}>
                 New Action clip
@@ -283,14 +288,14 @@ export function ResultsPage() {
                 Ball flight
               </Link>
             </>
-          )}
+          ) : null}
           {pdfHref ? (
             <a
               href={pdfHref}
               target="_blank"
               rel="noreferrer"
               download
-              className="sweep-on-hover inline-flex items-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-bold text-night shadow-[0_12px_34px_-12px_rgba(182,242,74,0.75)] transition hover:bg-[#c6ff62]"
+              className="sweep-on-hover inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-full bg-lime px-4 py-2 text-sm font-bold text-night shadow-[0_12px_34px_-12px_rgba(182,242,74,0.75)] transition hover:bg-[#c6ff62] @min-[28rem]:w-auto"
             >
               Download PDF report
             </a>
@@ -313,7 +318,7 @@ export function ResultsPage() {
       {/* ==================== Hero: footage + headline numbers ==================== */}
       <section className="min-w-0 space-y-4">
         <Heading eyebrow="Your footage" title="The delivery, marked up" />
-        <div className="grid min-w-0 gap-5 lg:grid-cols-[1.55fr_0.85fr]">
+        <div className="grid min-w-0 gap-5 @min-[56rem]:grid-cols-[minmax(0,1.55fr)_minmax(0,0.85fr)]">
           <div className="min-w-0 animate-rise space-y-4">
             {originalSrc ? (
               <div className="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-black shadow-[0_24px_60px_-30px_rgba(0,0,0,0.9)]">
@@ -385,7 +390,7 @@ export function ResultsPage() {
                   Ball speed is unavailable. Arm speed below is the bowling wrist, not the ball.
                 </p>
               ) : null}
-              <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
+              <div className="mt-5 grid grid-cols-1 gap-4 border-t border-white/10 pt-5 @min-[22rem]:grid-cols-2">
                 <HeadlineStat label="Arm speed" metric={m.arm_speed_kmh} />
                 <HeadlineStat label="Release time" metric={m.release_time_ms} />
                 <HeadlineStat label="Release height" metric={m.release_height_m} />
@@ -398,7 +403,7 @@ export function ResultsPage() {
               </p>
               <div className="mt-2 flex items-end gap-3">
                 <span
-                  className={`font-display text-6xl font-extrabold leading-none ${
+                  className={`font-display text-5xl font-extrabold leading-none @min-[32rem]:text-6xl ${
                     scores.overall != null ? 'text-gradient-lime' : 'text-chalk/25'
                   }`}
                 >
@@ -431,7 +436,7 @@ export function ResultsPage() {
             title="Kinematic sequence"
             note="Events we could time on this clip. Hip rotation is a 2D estimate."
           />
-          <ol className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="grid min-w-0 gap-3 @min-[28rem]:grid-cols-2 @min-[56rem]:grid-cols-4">
             {seq.map((item) => {
               const seen = item.frame != null
               return (
@@ -501,7 +506,7 @@ export function ResultsPage() {
           title="Measured metrics"
           note="Each reading carries its own confidence. Anything shown as — could not be measured from this clip."
         />
-        <div className="grid min-w-0 grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid min-w-0 grid-cols-1 gap-3 @min-[22rem]:grid-cols-2 @min-[56rem]:grid-cols-4">
           <MetricCard label="Ball speed" metric={m.ball_speed_kmh} />
           <MetricCard label="Ball speed (m/s)" metric={m.ball_speed_mps} />
           <MetricCard label="Arm speed" metric={m.arm_speed_kmh} />
@@ -525,7 +530,7 @@ export function ResultsPage() {
             </span>
             Advanced · 2D rotation proxies (not true 3D)
           </summary>
-          <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
+          <div className="mt-4 grid min-w-0 grid-cols-1 gap-3 @min-[22rem]:grid-cols-2">
             <MetricCard label="Hip-line proxy" metric={m.hip_rotation_speed_deg_s} />
             <MetricCard label="Trunk-line proxy" metric={m.trunk_rotation_speed_deg_s} />
             <MetricCard label="Hip→trunk peak gap" metric={m.hip_to_trunk_peak_gap_ms} />
@@ -541,7 +546,7 @@ export function ResultsPage() {
           title="Notes on this delivery"
           note="Written from what the clip actually showed — read it alongside the confidence on each number."
         />
-        <div className="grid min-w-0 gap-4 md:grid-cols-2">
+        <div className="grid min-w-0 gap-4 @min-[36rem]:grid-cols-2">
           <NoteCard title="Summary" body={a.summary} accent />
           <NoteCard title="Observations" body={a.observations} />
           <NoteCard title="Strengths" body={a.strengths} />
