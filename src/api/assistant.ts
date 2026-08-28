@@ -19,6 +19,13 @@ export type AssistantReply = {
 
 export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
+function clipHistory(history: ChatTurn[]): ChatTurn[] {
+  return history.slice(-8).map((turn) => ({
+    role: turn.role,
+    content: turn.content.slice(0, 600),
+  }))
+}
+
 // How long to wait for the *next* chunk before treating the stream as
 // stalled. Generous — a slow generation is not a stall — but bounded, so a
 // connection that silently stopped delivering never leaves the UI waiting
@@ -43,7 +50,7 @@ export const assistant = {
   starters: () => publicFetch<{ starters: string[] }>('/assistant/starters'),
 
   ask: (question: string, history: ChatTurn[] = []) => {
-    const body = JSON.stringify({ question, history: history.slice(-6) })
+    const body = JSON.stringify({ question, history: clipHistory(history) })
     // Signed in, the assistant can greet by name and gets a larger allowance;
     // signed out it still answers, which is the point.
     return hasSession()
@@ -59,7 +66,7 @@ export const assistant = {
    * does not have to implement that fallback itself.
    */
   askStream: async (question: string, history: ChatTurn[], handlers: StreamHandlers): Promise<void> => {
-    const body = JSON.stringify({ question, history: history.slice(-6) })
+    const body = JSON.stringify({ question, history: clipHistory(history) })
     let response: Response
     try {
       response = hasSession()

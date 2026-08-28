@@ -245,6 +245,47 @@ export function assetUrl(path?: string | null) {
   return `${API_BASE}${path}`
 }
 
+type CloudinaryUploadParams = {
+  configured: boolean
+  cloud_name?: string
+  api_key?: string
+  timestamp?: number
+  signature?: string
+  folder?: string
+}
+
+/** Send the clip to Cloudinary so Vercel never receives a multi-MB body. */
+async function cloudinaryClipUrl(file: File): Promise<string | null> {
+  const params = await request<CloudinaryUploadParams>('/videos/upload-params')
+  if (
+    !params.configured ||
+    !params.cloud_name ||
+    !params.api_key ||
+    !params.signature ||
+    params.timestamp == null
+  ) {
+    return null
+  }
+  const body = new FormData()
+  body.append('file', file)
+  body.append('api_key', params.api_key)
+  body.append('timestamp', String(params.timestamp))
+  body.append('signature', params.signature)
+  body.append('folder', params.folder || 'criclab/incoming')
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${params.cloud_name}/video/upload`, {
+    method: 'POST',
+    body,
+  })
+  if (!res.ok) {
+    throw new Error('Could not upload the video. Try a shorter clip.')
+  }
+  const json = (await res.json()) as { secure_url?: string }
+  if (!json.secure_url) {
+    throw new Error('Could not upload the video. Try a shorter clip.')
+  }
+  return json.secure_url
+}
+
 export async function uploadVideo(input: {
   file: File
   playerName: string
@@ -259,7 +300,13 @@ export async function uploadVideo(input: {
   metersPerPixel?: number
 }) {
   const form = new FormData()
-  form.append('file', input.file)
+  const remote = await cloudinaryClipUrl(input.file)
+  if (remote) {
+    form.append('source_url', remote)
+    form.append('original_name', input.file.name)
+  } else {
+    form.append('file', input.file)
+  }
   form.append('player_name', input.playerName)
   form.append('first_name', input.firstName)
   form.append('last_name', input.lastName)
@@ -339,13 +386,19 @@ export function detectStumps(file: Blob, hints?: { bowler?: StumpBox; batter?: S
   }>('/balltrack/detect-stumps', { method: 'POST', body: form })
 }
 
-export function createBalltrackSession(input: {
+export async function createBalltrackSession(input: {
   file: File
   calibration: { bowler: StumpBox; batter: StumpBox; pitch_length_m?: number }
   title?: string
 }) {
   const form = new FormData()
-  form.append('file', input.file)
+  const remote = await cloudinaryClipUrl(input.file)
+  if (remote) {
+    form.append('source_url', remote)
+    form.append('original_name', input.file.name)
+  } else {
+    form.append('file', input.file)
+  }
   form.append('calibration', JSON.stringify(input.calibration))
   form.append('title', input.title || 'Ball Track session')
   return request<{ session_id: string; job_id: string; status: string }>('/balltrack/sessions', {
