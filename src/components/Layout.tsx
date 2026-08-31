@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { CricLabMark } from './site/SiteHeader'
 import { AccountMenu } from './app/AccountMenu'
 import { NotificationBell } from './app/NotificationBell'
+import { ProcessingIndicator } from './app/ProcessingIndicator'
 import { ThemeToggle } from './ThemeToggle'
 import { InstallAppButton } from './site/InstallAppButton'
 
@@ -232,6 +233,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <InstallAppButton compact />
             <ThemeToggle variant="on-dark" />
+            <ProcessingIndicator />
             <NotificationBell />
             <AccountMenu />
           </div>
@@ -252,6 +254,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="sticky top-0 z-30 hidden items-center justify-end gap-2.5 border-b border-white/8 bg-charcoal/80 px-9 py-3 backdrop-blur-xl lg:flex">
           <InstallAppButton />
           <ThemeToggle variant="on-dark" />
+          <ProcessingIndicator />
           <NotificationBell />
           <AccountMenu />
         </div>

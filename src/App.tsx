@@ -9,6 +9,7 @@ import { ConfirmProvider } from './components/site/ConfirmDialog'
 import { ToastProvider } from './components/site/Toast'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { PwaInstallProvider } from './pwa/PwaInstall'
+import { ProcessingJobsProvider } from './components/app/ProcessingJobs'
 import { HomePage } from './pages/site/HomePage'
 
 /**
@@ -138,6 +139,7 @@ export default function App() {
         <ToastProvider>
           <ConfirmProvider>
             <AuthProvider>
+              <ProcessingJobsProvider>
               <PwaInstallProvider>
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
@@ -250,6 +252,7 @@ export default function App() {
                   is stuck. */}
               <AssistantWidget />
               </PwaInstallProvider>
+              </ProcessingJobsProvider>
             </AuthProvider>
           </ConfirmProvider>
         </ToastProvider>

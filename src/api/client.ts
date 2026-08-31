@@ -27,9 +27,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type Job = {
   id: string
+  kind?: 'action' | 'ballflight'
   video_id?: string
   session_id?: string
-  status: 'queued' | 'processing' | 'analyzing' | 'completed' | 'failed' | string
+  status: 'queued' | 'claimed' | 'processing' | 'analyzing' | 'completed' | 'failed' | string
   progress: number
   stage?: string
   message?: string
@@ -359,6 +360,10 @@ export async function uploadVideo(
 
 export function getJob(jobId: string) {
   return request<Job>(`/jobs/${jobId}`)
+}
+
+export function listActiveJobs() {
+  return request<{ items: Job[] }>('/jobs/active')
 }
 
 export function listDeliveries() {

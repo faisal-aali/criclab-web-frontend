@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { uploadVideo, type ClipUploadProgress } from '../api/client'
 import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
+import { useProcessingJobs } from '../components/app/ProcessingJobs'
 import { Backdrop, Button, Card, Chip, Eyebrow, Reveal, TiltCard } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
@@ -58,6 +59,7 @@ function loadProfile(): SavedProfile {
 
 export function UploadPage() {
   const navigate = useNavigate()
+  const { trackJob } = useProcessingJobs()
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [profile, setProfile] = useState<SavedProfile>(emptyProfile)
@@ -140,6 +142,7 @@ export function UploadPage() {
         },
         setUploadProgress,
       )
+      trackJob({ id: res.job_id, kind: 'action' })
       navigate(`/app/processing/${res.job_id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')

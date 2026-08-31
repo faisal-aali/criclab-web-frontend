@@ -58,7 +58,8 @@ export function BallFlightProcessingPage() {
   }, [jobId, navigate])
 
   const progress = job?.progress ?? 0
-  const stageKey = job?.stage === 'done' ? 'agent' : job?.stage || 'queued'
+  const stageKey =
+    job?.stage === 'done' ? 'agent' : job?.stage === 'claimed' ? 'queued' : job?.stage || 'queued'
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
   const pct = Math.max(0, Math.min(100, progress))
@@ -215,8 +216,8 @@ export function BallFlightProcessingPage() {
               While you wait
             </p>
             <p className="mt-2 text-sm leading-relaxed text-chalk/60">
-              Every number is checked before it is shown. Anything the clip cannot support comes
-              back as unavailable, with a note explaining why — never as a guess.
+              Every number is checked before it is shown. You can leave this page — processing
+              continues on a video worker, and the header ring shows progress.
             </p>
           </Card>
         </Reveal>

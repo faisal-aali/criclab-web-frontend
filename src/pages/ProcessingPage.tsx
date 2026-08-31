@@ -106,7 +106,8 @@ export function ProcessingPage() {
   }, [])
 
   const progress = job?.progress ?? 0
-  const stageKey = job?.stage === 'done' ? 'pdf' : job?.stage || 'queued'
+  const stageKey =
+    job?.stage === 'done' ? 'pdf' : job?.stage === 'claimed' ? 'queued' : job?.stage || 'queued'
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
 
@@ -219,8 +220,9 @@ export function ProcessingPage() {
                 </div>
               ) : null}
               <p className="mt-2.5 text-sm leading-relaxed text-chalk/55">
-                A long clip filmed at a high frame rate can take a few minutes. Keep this
-                tab open — you will be taken to the report the moment it is ready.
+                Analysis runs on a dedicated video worker. You can change tabs or leave this
+                page — the clip in the header keeps the progress, and you will be taken to the
+                report when this screen is still open.
               </p>
             </div>
           </div>

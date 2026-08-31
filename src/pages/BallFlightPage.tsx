@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { Link, useNavigate } from 'react-router-dom'
 import { createBalltrackSession, detectStumps, type ClipUploadProgress, type StumpBox } from '../api/client'
 import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
+import { useProcessingJobs } from '../components/app/ProcessingJobs'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { TrajectoryArc } from '../components/site/visuals'
 
@@ -156,6 +157,7 @@ function BoxHandle({
 
 export function BallFlightPage() {
   const navigate = useNavigate()
+  const { trackJob } = useProcessingJobs()
   const fileRef = useRef<File | null>(null)
   const [hasFile, setHasFile] = useState(false)
   const [fileName, setFileName] = useState('')
@@ -224,6 +226,7 @@ export function BallFlightPage() {
         },
         setUploadProgress,
       )
+      trackJob({ id: res.job_id, kind: 'ballflight' })
       navigate(`/app/ball-flight/processing/${res.job_id}`, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
