@@ -1,11 +1,12 @@
-# Deploy frontend (self-hosted runner)
+# Frontend CI and deploy
 
-Push to `main`. The workflow:
+1. `git push` runs lint and build locally (see `.githooks/pre-push`). A failing check never reaches GitHub.
+2. GitHub **CI** runs lint and build on the commit. **Deploy** runs only if that job passes.
 
-1. `git pull` in `/var/www/criclab-web-frontend`
-2. `npm ci`
-3. `npm run lint`
-4. `npm run build`
-5. `pm2 restart criclab-frontend` if that process exists
+Enable the local hook once (`npm install` also does this):
 
-`.env` / `.env.local` stay on the instance.
+```bash
+git config core.hooksPath .githooks
+```
+
+The instance directory must already be a git clone. Add repo secret `GH_PAT` (a GitHub PAT with `repo` access). `.env` / `.env.local` stay on the instance.

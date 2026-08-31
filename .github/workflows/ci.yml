@@ -1,20 +1,41 @@
-# git pull → npm ci → lint → build → pm2 restart
-name: Deploy Frontend
+# Lint and build must pass. Deploy runs only after CI on main (merge or dispatch).
+name: CI
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: lightsail-frontend
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_BASE: /api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
   deploy:
+    name: Deploy
+    needs: ci
+    if: github.event_name != 'pull_request'
     runs-on: self-hosted
     env:
       APP_DIR: /var/www/criclab-web-frontend
@@ -26,16 +47,12 @@ jobs:
 
       - name: git pull
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: bash deploy/pull.sh "$APP_DIR" main
 
       - name: Install
         working-directory: ${{ env.APP_DIR }}
         run: npm ci
-
-      - name: Lint
-        working-directory: ${{ env.APP_DIR }}
-        run: npm run lint
 
       - name: Build
         working-directory: ${{ env.APP_DIR }}
