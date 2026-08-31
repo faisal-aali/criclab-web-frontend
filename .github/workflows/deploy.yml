@@ -1,5 +1,4 @@
-# Build on the self-hosted runner, then publish static files.
-# The runner is registered to this repo only — `self-hosted` is enough.
+# git pull → npm ci → lint → build → pm2 restart
 name: Deploy Frontend
 
 on:
@@ -17,33 +16,33 @@ permissions:
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      APP_DIR: /var/www/criclab-web-frontend
+      VITE_API_BASE: /api
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-
-      - name: Check Node
-        run: |
-          whoami
-          node --version
-          npm --version
-
-      - name: Install and build
-        run: npm ci && npm run build
+      - name: git pull
         env:
-          # Same origin: nginx proxies /api → FastAPI on this instance.
-          VITE_API_BASE: /api
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash deploy/pull.sh "$APP_DIR" main
 
-      - name: Publish dist (does not touch a server-side .env)
+      - name: Install
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Lint
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run lint
+
+      - name: Build
+        working-directory: ${{ env.APP_DIR }}
+        run: npm run build
+
+      - name: Restart
+        working-directory: ${{ env.APP_DIR }}
         run: |
-          DEST=/var/www/criclab-web-frontend
-          mkdir -p "$DEST"
-          rsync -a --delete \
-            --exclude '.env' \
-            --exclude '.env.*' \
-            dist/ "$DEST/"
+          if command -v pm2 >/dev/null && pm2 describe criclab-frontend >/dev/null 2>&1; then
+            pm2 restart criclab-frontend --update-env
+            pm2 save
+          fi
