@@ -71,6 +71,12 @@ function waitForPrompt(ms: number): Promise<BeforeInstallPromptEvent | null> {
   })
 }
 
+function installBlockedReason(): 'insecure' | 'ios' | 'none' {
+  if (typeof window === 'undefined') return 'none'
+  if (!window.isSecureContext) return 'insecure'
+  return 'none'
+}
+
 export function PwaInstallProvider({ children }: { children: ReactNode }) {
   const [installed, setInstalled] = useState(() => (typeof window === 'undefined' ? false : isStandaloneDisplay()))
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(() =>
@@ -105,12 +111,14 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const install = useCallback(async () => {
+    if (installBlockedReason() === 'insecure') {
+      setHelpOpen(true)
+      return
+    }
     let event = deferred ?? peekInstallPrompt()
     if (!event) {
-      // First visit: Chrome often fires the event only after the SW is ready.
-      // User activation lasts a few seconds, so a short wait still lets us
-      // call prompt() from this click.
-      event = await waitForPrompt(4000)
+      // Chrome only allows prompt() while the click is still a user gesture.
+      event = await waitForPrompt(800)
     }
     if (event) {
       try {
@@ -163,17 +171,21 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
                 </li>
                 <li>Confirm, and CricLab opens like an app next time.</li>
               </ol>
+            ) : installBlockedReason() === 'insecure' ? (
+              <p className="mt-3 text-sm leading-relaxed text-chalk/70">
+                Chrome will not install a PWA over plain HTTP. This page is not a secure context
+                (localhost is allowed; a public http:// IP or hostname is not). Open CricLab on{' '}
+                <span className="font-semibold text-chalk">https://</span> and tap Download App again.
+              </p>
             ) : (
               <ol className="mt-3 list-decimal space-y-2 pl-4 text-sm leading-relaxed text-chalk/70">
                 <li>Use a normal Chrome or Edge window — not Incognito / InPrivate.</li>
+                <li>Reload once so the service worker can take control, then tap Download App again.</li>
                 <li>
-                  Click the install icon on the right of the address bar (a monitor with a down
-                  arrow), or open the three-dot menu →{' '}
+                  Or use the install icon on the right of the address bar, or the three-dot menu →{' '}
                   <span className="font-semibold text-chalk">Cast, save and share</span> →{' '}
-                  <span className="font-semibold text-chalk">Install CricLab</span> /{' '}
-                  <span className="font-semibold text-chalk">Install page as app</span>.
+                  <span className="font-semibold text-chalk">Install CricLab</span>.
                 </li>
-                <li>Click Install. CricLab then opens in its own window.</li>
               </ol>
             )}
             <button
