@@ -9,4 +9,4 @@ Enable the local hook once (`npm install` also does this):
 git config core.hooksPath .githooks
 ```
 
-The instance directory must already be a git clone. Add repo secret `GH_PAT` (a GitHub PAT with `repo` access). `.env` / `.env.local` stay on the instance.
+The instance directory must already be a git clone. Do not put a PAT in `origin`. `.env` / `.env.local` stay on the instance.
