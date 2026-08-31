@@ -6,6 +6,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      (function () {
+        window.__CRICLAB_PWA = window.__CRICLAB_PWA || { deferred: null }
+        window.addEventListener('beforeinstallprompt', function (event) {
+          event.preventDefault()
+          window.__CRICLAB_PWA.deferred = event
+          window.dispatchEvent(new Event('criclab-pwa-prompt'))
+        })
+        window.addEventListener('appinstalled', function () {
+          window.__CRICLAB_PWA.deferred = null
+        })
+      })()
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

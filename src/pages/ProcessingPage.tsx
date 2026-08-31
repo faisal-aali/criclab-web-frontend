@@ -4,6 +4,7 @@ import { getJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { BowlerSkeleton, SeamBall, TrajectoryArc } from '../components/site/visuals'
 import { formatEta } from '../lib/eta'
+import { formatStageDetail, stageFraction } from '../components/app/ClipUploadOverlay'
 
 /**
  * Stage keys are the contract with the job feed; the labels are what the
@@ -11,6 +12,8 @@ import { formatEta } from '../lib/eta'
  * than in the language of the machinery behind them.
  */
 const STAGES = [
+  { key: 'queued', label: 'In the queue' },
+  { key: 'ingest', label: 'Fetching your clip' },
   { key: 'extract', label: 'Reading your clip' },
   { key: 'pose', label: 'Mapping the bowler' },
   { key: 'action', label: 'Finding the release' },
@@ -89,7 +92,7 @@ export function ProcessingPage() {
     }
 
     tick()
-    timer = window.setInterval(tick, 1500)
+    timer = window.setInterval(tick, 400)
     return () => {
       alive = false
       window.clearInterval(timer)
@@ -103,7 +106,7 @@ export function ProcessingPage() {
   }, [])
 
   const progress = job?.progress ?? 0
-  const stageKey = job?.stage === 'done' || job?.stage === 'queued' ? 'extract' : job?.stage
+  const stageKey = job?.stage === 'done' ? 'pdf' : job?.stage || 'queued'
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
 
@@ -161,7 +164,7 @@ export function ProcessingPage() {
                   strokeLinecap="round"
                   strokeDasharray={RING}
                   strokeDashoffset={RING * (1 - pct / 100)}
-                  className="transition-all duration-700 ease-out"
+                  className="transition-[stroke-dashoffset] duration-300 ease-out"
                 />
               </svg>
               <div className="absolute inset-0 grid place-items-center">
@@ -227,13 +230,16 @@ export function ProcessingPage() {
               const done = !failed && (currentIdx > i || job?.status === 'completed')
               const active = !failed && currentIdx === i && job?.status !== 'completed'
               const broken = failed && currentIdx === i
+              const detail = active ? formatStageDetail(job?.stage_detail) : null
+              const frac = active ? stageFraction(job?.stage_detail) : null
               return (
                 <li
                   key={s.key}
-                  className={`flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition ${
+                  className={`rounded-xl px-2.5 py-2 text-sm transition ${
                     active ? 'bg-lime/10' : broken ? 'bg-bad/10' : ''
                   }`}
                 >
+                  <div className="flex items-center gap-3">
                   <span
                     className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-[11px] font-bold ${
                       broken
@@ -248,7 +254,7 @@ export function ProcessingPage() {
                     {done ? '✓' : i + 1}
                   </span>
                   <span
-                    className={`min-w-0 break-words ${
+                    className={`min-w-0 flex-1 break-words ${
                       broken
                         ? 'font-semibold text-bad'
                         : active
@@ -259,9 +265,23 @@ export function ProcessingPage() {
                     }`}
                   >
                     {s.label}
+                    {detail ? (
+                      <span className="mt-0.5 block font-mono text-[11px] font-medium tracking-tight text-lime/90">
+                        {detail}
+                      </span>
+                    ) : null}
                   </span>
                   {active ? (
                     <span className="ml-auto h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-lime/25 border-t-lime" />
+                  ) : null}
+                  </div>
+                  {active && frac != null ? (
+                    <div className="ml-9 mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-lime transition-[width] duration-200"
+                        style={{ width: `${Math.round(frac * 100)}%` }}
+                      />
+                    </div>
                   ) : null}
                 </li>
               )

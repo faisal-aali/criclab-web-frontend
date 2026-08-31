@@ -1,10 +1,10 @@
 /**
  * Install / standalone detection for the CricLab PWA.
  *
- * Chrome/Edge/Android fire `beforeinstallprompt`. iOS Safari never does —
- * those visitors get a short "Add to Home Screen" sheet instead of a dead
- * button. Once the app is running in standalone (or the install event fired),
- * the header button hides.
+ * Chrome/Edge/Android fire `beforeinstallprompt`. That event is stashed as
+ * early as index.html so a late React effect cannot miss it. iOS Safari never
+ * fires it — those visitors get a short "Add to Home Screen" sheet instead of
+ * a dead button. Once the app is running standalone, the header button hides.
  */
 import {
   createContext,
@@ -15,11 +15,12 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
+import {
+  PWA_PROMPT_EVENT,
+  clearInstallPrompt,
+  peekInstallPrompt,
+  type BeforeInstallPromptEvent,
+} from './installPrompt'
 
 type Platform = 'ios' | 'android' | 'desktop'
 
@@ -53,18 +54,36 @@ export function isStandaloneDisplay(): boolean {
   )
 }
 
+function waitForPrompt(ms: number): Promise<BeforeInstallPromptEvent | null> {
+  const already = peekInstallPrompt()
+  if (already) return Promise.resolve(already)
+  return new Promise((resolve) => {
+    const finish = () => {
+      window.clearTimeout(timer)
+      window.removeEventListener(PWA_PROMPT_EVENT, onReady)
+      window.removeEventListener('beforeinstallprompt', onReady)
+      resolve(peekInstallPrompt())
+    }
+    const onReady = () => finish()
+    const timer = window.setTimeout(finish, ms)
+    window.addEventListener(PWA_PROMPT_EVENT, onReady)
+    window.addEventListener('beforeinstallprompt', onReady)
+  })
+}
+
 export function PwaInstallProvider({ children }: { children: ReactNode }) {
   const [installed, setInstalled] = useState(() => (typeof window === 'undefined' ? false : isStandaloneDisplay()))
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(() =>
+    typeof window === 'undefined' ? null : peekInstallPrompt(),
+  )
   const [helpOpen, setHelpOpen] = useState(false)
   const [platform] = useState<Platform>(() => (typeof navigator === 'undefined' ? 'desktop' : detectPlatform()))
 
   useEffect(() => {
-    const onPrompt = (e: Event) => {
-      e.preventDefault()
-      setDeferred(e as BeforeInstallPromptEvent)
-    }
+    const sync = () => setDeferred(peekInstallPrompt())
+    sync()
     const onInstalled = () => {
+      clearInstallPrompt()
       setDeferred(null)
       setInstalled(true)
       setHelpOpen(false)
@@ -72,26 +91,38 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
     const onDisplay = () => {
       if (isStandaloneDisplay()) setInstalled(true)
     }
-    window.addEventListener('beforeinstallprompt', onPrompt)
+    window.addEventListener(PWA_PROMPT_EVENT, sync)
+    window.addEventListener('beforeinstallprompt', sync)
     window.addEventListener('appinstalled', onInstalled)
     const mq = window.matchMedia('(display-mode: standalone)')
     mq.addEventListener?.('change', onDisplay)
     return () => {
-      window.removeEventListener('beforeinstallprompt', onPrompt)
+      window.removeEventListener(PWA_PROMPT_EVENT, sync)
+      window.removeEventListener('beforeinstallprompt', sync)
       window.removeEventListener('appinstalled', onInstalled)
       mq.removeEventListener?.('change', onDisplay)
     }
   }, [])
 
   const install = useCallback(async () => {
-    if (deferred) {
-      await deferred.prompt()
-      const choice = await deferred.userChoice
-      setDeferred(null)
-      if (choice.outcome === 'accepted') {
-        setInstalled(true)
+    let event = deferred ?? peekInstallPrompt()
+    if (!event) {
+      // First visit: Chrome often fires the event only after the SW is ready.
+      // User activation lasts a few seconds, so a short wait still lets us
+      // call prompt() from this click.
+      event = await waitForPrompt(4000)
+    }
+    if (event) {
+      try {
+        await event.prompt()
+        const choice = await event.userChoice
+        clearInstallPrompt()
+        setDeferred(null)
+        if (choice.outcome === 'accepted') setInstalled(true)
+        return
+      } catch {
+        // Fall through to the manual steps (private window, policy, expired gesture).
       }
-      return
     }
     setHelpOpen(true)
   }, [deferred])
@@ -99,7 +130,7 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PwaContextValue>(
     () => ({
       installed,
-      canPrompt: Boolean(deferred),
+      canPrompt: Boolean(deferred) || Boolean(peekInstallPrompt()),
       platform,
       install,
     }),
@@ -124,7 +155,8 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
             {platform === 'ios' ? (
               <ol className="mt-3 list-decimal space-y-2 pl-4 text-sm leading-relaxed text-chalk/70">
                 <li>
-                  Tap the <span className="font-semibold text-chalk">Share</span> button in Safari.
+                  Tap the <span className="font-semibold text-chalk">Share</span> button in Safari
+                  (Chrome on iPhone uses the same Share sheet).
                 </li>
                 <li>
                   Choose <span className="font-semibold text-chalk">Add to Home Screen</span>.
@@ -132,11 +164,17 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
                 <li>Confirm, and CricLab opens like an app next time.</li>
               </ol>
             ) : (
-              <p className="mt-3 text-sm leading-relaxed text-chalk/70">
-                This browser does not expose a one-tap install prompt. In Chrome or Edge, open the
-                browser menu and choose <span className="font-semibold text-chalk">Install CricLab</span>{' '}
-                / <span className="font-semibold text-chalk">Add to Home screen</span>.
-              </p>
+              <ol className="mt-3 list-decimal space-y-2 pl-4 text-sm leading-relaxed text-chalk/70">
+                <li>Use a normal Chrome or Edge window — not Incognito / InPrivate.</li>
+                <li>
+                  Click the install icon on the right of the address bar (a monitor with a down
+                  arrow), or open the three-dot menu →{' '}
+                  <span className="font-semibold text-chalk">Cast, save and share</span> →{' '}
+                  <span className="font-semibold text-chalk">Install CricLab</span> /{' '}
+                  <span className="font-semibold text-chalk">Install page as app</span>.
+                </li>
+                <li>Click Install. CricLab then opens in its own window.</li>
+              </ol>
             )}
             <button
               type="button"

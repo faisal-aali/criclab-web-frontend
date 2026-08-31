@@ -5,7 +5,7 @@
  * only for static assets. API calls, artifacts, media, and anything with a
  * bearer token stay on the network — never written into Cache Storage.
  */
-const VERSION = 'criclab-shell-v1'
+const VERSION = 'criclab-shell-v2'
 const SHELL = [
   '/',
   '/app',

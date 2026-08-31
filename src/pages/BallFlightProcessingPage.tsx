@@ -4,9 +4,12 @@ import { getBalltrackJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { SeamBall } from '../components/site/visuals'
 import { formatEta } from '../lib/eta'
+import { formatStageDetail, stageFraction } from '../components/app/ClipUploadOverlay'
 
 /** Plain-language names for what the viewer is waiting on. */
 const STAGES = [
+  { key: 'queued', label: 'In the queue' },
+  { key: 'ingest', label: 'Fetching your clip' },
   { key: 'calibrate', label: 'Measuring the pitch' },
   { key: 'detect', label: 'Finding the ball' },
   { key: 'track', label: 'Following each delivery' },
@@ -47,7 +50,7 @@ export function BallFlightProcessingPage() {
     }
 
     tick()
-    timer = window.setInterval(tick, 1500)
+    timer = window.setInterval(tick, 400)
     return () => {
       alive = false
       window.clearInterval(timer)
@@ -55,7 +58,7 @@ export function BallFlightProcessingPage() {
   }, [jobId, navigate])
 
   const progress = job?.progress ?? 0
-  const stageKey = job?.stage === 'done' || job?.stage === 'queued' ? 'calibrate' : job?.stage
+  const stageKey = job?.stage === 'done' ? 'agent' : job?.stage || 'queued'
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
   const pct = Math.max(0, Math.min(100, progress))
@@ -132,13 +135,16 @@ export function BallFlightProcessingPage() {
               const done = !failed && (currentIdx > i || job?.status === 'completed')
               const current = !failed && currentIdx === i && job?.status !== 'completed'
               const stopped = failed && currentIdx === i
+              const detail = current ? formatStageDetail(job?.stage_detail) : null
+              const frac = current ? stageFraction(job?.stage_detail) : null
               return (
                 <li
                   key={s.key}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                  className={`rounded-xl px-3 py-2.5 text-sm transition ${
                     current ? 'bg-lime/10' : stopped ? 'bg-bad/10' : ''
                   }`}
                 >
+                  <div className="flex items-center gap-3">
                   <span
                     className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border text-[11px] font-bold ${
                       stopped
@@ -154,18 +160,32 @@ export function BallFlightProcessingPage() {
                     {stopped ? '!' : done ? '✓' : i + 1}
                   </span>
                   <span
-                    className={
+                    className={`min-w-0 flex-1 ${
                       stopped
                         ? 'font-medium text-bad'
                         : done || current
                           ? 'font-medium text-chalk'
                           : 'text-chalk/40'
-                    }
+                    }`}
                   >
                     {s.label}
+                    {detail ? (
+                      <span className="mt-0.5 block font-mono text-[11px] font-medium tracking-tight text-lime/90">
+                        {detail}
+                      </span>
+                    ) : null}
                   </span>
                   {current ? (
                     <span className="ml-auto h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-lime/30 border-t-lime" />
+                  ) : null}
+                  </div>
+                  {current && frac != null ? (
+                    <div className="ml-9 mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-lime transition-[width] duration-200"
+                        style={{ width: `${Math.round(frac * 100)}%` }}
+                      />
+                    </div>
                   ) : null}
                 </li>
               )

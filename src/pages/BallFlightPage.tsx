@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createBalltrackSession, detectStumps, type StumpBox } from '../api/client'
+import { createBalltrackSession, detectStumps, type ClipUploadProgress, type StumpBox } from '../api/client'
+import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { TrajectoryArc } from '../components/site/visuals'
 
@@ -163,6 +164,7 @@ export function BallFlightPage() {
   const [batter, setBatter] = useState<StumpBox>(DEFAULT_BATTER)
   const [title, setTitle] = useState('Nets session')
   const [busy, setBusy] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<ClipUploadProgress | null>(null)
   const [detecting, setDetecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -212,17 +214,22 @@ export function BallFlightPage() {
     }
     setBusy(true)
     setError(null)
+    setUploadProgress({ phase: 'cloudinary', loaded: 0, total: file.size || 1 })
     try {
-      const res = await createBalltrackSession({
-        file,
-        title,
-        calibration: { bowler, batter, pitch_length_m: 20.12 },
-      })
+      const res = await createBalltrackSession(
+        {
+          file,
+          title,
+          calibration: { bowler, batter, pitch_length_m: 20.12 },
+        },
+        setUploadProgress,
+      )
       navigate(`/app/ball-flight/processing/${res.job_id}`, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setBusy(false)
+      setUploadProgress(null)
     }
   }
 
@@ -461,11 +468,16 @@ export function BallFlightPage() {
             clearly is reported as unavailable.
           </p>
           <Button type="submit" size="lg" disabled={busy || !hasFile} className="w-full sm:w-auto">
-            {busy ? 'Sending your clip…' : 'Track ball flight'}
+            {busy
+              ? uploadProgress?.phase === 'cloudinary'
+                ? 'Uploading clip…'
+                : 'Starting analysis…'
+              : 'Track ball flight'}
             <span aria-hidden>→</span>
           </Button>
         </div>
       </form>
+      <ClipUploadOverlay progress={uploadProgress} label="Ball flight clip" />
     </div>
   )
 }

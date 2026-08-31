@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { uploadVideo } from '../api/client'
+import { uploadVideo, type ClipUploadProgress } from '../api/client'
+import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
 import { Backdrop, Button, Card, Chip, Eyebrow, Reveal, TiltCard } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
@@ -62,6 +63,7 @@ export function UploadPage() {
   const [profile, setProfile] = useState<SavedProfile>(emptyProfile)
   const [metersPerPixel, setMetersPerPixel] = useState('')
   const [busy, setBusy] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<ClipUploadProgress | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -119,26 +121,31 @@ export function UploadPage() {
     }
     setBusy(true)
     setError(null)
+    setUploadProgress({ phase: 'cloudinary', loaded: 0, total: file.size || 1 })
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
-      const res = await uploadVideo({
-        file,
-        playerName: `${profile.firstName.trim()} ${profile.lastName.trim()}`,
-        firstName: profile.firstName.trim(),
-        lastName: profile.lastName.trim(),
-        dateOfBirth: profile.dob,
-        heightFt: Number(profile.heightFt) || 0,
-        heightIn: Number(profile.heightIn) || 0,
-        weightLbs: Number(profile.weightLbs),
-        bowlingArm: profile.bowlingArm as 'left' | 'right',
-        bowlingStyle: profile.bowlingStyle as 'pace' | 'spin' | 'medium',
-        metersPerPixel: metersPerPixel ? Number(metersPerPixel) : undefined,
-      })
+      const res = await uploadVideo(
+        {
+          file,
+          playerName: `${profile.firstName.trim()} ${profile.lastName.trim()}`,
+          firstName: profile.firstName.trim(),
+          lastName: profile.lastName.trim(),
+          dateOfBirth: profile.dob,
+          heightFt: Number(profile.heightFt) || 0,
+          heightIn: Number(profile.heightIn) || 0,
+          weightLbs: Number(profile.weightLbs),
+          bowlingArm: profile.bowlingArm as 'left' | 'right',
+          bowlingStyle: profile.bowlingStyle as 'pace' | 'spin' | 'medium',
+          metersPerPixel: metersPerPixel ? Number(metersPerPixel) : undefined,
+        },
+        setUploadProgress,
+      )
       navigate(`/app/processing/${res.job_id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setBusy(false)
+      setUploadProgress(null)
     }
   }
 
@@ -427,7 +434,13 @@ export function UploadPage() {
           ) : null}
 
           <Button type="submit" size="lg" disabled={busy || !ready} className="mt-5 w-full">
-            {busy ? 'Uploading…' : ready ? 'Analyze delivery' : 'Complete player details to continue'}
+            {busy
+              ? uploadProgress?.phase === 'cloudinary'
+                ? 'Uploading clip…'
+                : 'Starting analysis…'
+              : ready
+                ? 'Analyze delivery'
+                : 'Complete player details to continue'}
           </Button>
         </form>
 
@@ -505,6 +518,7 @@ export function UploadPage() {
           </Reveal>
         </div>
       </div>
+      <ClipUploadOverlay progress={uploadProgress} label="Action clip" />
     </div>
   )
 }

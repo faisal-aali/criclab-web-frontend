@@ -270,7 +270,7 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
                 {cmp.arm_delta_kmh.toFixed(1)} km/h
               </span>{' '}
               arm speed vs your last {cmp.previous_arm_count}{' '}
-              {cmp.previous_arm_count === 1 ? 'delivery' : 'deliveries'} — ball was not tracked on this clip
+              {cmp.previous_arm_count === 1 ? 'delivery' : 'deliveries'} — ball speed could not be measured on this clip
             </p>
           ) : null}
         </div>

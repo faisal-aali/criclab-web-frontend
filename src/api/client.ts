@@ -38,6 +38,8 @@ export type Job = {
   error?: string
   /** Seconds remaining, blended from this job's own pace and recent history. Absent while too little is known. */
   eta_seconds?: number | null
+  /** Live count inside the current stage (frames, bytes, paths). */
+  stage_detail?: { current: number; total: number; unit?: string } | null
 }
 
 export type MetricValue = {
@@ -254,8 +256,36 @@ type CloudinaryUploadParams = {
   folder?: string
 }
 
+export type ClipUploadProgress = {
+  phase: 'cloudinary' | 'handoff'
+  loaded: number
+  total: number
+}
+
+function xhrPostForm(url: string, body: FormData, onProgress?: (loaded: number, total: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(event.loaded, event.total)
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.responseText)
+        return
+      }
+      reject(new Error('Could not upload the video. Try a shorter clip.'))
+    }
+    xhr.onerror = () => reject(new Error('Could not upload the video. Try a shorter clip.'))
+    xhr.send(body)
+  })
+}
+
 /** Send the clip to Cloudinary so Vercel never receives a multi-MB body. */
-async function cloudinaryClipUrl(file: File): Promise<string | null> {
+async function cloudinaryClipUrl(
+  file: File,
+  onProgress?: (p: ClipUploadProgress) => void,
+): Promise<string | null> {
   const params = await request<CloudinaryUploadParams>('/videos/upload-params')
   if (
     !params.configured ||
@@ -272,35 +302,36 @@ async function cloudinaryClipUrl(file: File): Promise<string | null> {
   body.append('timestamp', String(params.timestamp))
   body.append('signature', params.signature)
   body.append('folder', params.folder || 'criclab/incoming')
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${params.cloud_name}/video/upload`, {
-    method: 'POST',
+  const raw = await xhrPostForm(
+    `https://api.cloudinary.com/v1_1/${params.cloud_name}/video/upload`,
     body,
-  })
-  if (!res.ok) {
-    throw new Error('Could not upload the video. Try a shorter clip.')
-  }
-  const json = (await res.json()) as { secure_url?: string }
+    (loaded, total) => onProgress?.({ phase: 'cloudinary', loaded, total }),
+  )
+  const json = JSON.parse(raw) as { secure_url?: string }
   if (!json.secure_url) {
     throw new Error('Could not upload the video. Try a shorter clip.')
   }
   return json.secure_url
 }
 
-export async function uploadVideo(input: {
-  file: File
-  playerName: string
-  firstName: string
-  lastName: string
-  dateOfBirth: string
-  heightFt: number
-  heightIn: number
-  weightLbs: number
-  bowlingArm: 'left' | 'right'
-  bowlingStyle: 'pace' | 'spin' | 'medium'
-  metersPerPixel?: number
-}) {
+export async function uploadVideo(
+  input: {
+    file: File
+    playerName: string
+    firstName: string
+    lastName: string
+    dateOfBirth: string
+    heightFt: number
+    heightIn: number
+    weightLbs: number
+    bowlingArm: 'left' | 'right'
+    bowlingStyle: 'pace' | 'spin' | 'medium'
+    metersPerPixel?: number
+  },
+  onProgress?: (p: ClipUploadProgress) => void,
+) {
   const form = new FormData()
-  const remote = await cloudinaryClipUrl(input.file)
+  const remote = await cloudinaryClipUrl(input.file, onProgress)
   if (remote) {
     form.append('source_url', remote)
     form.append('original_name', input.file.name)
@@ -319,6 +350,7 @@ export async function uploadVideo(input: {
   if (input.metersPerPixel != null && !Number.isNaN(input.metersPerPixel)) {
     form.append('meters_per_pixel', String(input.metersPerPixel))
   }
+  onProgress?.({ phase: 'handoff', loaded: 1, total: 1 })
   return request<{ video_id: string; job_id: string; status: string }>('/videos', {
     method: 'POST',
     body: form,
@@ -386,13 +418,16 @@ export function detectStumps(file: Blob, hints?: { bowler?: StumpBox; batter?: S
   }>('/balltrack/detect-stumps', { method: 'POST', body: form })
 }
 
-export async function createBalltrackSession(input: {
-  file: File
-  calibration: { bowler: StumpBox; batter: StumpBox; pitch_length_m?: number }
-  title?: string
-}) {
+export async function createBalltrackSession(
+  input: {
+    file: File
+    calibration: { bowler: StumpBox; batter: StumpBox; pitch_length_m?: number }
+    title?: string
+  },
+  onProgress?: (p: ClipUploadProgress) => void,
+) {
   const form = new FormData()
-  const remote = await cloudinaryClipUrl(input.file)
+  const remote = await cloudinaryClipUrl(input.file, onProgress)
   if (remote) {
     form.append('source_url', remote)
     form.append('original_name', input.file.name)
@@ -401,6 +436,7 @@ export async function createBalltrackSession(input: {
   }
   form.append('calibration', JSON.stringify(input.calibration))
   form.append('title', input.title || 'Ball Track session')
+  onProgress?.({ phase: 'handoff', loaded: 1, total: 1 })
   return request<{ session_id: string; job_id: string; status: string }>('/balltrack/sessions', {
     method: 'POST',
     body: form,
