@@ -1,0 +1,43 @@
+# Build on the self-hosted runner, then publish static files.
+# The runner is registered to this repo only — `self-hosted` is enough.
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: lightsail-frontend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Node
+        run: |
+          whoami
+          node --version
+          npm --version
+
+      - name: Install and build
+        run: npm ci && npm run build
+        env:
+          # Same origin: nginx proxies /api → FastAPI on this instance.
+          VITE_API_BASE: /api
+
+      - name: Publish dist (does not touch a server-side .env)
+        run: |
+          DEST=/var/www/criclab-web-frontend
+          mkdir -p "$DEST"
+          rsync -a --delete \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            dist/ "$DEST/"

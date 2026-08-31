@@ -49,6 +49,10 @@ Action upload → Processing → Results · Ball flight · Train · History
 
 All writes go through the FastAPI backend. React does not talk to MongoDB or Ollama directly.
 
+## Production (Lightsail)
+
+Push to `main` deploys via the self-hosted runner. Instance steps: [DEPLOY.md](DEPLOY.md).
+
 ## Architecture
 
 Read `memory-bank/` before extending UI. Metric cards must gate on `metricReady` (`value != null` AND `status === 'ok'`).
