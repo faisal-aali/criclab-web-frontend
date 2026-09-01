@@ -248,6 +248,29 @@ export function assetUrl(path?: string | null) {
   return `${API_BASE}${path}`
 }
 
+/** Cloudinary H.264 MP4 of an incoming clip so Chrome can play iPhone HEVC .mov. */
+export function cloudinaryPlaybackUrl(url: string): string {
+  if (!url.startsWith('http')) return url
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    return url
+  }
+  const host = parsed.hostname.toLowerCase()
+  if (host !== 'res.cloudinary.com' && !host.endsWith('.cloudinary.com')) return url
+  const marker = '/video/upload/'
+  const idx = parsed.pathname.indexOf(marker)
+  if (idx < 0) return url
+  const rest = parsed.pathname.slice(idx + marker.length)
+  const first = rest.split('/')[0] || ''
+  if (first.includes('f_mp4') || first.includes('vc_h264')) return url
+  let path = `${parsed.pathname.slice(0, idx + marker.length)}f_mp4,vc_h264/${rest}`
+  if (path.toLowerCase().endsWith('.mov')) path = `${path.slice(0, -4)}.mp4`
+  parsed.pathname = path
+  return parsed.toString()
+}
+
 type CloudinaryUploadParams = {
   configured: boolean
   cloud_name?: string
@@ -255,6 +278,8 @@ type CloudinaryUploadParams = {
   timestamp?: number
   signature?: string
   folder?: string
+  eager?: string
+  eager_async?: string
 }
 
 export type ClipUploadProgress = {
@@ -303,6 +328,8 @@ async function cloudinaryClipUrl(
   body.append('timestamp', String(params.timestamp))
   body.append('signature', params.signature)
   body.append('folder', params.folder || 'criclab/incoming')
+  if (params.eager) body.append('eager', params.eager)
+  if (params.eager_async) body.append('eager_async', params.eager_async)
   const raw = await xhrPostForm(
     `https://api.cloudinary.com/v1_1/${params.cloud_name}/video/upload`,
     body,

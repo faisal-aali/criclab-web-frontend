@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { assetUrl, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
+import { assetUrl, cloudinaryPlaybackUrl, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
 import { AdminReportChrome, AdminStaffBanner } from '../components/admin/AdminStaffBanner'
 import { DeliveryHonesty } from '../components/DeliveryHonesty'
 import { DrillShelf } from '../components/DrillShelf'
@@ -223,7 +223,9 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
 
   const cloudVideo = artifacts.cloudinary_video_url
   const processedSrc = cloudVideo || (artifacts.overlay_video_url ? assetUrl(artifacts.overlay_video_url) : '')
-  const originalSrc = artifacts.original_video_url ? assetUrl(artifacts.original_video_url) : ''
+  const originalSrc = artifacts.original_video_url
+    ? cloudinaryPlaybackUrl(assetUrl(artifacts.original_video_url))
+    : ''
   const pdfHref = artifacts.pdf_url ? `${assetUrl(artifacts.pdf_url)}?download=1` : artifacts.cloudinary_pdf_url || ''
   const side = m.throwing_side ? `${m.throwing_side[0].toUpperCase()}${m.throwing_side.slice(1)}-arm` : null
   const profile = data.player_profile || m.player_profile
