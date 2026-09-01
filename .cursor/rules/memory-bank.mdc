@@ -7,4 +7,4 @@ alwaysApply: true
 
 Before non-trivial work, read `memory-bank/`: `productBrief.md`, `techContext.md`, `systemPatterns.md` (highest priority), `roadmap.md`, relevant `tasks/`, `agent-rules/agent.md`.
 
-Sibling API: `../criclab-web-backend` (pipeline / PDF / CV Memory Bank). Do not add Python sources here. Display API metrics only — never invent km/h or drill IDs.
+Sibling API: `../criclab-web-backend`. Video analysis: `../criclab-video-service`. Do not add Python sources here. Display API metrics only — never invent km/h or drill IDs.

@@ -1,6 +1,6 @@
 # Tech Context — Cric-Lab (Frontend)
 
-Sibling backend: `../criclab-web-backend` (FastAPI + MediaPipe + MongoDB + Ollama). This repo is the Vite + React UI only.
+Sibling website API: `../criclab-web-backend` (FastAPI + MongoDB + auth). Video CV: `../criclab-video-service`. This repo is the Vite + React UI only.
 
 ## Stack
 
@@ -48,8 +48,9 @@ criclab-web-frontend/
 ## Local setup
 
 ```bash
-# backend first (sibling repo)
+# website API + video worker (sibling repos)
 cd ../criclab-web-backend && uvicorn app.main:app --reload --port 8000
+cd ../criclab-video-service && python -m app.worker
 
 # frontend
 cd criclab-web-frontend && npm install && npm run dev
@@ -69,4 +70,4 @@ Open http://localhost:5173.
 - Frontend is **Vite + React**, not Next.js
 - React does **not** talk to MongoDB or Ollama directly — only FastAPI
 - Do not reimplement pose/metrics/PDF logic in the browser
-- Pipeline internals: see `criclab-web-backend/memory-bank/systemPatterns.md`
+- Pipeline internals: see `criclab-video-service/memory-bank/systemPatterns.md`

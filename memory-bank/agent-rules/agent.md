@@ -11,7 +11,7 @@ How the agent should behave in the **criclab-web-frontend** repo.
    - `roadmap.md`
    - Relevant `tasks/`
    - These `agent-rules/`
-2. For pipeline / CV / PDF changes, work in `../criclab-web-backend` instead — or tell the user the change belongs there.
+2. For pipeline / CV / PDF / drill-matching changes, work in `../criclab-video-service` instead. For upload/auth/catalog HTTP, work in `../criclab-web-backend`. Or tell the user which repo the change belongs in.
 3. Do **not** invent Notera notes/PWA patterns or Next.js-as-frontend defaults — this product is **Cric-Lab** (Vite + React FE talking only to FastAPI).
 
 ## Context over prompts

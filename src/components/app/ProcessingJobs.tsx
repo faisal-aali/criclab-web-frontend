@@ -15,8 +15,8 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { listActiveJobs, type Job } from '../api/client'
-import { useAuth } from '../auth/AuthProvider'
+import { listActiveJobs, type Job } from '../../api/client'
+import { useAuth } from '../../auth/AuthProvider'
 
 const POLL_MS = 2000
 

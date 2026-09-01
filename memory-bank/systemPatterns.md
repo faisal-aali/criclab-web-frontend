@@ -1,7 +1,7 @@
 # System Patterns — Cric-Lab (Frontend)
 
 > **Most important Memory Bank file for this UI repo.** Read before writing React code.
-> Full CV / pipeline / PDF / Cloudinary rules live in `../criclab-web-backend/memory-bank/systemPatterns.md`.
+> Full CV / pipeline / PDF rules live in `../criclab-video-service/memory-bank/systemPatterns.md`. Website API contract: `../criclab-web-backend/memory-bank/systemPatterns.md`.
 
 ## Architecture rule #1
 
@@ -170,9 +170,9 @@ colours, not worth a dependency.
 
 ## Pipeline (pointer only)
 
-Upload → pose → metrics → overlay → Cloudinary → Gemma narrative → PDF → MongoDB happens **in criclab-web-backend**. Do not duplicate stages in React. When adding a new metric:
+Upload hits **criclab-web-backend** (queue). Pose → metrics → overlay → Gemma notes → PDF happens in **criclab-video-service**. Do not duplicate stages in React. When adding a new metric:
 
-1. Backend extends metrics JSON (sibling repo)
+1. Video service extends metrics JSON
 2. Frontend adds a card / chart that respects `metricReady`
 3. Do not compute biomechanics in the browser
 
