@@ -23,6 +23,7 @@ const POLL_MS = 2000
 type Ctx = {
   jobs: Job[]
   trackJob: (job: Pick<Job, 'id' | 'kind'>) => void
+  untrackJob: (jobId: string) => void
 }
 
 const ProcessingJobsContext = createContext<Ctx | null>(null)
@@ -40,7 +41,7 @@ export function ProcessingJobsProvider({ children }: { children: ReactNode }) {
     }
     try {
       const { items } = await listActiveJobs()
-      setJobs(items)
+      setJobs(items.filter((j) => j.status !== 'cancelled'))
     } catch {
       /* a dropped poll must not blank the header */
     }
@@ -73,7 +74,11 @@ export function ProcessingJobsProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const value = useMemo(() => ({ jobs, trackJob }), [jobs, trackJob])
+  const untrackJob = useCallback((jobId: string) => {
+    setJobs((prev) => prev.filter((j) => j.id !== jobId))
+  }, [])
+
+  const value = useMemo(() => ({ jobs, trackJob, untrackJob }), [jobs, trackJob, untrackJob])
   return <ProcessingJobsContext.Provider value={value}>{children}</ProcessingJobsContext.Provider>
 }
 

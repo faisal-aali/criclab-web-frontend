@@ -24,6 +24,7 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-018 | **Capture-rate recovery** | Done | Results show measured fps when the file understated slow-mo |
 | FEAT-019 | **Delivery type & throwing screen** | Done | Pace band + ICC 15° screening cards; `—` unless backend status is ok |
 | FEAT-017 | Train / drills | Done | Closed YouTube catalog + DrillShelf + `/train` library |
+| FEAT-031 | **Daily video quota** | Done | Processing page shows expected start; cancel queued clips |
 
 ## Change log
 
@@ -95,3 +96,6 @@ High-level features. Detail lives in `tasks/`.
   Notifications), `/admin/*` routes behind `RequireAdmin`, and an AccountMenu
   entry shown only when `user.role === 'admin'`. The assistant is hidden on
   `/admin/*`. Deferred: coach profile CRUD UI, booking calendar view.
+- **2 Sep 2026 (TASK-003 / FEAT-031):** Processing pages and the header ring
+  show when a queued clip is expected to start. Owners can remove a clip that
+  has not started yet.

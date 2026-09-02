@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getBalltrackJob, type Job } from '../api/client'
+import { cancelBalltrackJob, getBalltrackJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { SeamBall } from '../components/site/visuals'
-import { formatEta } from '../lib/eta'
+import { formatEta, formatExpectedAt, isWaitingToStart } from '../lib/eta'
 import { formatStageDetail, stageFraction } from '../components/app/ClipUploadOverlay'
+import { useProcessingJobs } from '../components/app/ProcessingJobs'
 
 /** Plain-language names for what the viewer is waiting on. */
 const STAGES = [
@@ -21,8 +22,10 @@ const STAGES = [
 export function BallFlightProcessingPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
+  const { untrackJob } = useProcessingJobs()
   const [job, setJob] = useState<Job | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     if (!jobId) return
@@ -37,6 +40,12 @@ export function BallFlightProcessingPage() {
         if (data.status === 'completed' && data.session_id) {
           window.clearInterval(timer)
           navigate(`/app/ball-flight/results/${data.session_id}`, { replace: true })
+          return
+        }
+        if (data.status === 'cancelled') {
+          window.clearInterval(timer)
+          untrackJob(data.id)
+          navigate('/app/ball-flight', { replace: true })
           return
         }
         if (data.status === 'failed') {
@@ -55,15 +64,30 @@ export function BallFlightProcessingPage() {
       alive = false
       window.clearInterval(timer)
     }
-  }, [jobId, navigate])
+  }, [jobId, navigate, untrackJob])
 
   const progress = job?.progress ?? 0
   const stageKey =
     job?.stage === 'done' ? 'agent' : job?.stage === 'claimed' ? 'queued' : job?.stage || 'queued'
   const currentIdx = Math.max(0, STAGES.findIndex((s) => s.key === stageKey))
   const failed = job?.status === 'failed'
+  const waiting = !failed && isWaitingToStart(job?.status)
   const pct = Math.max(0, Math.min(100, progress))
-  const etaLabel = failed ? null : formatEta(job?.eta_seconds)
+  const expectedLabel = waiting ? formatExpectedAt(job?.expected_start_at) : null
+  const etaLabel = failed || waiting ? null : formatEta(job?.eta_seconds)
+
+  async function onCancel() {
+    if (!jobId || cancelling) return
+    setCancelling(true)
+    try {
+      await cancelBalltrackJob(jobId)
+      untrackJob(jobId)
+      navigate('/app/ball-flight', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not remove this clip from the queue')
+      setCancelling(false)
+    }
+  }
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
@@ -73,11 +97,11 @@ export function BallFlightProcessingPage() {
             <SeamBall size={72} spin={!failed} className="animate-float-slow" />
             <div className="mt-4">
               <Chip tone={failed ? 'bad' : 'lime'}>
-              {failed ? 'Stopped' : `Ball flight — ${Math.round(pct)}%`}
+              {failed ? 'Stopped' : waiting ? 'In the queue' : `Ball flight — ${Math.round(pct)}%`}
             </Chip>
             </div>
             <h1 className="font-display mt-3 text-2xl font-extrabold text-chalk sm:text-3xl">
-              {failed ? 'We could not finish this one' : 'Tracking the ball'}
+              {failed ? 'We could not finish this one' : waiting ? 'Waiting to start' : 'Tracking the ball'}
             </h1>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-chalk/60">
               {job?.message || 'Getting your clip ready…'}
@@ -96,12 +120,23 @@ export function BallFlightProcessingPage() {
                   <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="text-xs font-semibold text-chalk/80">
-                  {etaLabel ? (
+                  {waiting && expectedLabel ? (
+                    <>We'll start this clip around {expectedLabel}</>
+                  ) : etaLabel ? (
                     <>Estimated time remaining: {etaLabel.toLowerCase()}</>
+                  ) : waiting ? (
+                    'Working out when this clip will start…'
                   ) : (
                     'Estimating time remaining…'
                   )}
                 </span>
+              </div>
+            ) : null}
+            {job?.status === 'queued' ? (
+              <div className="mt-4">
+                <Button variant="secondary" size="sm" onClick={onCancel} disabled={cancelling}>
+                  {cancelling ? 'Removing…' : 'Remove from queue'}
+                </Button>
               </div>
             ) : null}
           </div>
@@ -216,8 +251,8 @@ export function BallFlightProcessingPage() {
               While you wait
             </p>
             <p className="mt-2 text-sm leading-relaxed text-chalk/60">
-              Every number is checked before it is shown. You can leave this page — processing
-              continues on a video worker, and the header ring shows progress.
+              Every number is checked before it is shown. You can leave this page — we keep
+              working, and the header ring shows where this clip is.
             </p>
           </Card>
         </Reveal>

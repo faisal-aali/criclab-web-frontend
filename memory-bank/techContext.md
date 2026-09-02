@@ -44,6 +44,7 @@ criclab-web-frontend/
 - Prod (split deploy): set `VITE_API_BASE` to the absolute backend URL
 - `metricReady(m)` — true only when `m.value != null` AND `m.status === 'ok'`
 - `assetUrl(path)` — prefixes relative artifact paths with `API_BASE`
+- Job poll may include `expected_start_at` (queued) and `eta_seconds` (running)
 
 ## Local setup
 

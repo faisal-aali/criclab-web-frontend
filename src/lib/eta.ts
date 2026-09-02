@@ -10,3 +10,23 @@ export function formatEta(seconds: number | null | undefined): string | null {
   if (minutes === 1) return '~1 minute'
   return `~${minutes} minutes`
 }
+
+/** Absolute expected start, in the viewer's local timezone. */
+export function formatExpectedAt(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  const today = new Date()
+  if (d.toDateString() === today.toDateString()) return `today, ${time}`
+  const date = d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
+  return `${date}, ${time}`
+}
+
+export function isWaitingToStart(status: string | undefined): boolean {
+  return status === 'queued' || status === 'claimed'
+}

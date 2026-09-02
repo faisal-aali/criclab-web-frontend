@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getJob, type Job } from '../api/client'
+import { cancelJob, getJob, type Job } from '../api/client'
 import { Button, Card, Chip, Reveal } from '../components/site/ui'
 import { BowlerSkeleton, SeamBall, TrajectoryArc } from '../components/site/visuals'
-import { formatEta } from '../lib/eta'
+import { formatEta, formatExpectedAt, isWaitingToStart } from '../lib/eta'
 import { formatStageDetail, stageFraction } from '../components/app/ClipUploadOverlay'
+import { useProcessingJobs } from '../components/app/ProcessingJobs'
 
 /**
  * Stage keys are the contract with the job feed; the labels are what the
@@ -62,9 +63,11 @@ const RING = 2 * Math.PI * 86
 export function ProcessingPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
+  const { untrackJob } = useProcessingJobs()
   const [job, setJob] = useState<Job | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [tip, setTip] = useState(0)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     if (!jobId) return
@@ -79,6 +82,12 @@ export function ProcessingPage() {
         if (data.status === 'completed' && data.delivery_id) {
           window.clearInterval(timer)
           navigate(`/app/results/${data.delivery_id}`, { replace: true })
+          return
+        }
+        if (data.status === 'cancelled') {
+          window.clearInterval(timer)
+          untrackJob(data.id)
+          navigate('/app', { replace: true })
           return
         }
         if (data.status === 'failed') {
@@ -97,7 +106,7 @@ export function ProcessingPage() {
       alive = false
       window.clearInterval(timer)
     }
-  }, [jobId, navigate])
+  }, [jobId, navigate, untrackJob])
 
   // Presentation only: cycles the tip card while the bowler waits.
   useEffect(() => {
@@ -113,24 +122,39 @@ export function ProcessingPage() {
 
   const pct = Math.max(0, Math.min(100, progress))
   const current = TIPS[tip]
-  const etaLabel = failed ? null : formatEta(job?.eta_seconds)
+  const waiting = !failed && isWaitingToStart(job?.status)
+  const expectedLabel = waiting ? formatExpectedAt(job?.expected_start_at) : null
+  const etaLabel = failed || waiting ? null : formatEta(job?.eta_seconds)
+
+  async function onCancel() {
+    if (!jobId || cancelling) return
+    setCancelling(true)
+    try {
+      await cancelJob(jobId)
+      untrackJob(jobId)
+      navigate('/app', { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not remove this clip from the queue')
+      setCancelling(false)
+    }
+  }
 
   return (
     <div className="min-w-0 space-y-6">
       <Reveal className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-lime">
-            Working on it
+            {waiting ? 'In the queue' : 'Working on it'}
           </p>
           <h1 className="font-display mt-1 text-3xl font-extrabold leading-tight text-chalk sm:text-4xl">
-            Reading the delivery
+            {waiting ? 'Waiting to start' : 'Reading the delivery'}
           </h1>
         </div>
         <Chip tone={failed ? 'bad' : 'lime'}>
           <span
             className={`h-1.5 w-1.5 rounded-full bg-current ${failed ? '' : 'animate-pulse-bar'}`}
           />
-          {failed ? 'Stopped' : `In progress — ${Math.round(pct)}%`}
+          {failed ? 'Stopped' : waiting ? 'In the queue' : `In progress — ${Math.round(pct)}%`}
         </Chip>
       </Reveal>
 
@@ -171,13 +195,15 @@ export function ProcessingPage() {
               <div className="absolute inset-0 grid place-items-center">
                 <div className="text-center">
                   <div className="font-display text-4xl font-extrabold leading-none text-gradient-lime sm:text-5xl">
-                    {Math.round(pct)}
-                    <span className="text-xl">%</span>
+                    {waiting ? '—' : Math.round(pct)}
+                    {waiting ? null : <span className="text-xl">%</span>}
                   </div>
                   <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-chalk/40">
-                    Complete
+                    {waiting ? 'Queued' : 'Complete'}
                   </div>
-                  {etaLabel ? (
+                  {expectedLabel ? (
+                    <div className="mt-2 text-[11px] font-semibold text-chalk/55">{expectedLabel}</div>
+                  ) : etaLabel ? (
                     <div className="mt-2 text-[11px] font-semibold text-chalk/55">{etaLabel} left</div>
                   ) : null}
                 </div>
@@ -211,18 +237,29 @@ export function ProcessingPage() {
                     <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="text-xs font-semibold text-chalk/80">
-                    {etaLabel ? (
+                    {waiting && expectedLabel ? (
+                      <>We'll start this clip around {expectedLabel}</>
+                    ) : etaLabel ? (
                       <>Estimated time remaining: {etaLabel.toLowerCase()}</>
+                    ) : waiting ? (
+                      'Working out when this clip will start…'
                     ) : (
                       'Estimating time remaining…'
                     )}
                   </span>
                 </div>
               ) : null}
+              {job?.status === 'queued' ? (
+                <div className="mt-3">
+                  <Button variant="secondary" size="sm" onClick={onCancel} disabled={cancelling}>
+                    {cancelling ? 'Removing…' : 'Remove from queue'}
+                  </Button>
+                </div>
+              ) : null}
               <p className="mt-2.5 text-sm leading-relaxed text-chalk/55">
-                Analysis runs on a dedicated video worker. You can change tabs or leave this
-                page — the clip in the header keeps the progress, and you will be taken to the
-                report when this screen is still open.
+                {waiting
+                  ? 'You can change tabs or leave this page — we will start the clip at the time above, and the header keeps it in view.'
+                  : 'You can change tabs or leave this page — the clip in the header keeps the progress, and you will be taken to the report when this screen is still open.'}
               </p>
             </div>
           </div>

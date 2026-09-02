@@ -30,7 +30,7 @@ export type Job = {
   kind?: 'action' | 'ballflight'
   video_id?: string
   session_id?: string
-  status: 'queued' | 'claimed' | 'processing' | 'analyzing' | 'completed' | 'failed' | string
+  status: 'queued' | 'claimed' | 'processing' | 'analyzing' | 'completed' | 'failed' | 'cancelled' | string
   progress: number
   stage?: string
   message?: string
@@ -39,6 +39,10 @@ export type Job = {
   error?: string
   /** Seconds remaining, blended from this job's own pace and recent history. Absent while too little is known. */
   eta_seconds?: number | null
+  /** When the clip is expected to start (ISO UTC). Set while queued. */
+  expected_start_at?: string | null
+  /** UTC calendar day YYYY-MM-DD the clip is scheduled to start. */
+  scheduled_date?: string | null
   /** Live count inside the current stage (frames, bytes, paths). */
   stage_detail?: { current: number; total: number; unit?: string } | null
 }
@@ -389,6 +393,10 @@ export function getJob(jobId: string) {
   return request<Job>(`/jobs/${jobId}`)
 }
 
+export function cancelJob(jobId: string) {
+  return request<{ id: string; status: string }>(`/jobs/${jobId}/cancel`, { method: 'POST' })
+}
+
 export function listActiveJobs() {
   return request<{ items: Job[] }>('/jobs/active')
 }
@@ -477,6 +485,12 @@ export async function createBalltrackSession(
 
 export function getBalltrackJob(jobId: string) {
   return request<Job>(`/balltrack/jobs/${jobId}`)
+}
+
+export function cancelBalltrackJob(jobId: string) {
+  return request<{ id: string; status: string }>(`/balltrack/jobs/${jobId}/cancel`, {
+    method: 'POST',
+  })
 }
 
 export function getBalltrackSession(sessionId: string) {

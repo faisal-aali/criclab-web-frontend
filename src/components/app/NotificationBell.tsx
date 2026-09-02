@@ -165,7 +165,7 @@ export function NotificationBell() {
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-white/5 text-lg">🏏</span>
                 <p className="text-sm font-semibold text-chalk">Nothing yet</p>
                 <p className="text-xs leading-relaxed text-chalk/50">
-                  Bookings, ticket replies and account activity will land here.
+                  Bookings, ticket replies, clip start times and account activity will land here.
                 </p>
               </div>
             ) : (

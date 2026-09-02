@@ -103,6 +103,8 @@ Rules that keep it coherent:
 - **Train** (catalog library)
 - **History**
 
+While a job is queued or claimed, show `expected_start_at` (local datetime). Once it is running, show remaining `eta_seconds`. Queued clips can be removed from the queue. Do not invent a start time in the browser.
+
 Results: overlay player, metric cards, image-plane trajectory path (Action), DrillShelf YouTube iframes from **catalog IDs returned by the API** only.
 
 Pace band (`delivery_type`), throwing screen (`action_legality`), capture rate (`timebase`), and `speed_consistency` are displayed as backend strings/status — never computed in the browser. If `status !== 'ok'` or `verdict` is null, show `—` / “not assessable”.

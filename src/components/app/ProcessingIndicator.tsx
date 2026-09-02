@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { formatEta } from '../../lib/eta'
+import { formatEta, formatExpectedAt, isWaitingToStart } from '../../lib/eta'
 import { jobHref, useProcessingJobs } from './ProcessingJobs'
 
 const RING = 2 * Math.PI * 10
@@ -74,7 +74,10 @@ export function ProcessingIndicator() {
           <div className="scroll-slim max-h-[60vh] overflow-y-auto">
             {jobs.map((job) => {
               const p = Math.max(0, Math.min(100, Math.round(job.progress || 0)))
-              const eta = formatEta(job.eta_seconds)
+              const waiting = isWaitingToStart(job.status)
+              const expected = waiting ? formatExpectedAt(job.expected_start_at) : null
+              const eta = waiting ? null : formatEta(job.eta_seconds)
+              const when = expected ? `Starts ${expected}` : eta
               return (
                 <button
                   key={job.id}
@@ -89,14 +92,16 @@ export function ProcessingIndicator() {
                     <span className="text-sm font-semibold text-chalk">
                       {job.kind === 'ballflight' ? 'Ball flight' : 'Action'}
                     </span>
-                    <span className="text-[11px] font-bold text-lime">{p}%</span>
+                    <span className="text-[11px] font-bold text-lime">
+                      {waiting ? 'Queued' : `${p}%`}
+                    </span>
                   </span>
                   <span className="h-1 overflow-hidden rounded-full bg-white/10">
-                    <span className="block h-full rounded-full bg-lime" style={{ width: `${p}%` }} />
+                    <span className="block h-full rounded-full bg-lime" style={{ width: `${waiting ? 4 : p}%` }} />
                   </span>
                   <span className="text-xs text-chalk/50">
                     {job.message || 'Working…'}
-                    {eta ? ` · ${eta}` : ''}
+                    {when ? ` · ${when}` : ''}
                   </span>
                 </button>
               )
