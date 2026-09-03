@@ -123,7 +123,7 @@ export function UploadPage() {
     }
     setBusy(true)
     setError(null)
-    setUploadProgress({ phase: 'cloudinary', loaded: 0, total: file.size || 1 })
+    setUploadProgress({ phase: 'upload', loaded: 0, total: file.size || 1 })
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
       const res = await uploadVideo(
@@ -438,7 +438,7 @@ export function UploadPage() {
 
           <Button type="submit" size="lg" disabled={busy || !ready} className="mt-5 w-full">
             {busy
-              ? uploadProgress?.phase === 'cloudinary'
+              ? uploadProgress?.phase === 'upload'
                 ? 'Uploading clip…'
                 : 'Starting analysis…'
               : ready

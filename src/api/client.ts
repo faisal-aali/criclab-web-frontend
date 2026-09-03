@@ -220,6 +220,7 @@ export type Artifacts = {
   overlay_video_url?: string
   pdf_url?: string
   original_video_url?: string
+  compressed_video_url?: string | null
   cloudinary_video_url?: string | null
   cloudinary_pdf_url?: string | null
 }
@@ -252,56 +253,46 @@ export function assetUrl(path?: string | null) {
   return `${API_BASE}${path}`
 }
 
-/** Cloudinary H.264 MP4 of an incoming clip so Chrome can play iPhone HEVC .mov. */
-export function cloudinaryPlaybackUrl(url: string): string {
-  if (!url.startsWith('http')) return url
-  let parsed: URL
-  try {
-    parsed = new URL(url)
-  } catch {
-    return url
-  }
-  const host = parsed.hostname.toLowerCase()
-  if (host !== 'res.cloudinary.com' && !host.endsWith('.cloudinary.com')) return url
-  const marker = '/video/upload/'
-  const idx = parsed.pathname.indexOf(marker)
-  if (idx < 0) return url
-  const rest = parsed.pathname.slice(idx + marker.length)
-  const first = rest.split('/')[0] || ''
-  if (first.includes('f_mp4') || first.includes('vc_h264')) return url
-  let path = `${parsed.pathname.slice(0, idx + marker.length)}f_mp4,vc_h264/${rest}`
-  if (path.toLowerCase().endsWith('.mov')) path = `${path.slice(0, -4)}.mp4`
-  parsed.pathname = path
-  return parsed.toString()
+/** Absolute HTTPS URLs (CloudFront signed) must not gain extra query params. */
+export function downloadHref(path?: string | null) {
+  const url = assetUrl(path)
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `${url}${url.includes('?') ? '&' : '?'}download=1`
 }
 
-type CloudinaryUploadParams = {
+type StorageUploadParams = {
   configured: boolean
-  cloud_name?: string
-  api_key?: string
-  timestamp?: number
-  signature?: string
-  folder?: string
-  eager?: string
-  eager_async?: string
+  upload_url?: string
+  method?: string
+  headers?: Record<string, string>
+  key?: string
 }
 
 export type ClipUploadProgress = {
-  phase: 'cloudinary' | 'handoff'
+  phase: 'upload' | 'handoff'
   loaded: number
   total: number
 }
 
-function xhrPostForm(url: string, body: FormData, onProgress?: (loaded: number, total: number) => void): Promise<string> {
+function xhrPutBlob(
+  url: string,
+  body: ArrayBuffer,
+  headers: Record<string, string>,
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<void> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', url)
+    xhr.open('PUT', url)
+    for (const [name, value] of Object.entries(headers)) {
+      xhr.setRequestHeader(name, value)
+    }
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress?.(event.loaded, event.total)
     }
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(xhr.responseText)
+        resolve()
         return
       }
       reject(new Error('Could not upload the video. Try a shorter clip.'))
@@ -311,39 +302,25 @@ function xhrPostForm(url: string, body: FormData, onProgress?: (loaded: number, 
   })
 }
 
-/** Send the clip to Cloudinary so Vercel never receives a multi-MB body. */
-async function cloudinaryClipUrl(
+/** PUT the clip to S3 via a short-lived presigned URL. Returns the object key. */
+async function uploadOriginalKey(
   file: File,
   onProgress?: (p: ClipUploadProgress) => void,
 ): Promise<string | null> {
-  const params = await request<CloudinaryUploadParams>('/videos/upload-params')
-  if (
-    !params.configured ||
-    !params.cloud_name ||
-    !params.api_key ||
-    !params.signature ||
-    params.timestamp == null
-  ) {
+  const query = new URLSearchParams({
+    filename: file.name,
+    content_type: file.type || 'video/mp4',
+  })
+  const params = await request<StorageUploadParams>(`/videos/upload-params?${query}`)
+  if (!params.configured || !params.upload_url || !params.key) {
     return null
   }
-  const body = new FormData()
-  body.append('file', file)
-  body.append('api_key', params.api_key)
-  body.append('timestamp', String(params.timestamp))
-  body.append('signature', params.signature)
-  body.append('folder', params.folder || 'criclab/incoming')
-  if (params.eager) body.append('eager', params.eager)
-  if (params.eager_async) body.append('eager_async', params.eager_async)
-  const raw = await xhrPostForm(
-    `https://api.cloudinary.com/v1_1/${params.cloud_name}/video/upload`,
-    body,
-    (loaded, total) => onProgress?.({ phase: 'cloudinary', loaded, total }),
+  // ArrayBuffer so the browser does not add a File Content-Type (unsigned → 403).
+  const body = await file.arrayBuffer()
+  await xhrPutBlob(params.upload_url, body, params.headers || {}, (loaded, total) =>
+    onProgress?.({ phase: 'upload', loaded, total }),
   )
-  const json = JSON.parse(raw) as { secure_url?: string }
-  if (!json.secure_url) {
-    throw new Error('Could not upload the video. Try a shorter clip.')
-  }
-  return json.secure_url
+  return params.key
 }
 
 export async function uploadVideo(
@@ -363,9 +340,9 @@ export async function uploadVideo(
   onProgress?: (p: ClipUploadProgress) => void,
 ) {
   const form = new FormData()
-  const remote = await cloudinaryClipUrl(input.file, onProgress)
-  if (remote) {
-    form.append('source_url', remote)
+  const remoteKey = await uploadOriginalKey(input.file, onProgress)
+  if (remoteKey) {
+    form.append('source_key', remoteKey)
     form.append('original_name', input.file.name)
   } else {
     form.append('file', input.file)
@@ -426,7 +403,7 @@ export type BalltrackDelivery = {
     length_m?: MetricValue
   }
   bounce?: { length_m?: number; width_m?: number; frame?: number }
-  artifacts?: { clip_url?: string; cloudinary_clip_url?: string }
+  artifacts?: { clip_url?: string; cloudinary_clip_url?: string; clip_key?: string }
 }
 
 export type BalltrackSession = {
@@ -440,6 +417,7 @@ export type BalltrackSession = {
     pitch_map_url?: string
     cloudinary_overlay_url?: string
     cloudinary_pitch_map_url?: string
+    compressed_video_url?: string
   }
   analysis?: Analysis
   deliveries?: BalltrackDelivery[]
@@ -467,9 +445,9 @@ export async function createBalltrackSession(
   onProgress?: (p: ClipUploadProgress) => void,
 ) {
   const form = new FormData()
-  const remote = await cloudinaryClipUrl(input.file, onProgress)
-  if (remote) {
-    form.append('source_url', remote)
+  const remoteKey = await uploadOriginalKey(input.file, onProgress)
+  if (remoteKey) {
+    form.append('source_key', remoteKey)
     form.append('original_name', input.file.name)
   } else {
     form.append('file', input.file)

@@ -12,13 +12,14 @@ export function BallFlightResultsPage() {
   const inAdmin = useLocation().pathname.startsWith('/admin')
   const [data, setData] = useState<BalltrackSession | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [mediaTick, setMediaTick] = useState(0)
 
   useEffect(() => {
     if (!sessionId) return
     getBalltrackSession(sessionId)
       .then(setData)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load session'))
-  }, [sessionId])
+  }, [sessionId, mediaTick])
 
   if (error) {
     return (
@@ -113,7 +114,16 @@ export function BallFlightResultsPage() {
                   Tracked delivery · speed, line and length on screen
                 </span>
               </div>
-              <video className="aspect-video w-full bg-night object-contain" src={overlay} controls playsInline />
+              <video
+                className="aspect-video w-full bg-night object-contain"
+                src={overlay}
+                controls
+                playsInline
+                onError={() => {
+                  if (mediaTick > 1) return
+                  setMediaTick((n) => n + 1)
+                }}
+              />
             </Card>
           ) : (
             <Card interactive={false} className="p-6">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { assetUrl, cloudinaryPlaybackUrl, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
+import { assetUrl, downloadHref, getDelivery, metricReady, type Delivery, type MetricValue, type Scores } from '../api/client'
 import { AdminReportChrome, AdminStaffBanner } from '../components/admin/AdminStaffBanner'
 import { DeliveryHonesty } from '../components/DeliveryHonesty'
 import { DrillShelf } from '../components/DrillShelf'
@@ -191,15 +191,23 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
   const inAdmin = useLocation().pathname.startsWith('/admin')
   const [data, setData] = useState<Delivery | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [mediaTick, setMediaTick] = useState(0)
 
   useEffect(() => {
     if (!deliveryId) return
-    setData(null)
-    setError(null)
+    if (mediaTick === 0) {
+      setData(null)
+      setError(null)
+    }
     getDelivery(deliveryId)
       .then(setData)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load'))
-  }, [deliveryId])
+  }, [deliveryId, mediaTick])
+
+  function refreshSignedMedia() {
+    if (mediaTick > 1) return
+    setMediaTick((n) => n + 1)
+  }
 
   if (error)
     return (
@@ -222,11 +230,9 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
   const created = data.created_at ? new Date(data.created_at).toLocaleString() : ''
 
   const cloudVideo = artifacts.cloudinary_video_url
-  const processedSrc = cloudVideo || (artifacts.overlay_video_url ? assetUrl(artifacts.overlay_video_url) : '')
-  const originalSrc = artifacts.original_video_url
-    ? cloudinaryPlaybackUrl(assetUrl(artifacts.original_video_url))
-    : ''
-  const pdfHref = artifacts.pdf_url ? `${assetUrl(artifacts.pdf_url)}?download=1` : artifacts.cloudinary_pdf_url || ''
+  const processedSrc = assetUrl(cloudVideo || artifacts.overlay_video_url)
+  const originalSrc = assetUrl(artifacts.compressed_video_url || artifacts.original_video_url)
+  const pdfHref = downloadHref(artifacts.cloudinary_pdf_url || artifacts.pdf_url)
   const side = m.throwing_side ? `${m.throwing_side[0].toUpperCase()}${m.throwing_side.slice(1)}-arm` : null
   const profile = data.player_profile || m.player_profile
   const seq = m.kinematic_sequence || []
@@ -329,7 +335,13 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
                     <span className="h-2 w-2 rounded-full bg-chalk/40" /> Before · your clip
                   </span>
                 </div>
-                <video className="aspect-video w-full object-contain" src={originalSrc} controls playsInline />
+                <video
+                  className="aspect-video w-full object-contain"
+                  src={originalSrc}
+                  controls
+                  playsInline
+                  onError={refreshSignedMedia}
+                />
               </div>
             ) : null}
 
@@ -349,7 +361,13 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
                     CricLab
                   </span>
                 </div>
-                <video className="aspect-video w-full object-contain" src={processedSrc} controls playsInline />
+                <video
+                  className="aspect-video w-full object-contain"
+                  src={processedSrc}
+                  controls
+                  playsInline
+                  onError={refreshSignedMedia}
+                />
               </div>
             ) : artifacts.release_still_url ? (
               <div className="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-white/10 bg-black shadow-[0_24px_60px_-30px_rgba(0,0,0,0.9)]">

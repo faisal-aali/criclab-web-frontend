@@ -111,7 +111,11 @@ Pace band (`delivery_type`), throwing screen (`action_legality`), capture rate (
 
 Poll job status; never block the UI on long CV work without progress.
 
-All writes go through FastAPI; React does not talk to MongoDB or Ollama directly.
+All writes go through FastAPI; React does not talk to MongoDB, S3 IAM, or Ollama directly.
+
+## Object storage (S3 + CloudFront)
+
+The browser PUTs originals to S3 with a short-lived presigned URL from `GET /videos/upload-params`, then POSTs `source_key`. Playback and PDF links are CloudFront signed GET URLs the website API mints on read — treat them as opaque; do not rewrite or append query params. If a `<video>` 403s after expiry, refetch the delivery. No AWS secrets in this repo.
 
 ## The assistant: streaming and Markdown
 
@@ -304,7 +308,9 @@ string that reaches the screen is not.
 - Merging stump (Ball flight) speed into a side-on Action results view as the headline
 - Claiming radar-grade speed without the backend labeling it as validated
 - Fat React components that reimplement backend metrics
-- Talking to MongoDB or Ollama from the browser
+- Talking to MongoDB, S3 IAM, or Ollama from the browser
+- Putting `S3_*` / `AWS_*` / `CLOUDFRONT_*` secrets in Vite env
+- Appending query params onto CloudFront signed URLs
 - Reintroducing Notera (notes/PWA) or Next.js-as-frontend assumptions
 - Styling a page outside the design system, or adding a one-off colour
 - Naming internals in any user-visible string
@@ -314,6 +320,6 @@ string that reaches the screen is not.
 
 1. Upload bowling video (+ player profile / height)
 2. Show job progress stages
-3. Results: overlay, ok metrics only, AI notes, PDF download, Cloudinary URL when present
+3. Results: overlay, ok metrics only, AI notes, PDF download, CloudFront signed URL when present
 4. Ball flight: stump calibration UI → results
 5. Train + History pages

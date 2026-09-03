@@ -14,9 +14,9 @@ Sibling website API: `../criclab-web-backend` (FastAPI + MongoDB + auth). Video 
 ## High-level data flow
 
 ```text
-Vite React (upload)
-  → FastAPI /videos + /balltrack + /coaching   [criclab-web-backend]
-    → job poll → DeliveryResult JSON
+Vite React (GET /videos/upload-params → PUT original to S3)
+  → FastAPI POST /videos or /balltrack with source_key   [criclab-web-backend]
+    → job poll → DeliveryResult JSON (CloudFront signed GET URLs)
       → Results page (overlay, metric cards, AI notes, PDF)
 ```
 
@@ -43,8 +43,16 @@ criclab-web-frontend/
 - Dev: Vite proxies `/api` → backend (strip `/api` prefix)
 - Prod (split deploy): set `VITE_API_BASE` to the absolute backend URL
 - `metricReady(m)` — true only when `m.value != null` AND `m.status === 'ok'`
-- `assetUrl(path)` — prefixes relative artifact paths with `API_BASE`
+- `assetUrl(path)` — prefixes relative artifact paths with `API_BASE`; HTTPS CloudFront URLs pass through
+- `downloadHref(path)` — local `/artifacts/...` may gain `?download=1`; **never** append query params to signed CloudFront URLs
 - Job poll may include `expected_start_at` (queued) and `eta_seconds` (running)
+
+## Object storage (no AWS secrets in Vite)
+
+- `GET /videos/upload-params` then **PUT** the file to the presigned URL. POST `source_key`, never a playback URL.
+- Progress phase is `upload` | `handoff`. Empty S3 config falls back to multipart `file`.
+- Overlay / compressed / PDF playback URLs from the API are opaque signed GETs (~1 hour). If `<video>` errors after expiry, refetch the delivery.
+- Do not put `S3_*`, `AWS_*`, or `CLOUDFRONT_*` in the frontend env.
 
 ## Local setup
 
@@ -69,6 +77,6 @@ Open http://localhost:5173.
 ## Constraints
 
 - Frontend is **Vite + React**, not Next.js
-- React does **not** talk to MongoDB or Ollama directly — only FastAPI
+- React does **not** talk to MongoDB, S3 IAM, or Ollama directly — only FastAPI
 - Do not reimplement pose/metrics/PDF logic in the browser
 - Pipeline internals: see `criclab-video-service/memory-bank/systemPatterns.md`

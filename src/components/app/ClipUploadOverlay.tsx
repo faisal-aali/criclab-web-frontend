@@ -32,8 +32,8 @@ export function ClipUploadOverlay({
   label?: string
 }) {
   if (!progress) return null
-  const cloud = progress.phase === 'cloudinary'
-  const pct = cloud && progress.total > 0 ? Math.round((progress.loaded / progress.total) * 100) : null
+  const uploading = progress.phase === 'upload'
+  const pct = uploading && progress.total > 0 ? Math.round((progress.loaded / progress.total) * 100) : null
   return (
     <div
       className="fixed inset-0 z-[80] grid place-items-center bg-night/70 p-4 backdrop-blur-sm"
@@ -43,10 +43,10 @@ export function ClipUploadOverlay({
       <div className="w-full max-w-sm rounded-2xl border border-white/12 bg-charcoal p-6 text-chalk shadow-2xl">
         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-lime">{label}</p>
         <p className="font-display mt-2 text-xl font-bold">
-          {cloud ? 'Uploading your video' : 'Handing off to analysis'}
+          {uploading ? 'Uploading your video' : 'Handing off to analysis'}
         </p>
         <p className="mt-1.5 text-sm text-chalk/60">
-          {cloud && pct != null
+          {uploading && pct != null
             ? `${formatBytes(progress.loaded)} of ${formatBytes(progress.total)}`
             : 'The lab is picking up the clip. You will see every step next.'}
         </p>

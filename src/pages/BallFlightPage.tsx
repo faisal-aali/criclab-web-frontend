@@ -216,7 +216,7 @@ export function BallFlightPage() {
     }
     setBusy(true)
     setError(null)
-    setUploadProgress({ phase: 'cloudinary', loaded: 0, total: file.size || 1 })
+    setUploadProgress({ phase: 'upload', loaded: 0, total: file.size || 1 })
     try {
       const res = await createBalltrackSession(
         {
@@ -472,7 +472,7 @@ export function BallFlightPage() {
           </p>
           <Button type="submit" size="lg" disabled={busy || !hasFile} className="w-full sm:w-auto">
             {busy
-              ? uploadProgress?.phase === 'cloudinary'
+              ? uploadProgress?.phase === 'upload'
                 ? 'Uploading clip…'
                 : 'Starting analysis…'
               : 'Track ball flight'}
