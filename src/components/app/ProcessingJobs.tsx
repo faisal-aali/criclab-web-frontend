@@ -41,7 +41,7 @@ export function ProcessingJobsProvider({ children }: { children: ReactNode }) {
     }
     try {
       const { items } = await listActiveJobs()
-      setJobs(items.filter((j) => j.status !== 'cancelled'))
+      setJobs(items.filter((j) => j.status !== 'cancelled' && j.status !== 'failed'))
     } catch {
       /* a dropped poll must not blank the header */
     }

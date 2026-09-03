@@ -50,6 +50,7 @@ export function BallFlightProcessingPage() {
         }
         if (data.status === 'failed') {
           window.clearInterval(timer)
+          untrackJob(data.id)
           setError(data.message || data.error || 'Ball tracking failed')
         }
       } catch (err) {
@@ -132,10 +133,14 @@ export function BallFlightProcessingPage() {
                 </span>
               </div>
             ) : null}
-            {job?.status === 'queued' ? (
+            {['queued', 'claimed', 'processing', 'analyzing'].includes(job?.status || '') ? (
               <div className="mt-4">
                 <Button variant="secondary" size="sm" onClick={onCancel} disabled={cancelling}>
-                  {cancelling ? 'Removing…' : 'Remove from queue'}
+                  {cancelling
+                    ? 'Removing…'
+                    : job?.status === 'queued'
+                      ? 'Remove from queue'
+                      : 'Stop this analysis'}
                 </Button>
               </div>
             ) : null}

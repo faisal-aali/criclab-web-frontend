@@ -92,6 +92,7 @@ export function ProcessingPage() {
         }
         if (data.status === 'failed') {
           window.clearInterval(timer)
+          untrackJob(data.id)
           setError(shortError(data.message || data.error || 'Analysis failed'))
         }
       } catch (err) {
@@ -249,10 +250,14 @@ export function ProcessingPage() {
                   </span>
                 </div>
               ) : null}
-              {job?.status === 'queued' ? (
+              {['queued', 'claimed', 'processing', 'analyzing'].includes(job?.status || '') ? (
                 <div className="mt-3">
                   <Button variant="secondary" size="sm" onClick={onCancel} disabled={cancelling}>
-                    {cancelling ? 'Removing…' : 'Remove from queue'}
+                    {cancelling
+                      ? 'Removing…'
+                      : job?.status === 'queued'
+                        ? 'Remove from queue'
+                        : 'Stop this analysis'}
                   </Button>
                 </div>
               ) : null}
