@@ -302,6 +302,18 @@ function xhrPutBlob(
   })
 }
 
+function mimeHintFromFilename(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase()
+  const map: Record<string, string> = {
+    mp4: 'video/mp4',
+    mov: 'video/quicktime',
+    avi: 'video/x-msvideo',
+    mkv: 'video/x-matroska',
+    webm: 'video/webm',
+  }
+  return (ext && map[ext]) || 'video/mp4'
+}
+
 /** PUT the clip to S3 via a short-lived presigned URL. Returns the object key. */
 async function uploadOriginalKey(
   file: File,
@@ -309,7 +321,7 @@ async function uploadOriginalKey(
 ): Promise<string | null> {
   const query = new URLSearchParams({
     filename: file.name,
-    content_type: file.type || 'video/mp4',
+    content_type: file.type || mimeHintFromFilename(file.name),
   })
   const params = await request<StorageUploadParams>(`/videos/upload-params?${query}`)
   if (!params.configured || !params.upload_url || !params.key) {
