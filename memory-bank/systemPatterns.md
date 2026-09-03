@@ -209,7 +209,7 @@ All writes go through FastAPI; React does not talk to MongoDB, S3 IAM, or Ollama
 
 ## Object storage (S3 + CloudFront)
 
-The browser PUTs originals to S3 with a short-lived presigned URL from `GET /videos/upload-params`, then POSTs `source_key`. Playback and PDF links are CloudFront signed GET URLs the website API mints on read — treat them as opaque; do not rewrite or append query params. If a `<video>` 403s after expiry, refetch the delivery. No AWS secrets in this repo.
+The browser PUTs originals to S3 with a short-lived presigned URL from `GET /videos/upload-params`, then POSTs `source_key`. Playback and PDF links are CloudFront signed GET URLs the website API mints on read — treat them as opaque; do not rewrite or append query params. If a `<video>` 403s after expiry, refetch the delivery. No AWS secrets in this repo. Finished originals are archived server-side; do not name storage class or Glacier in UI copy.
 
 ## The assistant: streaming and Markdown
 
