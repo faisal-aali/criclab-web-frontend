@@ -78,7 +78,7 @@ const STEPS = [
     n: '02',
     title: 'Upload',
     body: 'Add the player’s height and bowling arm so measurements come back in real units, then upload the clip.',
-    to: '/app',
+    to: '/app/action',
     cta: 'Open CricLab',
   },
   {
@@ -183,7 +183,7 @@ export function HomePage() {
 
             <Reveal delay={240}>
               <div className="flex flex-wrap items-center gap-3">
-                <Button to="/app" size="lg">
+                <Button to="/app/action" size="lg">
                   Start Analyzing
                   <span aria-hidden>→</span>
                 </Button>
@@ -610,13 +610,14 @@ export function HomePage() {
                   just the clip you already know how to take.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>
-                  <Button to="/pricing" variant="secondary" size="lg">
+                  {/* TODO: For Future */}
+                  {/* <Button to="/pricing" variant="secondary" size="lg">
                     View pricing
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

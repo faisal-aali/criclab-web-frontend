@@ -75,26 +75,27 @@ const HELP = [
     a: (
       <>
         Sensible. Film one delivery and see what comes back —{' '}
-        <Link to="/app" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
+        <Link to="/app/action" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
           open CricLab
         </Link>{' '}
         and upload it. The questions get sharper once you have a report in front of you.
       </>
     ),
   },
-  {
-    q: 'Where do I find pricing?',
-    a: (
-      <>
-        On the{' '}
-        <Link to="/pricing" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
-          pricing page
-        </Link>
-        . If none of the plans match how your squad trains, say so in a message and we
-        will talk it through.
-      </>
-    ),
-  },
+  // TODO: For Future
+  // {
+  //   q: 'Where do I find pricing?',
+  //   a: (
+  //     <>
+  //       On the{' '}
+  //       <Link to="/pricing" className="font-semibold text-pitch dark:text-lime underline underline-offset-4">
+  //         pricing page
+  //       </Link>
+  //       . If none of the plans match how your squad trains, say so in a message and we
+  //       will talk it through.
+  //     </>
+  //   ),
+  // },
 ]
 
 const AFTER_SEND = [
@@ -204,7 +205,7 @@ export function ContactPage() {
                       day. If it is faster to show than tell, have a clip ready when we reply.
                     </p>
                     <div className="flex flex-wrap gap-3 pt-1">
-                      <Button to="/app" variant="light">
+                      <Button to="/app/action" variant="light">
                         Open CricLab
                         <span aria-hidden>→</span>
                       </Button>
@@ -527,7 +528,7 @@ export function ContactPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button to="/app" size="lg">
+                <Button to="/app/action" size="lg">
                   Start Analyzing
                   <span aria-hidden>→</span>
                 </Button>

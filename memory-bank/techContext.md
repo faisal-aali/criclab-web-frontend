@@ -27,6 +27,7 @@ criclab-web-frontend/
 ├── src/
 │   ├── pages/            # Upload, BallFlight, Processing, Results, Train, History
 │   ├── components/       # MetricCard, DrillShelf, Layout, Logo
+│   ├── config/           # Nav JSON (workspace, admin, site header)
 │   ├── api/              # Typed client to FastAPI (client.ts)
 │   ├── App.tsx
 │   └── index.css

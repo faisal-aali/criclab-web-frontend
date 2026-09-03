@@ -45,6 +45,12 @@ biomechanics PDF), but for **cricket bowling**.
 ## Out of Scope (v1)
 
 - Batting, fielding, wicket-keeping analysis
+
+**Marketing:** Batting feature copy was written then **commented out** on the public site
+(Features, How It Works, About), each block marked `// TODO: For Future` (or JSX equivalent).
+Full inventory — file, line, exact wording, and other deferred sections — is in
+`systemPatterns.md` → **Deferred batting marketing copy** (local changes; not committed as
+of 3 Sep 2026). Restore those blocks when batting ships; do not delete them.
 - Multi-camera synchronized capture
 - Claiming radar-gun accuracy without calibration + ground-truth validation
 - Full multi-tenant SaaS / team billing

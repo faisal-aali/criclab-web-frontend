@@ -131,6 +131,8 @@ const CREED_WORDS = [
  * Milestones. Written as what changed for the people using it, which is the
  * only version of this story a coach has any reason to care about.
  */
+// TODO: For Future
+/*
 const MILESTONES = [
   {
     year: '2023',
@@ -147,11 +149,12 @@ const MILESTONES = [
     title: 'A blank beats a guess',
     body: 'Confidence notes arrive, and with them the decision that has shaped everything since: where the footage cannot carry a measurement, the report says so and asks for another take.',
   },
-  {
-    year: '2025',
-    title: 'Batting joins bowling',
-    body: 'Trigger movement, backlift, front-foot stride, bat path and head position at contact — read off the same single clip, filmed square of the wicket on the same phone.',
-  },
+  // TODO: For Future
+  // {
+  //   year: '2025',
+  //   title: 'Batting joins bowling',
+  //   body: 'Trigger movement, backlift, front-foot stride, bat path and head position at contact — read off the same single clip, filmed square of the wicket on the same phone.',
+  // },
   {
     year: '2026',
     title: 'Sessions kept side by side',
@@ -163,6 +166,7 @@ const MILESTONES = [
     body: 'A bowler’s first filmed delivery still there when they are opening the bowling ten years on — the same phases, the same measurements, the same honest notes underneath.',
   },
 ]
+*/
 
 /* Confidence, shown rather than claimed — the honesty principle made visible. */
 const REPORTED_CONFIDENCE = [
@@ -209,7 +213,7 @@ export function AboutPage() {
         lead="CricLab began with a simple frustration: the feedback that changes a bowling action is brilliant, well understood, and almost entirely unavailable to the people who need it most. We build for the net session, the school field and the club ground — not the laboratory."
       >
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Button to="/app" size="lg">
+          <Button to="/app/action" size="lg">
             Start analysing
             <span aria-hidden>→</span>
           </Button>
@@ -452,7 +456,8 @@ export function AboutPage() {
       <SectionSeam />
 
       {/* ===================== MILESTONES ===================== */}
-      <Section tone="night" className="py-24 sm:py-32">
+      {/* TODO: For Future */}
+      {/* <Section tone="night" className="py-24 sm:py-32">
         <Backdrop plate="turf" scrim="dark" parallax={0.07} />
         <div
           className="pointer-events-none absolute -left-32 top-1/3 h-[26rem] w-[26rem] animate-drift rounded-full bg-pitch-soft/25 blur-[140px]"
@@ -468,9 +473,9 @@ export function AboutPage() {
           />
 
           <div className="relative mt-14">
-            {/* The rail runs the length of the story once the years sit in
-                their own column. Below md there is no spine — the dots carry
-                it, and a rail would only be a stripe down the gutter. */}
+            The rail runs the length of the story once the years sit in
+            their own column. Below md there is no spine — the dots carry
+            it, and a rail would only be a stripe down the gutter.
             <div
               className="pointer-events-none absolute bottom-8 top-8 hidden w-px bg-gradient-to-b from-transparent via-lime/30 to-transparent md:left-[6.125rem] md:block"
               aria-hidden
@@ -506,7 +511,7 @@ export function AboutPage() {
             </div>
           </div>
         </Container>
-      </Section>
+      </Section> */}
 
       {/* ===================== TEAM ===================== */}
       <Section tone="warm" className="py-24 sm:py-32">
@@ -540,7 +545,8 @@ export function AboutPage() {
             ))}
           </div>
 
-          <Reveal delay={340} className="mt-8">
+          {/* TODO: For Future */}
+          {/* <Reveal delay={340} className="mt-8">
             <div className="flex flex-col items-start justify-between gap-5 rounded-[var(--radius-card)] border border-pitch/10 dark:border-white/10 bg-white dark:bg-white/6 p-6 shadow-lg shadow-pitch/5 sm:flex-row sm:items-center sm:p-7">
               <div>
                 <h3 className="font-display text-lg font-bold text-ink dark:text-chalk">
@@ -556,7 +562,7 @@ export function AboutPage() {
                 See open roles
               </Button>
             </div>
-          </Reveal>
+          </Reveal> */}
         </Container>
       </Section>
 
@@ -638,7 +644,7 @@ export function AboutPage() {
                   like to hear from you.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start analysing
                     <span aria-hidden>→</span>
                   </Button>

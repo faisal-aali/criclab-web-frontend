@@ -1,6 +1,7 @@
 /** Signed-in identity, account links and sign-out. */
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { fallbackAdminPath, workspaceAccountMenuItems } from '../../config/nav'
 import { useAuth } from '../../auth/AuthProvider'
 
 export function AccountMenu() {
@@ -52,10 +53,12 @@ export function AccountMenu() {
           </div>
           <div className="flex flex-col py-1.5">
             {[
-              ...(user.role === 'admin' ? [{ to: '/admin', label: 'Admin panel' }] : []),
+              ...(user.role === 'admin' ? [{ to: fallbackAdminPath(), label: 'Admin panel' }] : []),
               { to: '/app/settings', label: 'Account settings' },
-              { to: '/app/history', label: 'Your sessions' },
-              { to: '/app/support', label: 'Support' },
+              ...workspaceAccountMenuItems().map((item) => ({
+                to: item.path,
+                label: item.accountMenuName ?? item.name,
+              })),
             ].map((l) => (
               <Link
                 key={l.to}

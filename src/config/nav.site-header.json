@@ -1,0 +1,51 @@
+[
+  {
+    "id": "home",
+    "path": "/",
+    "name": "Home",
+    "hidden": false,
+    "end": true
+  },
+  {
+    "id": "features",
+    "path": "/features",
+    "name": "Features",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "how-it-works",
+    "path": "/how-it-works",
+    "name": "How It Works",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "record",
+    "path": "/record",
+    "name": "Record a Video",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "pricing",
+    "path": "/pricing",
+    "name": "Pricing",
+    "hidden": true,
+    "end": false
+  },
+  {
+    "id": "about",
+    "path": "/about",
+    "name": "About",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "contact",
+    "path": "/contact",
+    "name": "Contact",
+    "hidden": true,
+    "end": false
+  }
+]

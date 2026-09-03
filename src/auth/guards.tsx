@@ -9,6 +9,7 @@
  * actually refuses unauthorised data, and it does so independently.
  */
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { fallbackAdminPath, fallbackSiteHeaderPath, fallbackWorkspacePath, isAdminPathHidden, isSiteHeaderPathHidden, isWorkspacePathHidden, postAuthLandingPath } from '../config/nav'
 import { useAuth } from './AuthProvider'
 
 /** Full-screen hold while the stored session is being restored. */
@@ -71,7 +72,42 @@ export function RequireAdmin() {
   if (status === 'anonymous') {
     return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
   }
-  if (user?.role !== 'admin') return <Navigate to="/app" replace />
+  if (user?.role !== 'admin') return <Navigate to={fallbackWorkspacePath()} replace />
+  return <Outlet />
+}
+
+/**
+ * Sidebar `hidden: true` is also an access block. Routes stay registered;
+ * this is what refuses the URL (and `childPrefixes` such as processing
+ * screens). `/app/settings` is not a sidebar page — keep it outside this
+ * wrapper in App.tsx.
+ */
+export function RequireVisibleWorkspacePage() {
+  const { pathname } = useLocation()
+  if (isWorkspacePathHidden(pathname)) {
+    return <Navigate to={fallbackWorkspacePath()} replace />
+  }
+  return <Outlet />
+}
+
+export function RequireVisibleAdminPage() {
+  const { pathname } = useLocation()
+  if (isAdminPathHidden(pathname)) {
+    return <Navigate to={fallbackAdminPath()} replace />
+  }
+  return <Outlet />
+}
+
+/**
+ * Site header `hidden: true` is also an access block for pages listed in
+ * `nav.site-header.json`. Careers, FAQ, legal pages, etc. are not in that
+ * file and stay reachable.
+ */
+export function RequireVisibleSiteHeaderPage() {
+  const { pathname } = useLocation()
+  if (isSiteHeaderPathHidden(pathname)) {
+    return <Navigate to={fallbackSiteHeaderPath()} replace />
+  }
   return <Outlet />
 }
 
@@ -79,14 +115,14 @@ export function RequireAdmin() {
  * The inverse: keeps a signed-in visitor off the sign-in and sign-up screens.
  * Without it, "back" after signing in lands on a login form for a live session.
  */
-export function RedirectIfAuthenticated({ to = '/app' }: { to?: string }) {
+export function RedirectIfAuthenticated({ to }: { to?: string }) {
   const { status, user } = useAuth()
   const location = useLocation() as { state?: { from?: string } }
 
   if (status === 'loading') return <SessionLoading />
   if (status === 'authenticated') {
     if (user && !user.email_verified) return <Navigate to="/verify-email" replace />
-    return <Navigate to={location.state?.from || to} replace />
+    return <Navigate to={postAuthLandingPath(user, location.state?.from || to)} replace />
   }
   return <Outlet />
 }

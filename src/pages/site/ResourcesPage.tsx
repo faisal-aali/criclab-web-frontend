@@ -191,7 +191,7 @@ const PATH = [
     title: 'Build a baseline you can argue with',
     body: 'Four sessions filmed the same way turn a feeling about an action into a line you can point at.',
     read: '7 min',
-    to: '/app',
+    to: '/app/action',
     cta: 'Start filming',
   },
 ]
@@ -613,13 +613,14 @@ export function ResourcesPage() {
                   what comes back.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>
-                  <Button to="/pricing" variant="secondary" size="lg">
+                  {/* TODO: For Future */}
+                  {/* <Button to="/pricing" variant="secondary" size="lg">
                     View pricing
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

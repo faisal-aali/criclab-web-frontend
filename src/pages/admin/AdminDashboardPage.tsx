@@ -224,7 +224,8 @@ export function AdminDashboardPage() {
                   tone={data.users.disabled ? 'bad' : 'default'}
                 />
               </Card>
-              <Card tone="dark" interactive={false} className="p-5">
+              {/* TODO: For Future */}
+              {/* <Card tone="dark" interactive={false} className="p-5">
                 <div className="flex items-center justify-between pb-2">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">Coaching</p>
                   <Link to="/admin/coaching" className="text-[11px] font-bold uppercase tracking-[0.12em] text-lime">
@@ -238,7 +239,7 @@ export function AdminDashboardPage() {
                     { label: 'Cancelled', value: data.coaching.cancelled },
                   ]}
                 />
-              </Card>
+              </Card> */}
               <Card tone="dark" interactive={false} className="p-5">
                 <div className="flex items-center justify-between pb-2">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">Support mix</p>

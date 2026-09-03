@@ -10,7 +10,7 @@ Sibling website API: `../criclab-web-backend`. Sibling video workers: `../cricla
 memory-bank/
 ├── productBrief.md      # What Cric-Lab is — users, features, success
 ├── techContext.md       # Vite+React stack + API client contract
-├── systemPatterns.md    # UI rules — MOST IMPORTANT FILE for this repo
+├── systemPatterns.md    # UI rules — MOST IMPORTANT FILE for this repo (incl. commented batting copy inventory)
 ├── roadmap.md           # Features FEAT-001 …
 ├── tasks/               # Frontend-relevant tasks
 └── agent-rules/         # How the agent should behave

@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthProvider'
-import { RedirectIfAuthenticated, RequireAdmin, RequireAuth, RequireVerified } from './auth/guards'
+import { RedirectIfAuthenticated, RequireAdmin, RequireAuth, RequireVerified, RequireVisibleAdminPage, RequireVisibleSiteHeaderPage, RequireVisibleWorkspacePage } from './auth/guards'
 import { AdminLayout } from './components/admin/AdminLayout'
 import { AssistantWidget } from './components/app/AssistantWidget'
 import { Layout } from './components/Layout'
@@ -144,6 +144,7 @@ export default function App() {
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
               {/* ---------------- Public marketing ---------------- */}
+              <Route element={<RequireVisibleSiteHeaderPage />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/features" element={<FeaturesPage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
@@ -157,6 +158,7 @@ export default function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              </Route>
 
               {/* ---------------- Authentication ----------------
                 Behind RedirectIfAuthenticated so a live session cannot land
@@ -175,12 +177,14 @@ export default function App() {
                 creates data or spends the user's quota. */}
               <Route element={<RequireAuth />}>
                 <Route path="/app/settings" element={<AppShell><AccountSettingsPage /></AppShell>} />
+              <Route element={<RequireVisibleWorkspacePage />}>
               {/* Deliberately outside RequireVerified: someone who cannot get
                   their address confirmed still needs a way to tell us. */}
               <Route path="/app/support" element={<AppShell><SupportPage /></AppShell>} />
               <Route path="/app/support/:ticketId" element={<AppShell><TicketPage /></AppShell>} />
                 <Route element={<RequireVerified />}>
-                  <Route path="/app" element={<AppShell><UploadPage /></AppShell>} />
+                  <Route path="/app" element={<Navigate to="/app/action" replace />} />
+                  <Route path="/app/action" element={<AppShell><UploadPage /></AppShell>} />
                   <Route
                     path="/app/processing/:jobId"
                     element={<AppShell><ProcessingPage /></AppShell>}
@@ -207,11 +211,13 @@ export default function App() {
                   <Route path="/app/leaderboard" element={<AppShell><LeaderboardPage /></AppShell>} />
                 </Route>
               </Route>
+              </Route>
 
               {/* ---------------- Admin ----------------
                 Own shell, own guard. Sharing the workspace Layout would put
                 "Disable account" one click from a player's delivery review. */}
               <Route element={<RequireAdmin />}>
+                <Route element={<RequireVisibleAdminPage />}>
                 <Route path="/admin" element={<AdminShell><AdminDashboardPage /></AdminShell>} />
                 <Route path="/admin/leaderboard" element={<AdminShell><AdminLeaderboardPage /></AdminShell>} />
                 <Route path="/admin/users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
@@ -235,11 +241,12 @@ export default function App() {
                   path="/admin/notifications"
                   element={<AdminShell><AdminNotificationsPage /></AdminShell>}
                 />
+                </Route>
               </Route>
 
               {/* Links minted before the workspace moved under /app */}
-              <Route path="/processing/:jobId" element={<Navigate to="/app" replace />} />
-              <Route path="/results/:deliveryId" element={<Navigate to="/app" replace />} />
+              <Route path="/processing/:jobId" element={<Navigate to="/app/action" replace />} />
+              <Route path="/results/:deliveryId" element={<Navigate to="/app/action" replace />} />
               <Route path="/ball-flight/*" element={<Navigate to="/app/ball-flight" replace />} />
               <Route path="/train" element={<Navigate to="/app/train" replace />} />
               <Route path="/history" element={<Navigate to="/app/history" replace />} />

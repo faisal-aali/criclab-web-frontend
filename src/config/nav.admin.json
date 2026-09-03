@@ -1,0 +1,59 @@
+[
+  {
+    "id": "dashboard",
+    "path": "/admin",
+    "name": "Dashboard",
+    "hidden": false,
+    "end": true
+  },
+  {
+    "id": "leaderboard",
+    "path": "/admin/leaderboard",
+    "name": "Leaderboard",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "users",
+    "path": "/admin/users",
+    "name": "Users",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "analyses",
+    "path": "/admin/analyses",
+    "name": "Analyses",
+    "hidden": false,
+    "end": false,
+    "childPrefixes": ["/admin/reports"]
+  },
+  {
+    "id": "drills",
+    "path": "/admin/drills",
+    "name": "Drills",
+    "hidden": false,
+    "end": false
+  },
+  {
+    "id": "coaching",
+    "path": "/admin/coaching",
+    "name": "Coaching",
+    "hidden": true,
+    "end": false
+  },
+  {
+    "id": "tickets",
+    "path": "/admin/tickets",
+    "name": "Support",
+    "hidden": true,
+    "end": false
+  },
+  {
+    "id": "notifications",
+    "path": "/admin/notifications",
+    "name": "Notifications",
+    "hidden": false,
+    "end": false
+  }
+]

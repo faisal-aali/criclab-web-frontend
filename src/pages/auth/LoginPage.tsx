@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { auth } from '../../api/auth'
 import { useAuth } from '../../auth/AuthProvider'
+import { postAuthLandingPath } from '../../config/nav'
 import { AuthAlert, AuthShell, Field, SubmitButton, useSubmit } from './AuthShell'
 
 export function LoginPage() {
@@ -20,8 +22,8 @@ export function LoginPage() {
       navigate('/verify-email', { state: { email: result.email, message: result.message } })
       return
     }
-    adopt(result)
-    navigate(location.state?.from || '/app', { replace: true })
+    flushSync(() => adopt(result))
+    navigate(postAuthLandingPath(result.user, location.state?.from), { replace: true })
   })
 
   return (

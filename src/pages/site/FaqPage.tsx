@@ -471,7 +471,8 @@ export function FaqPage() {
                     Re-read the filming guide
                   </Link>
                 </div>
-                <p className="text-sm text-ink/50 dark:text-chalk/50">
+                {/* TODO: For Future */}
+                {/* <p className="text-sm text-ink/50 dark:text-chalk/50">
                   Comparing plans instead?{' '}
                   <Link
                     to="/pricing"
@@ -479,7 +480,7 @@ export function FaqPage() {
                   >
                     Head to pricing →
                   </Link>
-                </p>
+                </p> */}
               </div>
 
               <div className="flex flex-col gap-4">
@@ -530,13 +531,14 @@ export function FaqPage() {
                   puzzles you.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>
-                  <Button to="/pricing" variant="secondary" size="lg">
+                  {/* TODO: For Future */}
+                  {/* <Button to="/pricing" variant="secondary" size="lg">
                     View pricing
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

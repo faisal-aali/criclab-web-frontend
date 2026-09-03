@@ -455,7 +455,7 @@ export function RecordVideoPage() {
         lead="CricLab can only report what the camera actually saw. Three minutes spent getting the position, the light and the framing right is the difference between a delivery you can coach from and a clip that reads short."
       >
         <div className="flex flex-wrap gap-3 pt-1">
-          <Button to="/app" size="lg">
+          <Button to="/app/action" size="lg">
             Open CricLab
             <span aria-hidden>→</span>
           </Button>
@@ -608,7 +608,8 @@ export function RecordVideoPage() {
       <SectionSeam />
 
       {/* ===================== FRAMING + BEHIND THE ARM ===================== */}
-      <Section tone="dark" className="py-24 sm:py-32">
+      {/* TODO: For Future */}
+      {/* <Section tone="dark" className="py-24 sm:py-32">
         <Backdrop plate="nets" scrim="dark" parallax={0.08} />
         <Container className="relative">
           <SectionHeading
@@ -687,7 +688,7 @@ export function RecordVideoPage() {
           </Reveal>
         </Container>
         <PitchFloor />
-      </Section>
+      </Section> */}
 
       {/* ===================== DO / DON'T ===================== */}
       <Section tone="light" className="py-24 sm:py-32">
@@ -884,7 +885,7 @@ export function RecordVideoPage() {
                   bowling arm and see the whole action come back measured.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>

@@ -183,10 +183,11 @@ const FAQS = [
     q: 'Does it work for spinners as well as seamers?',
     a: 'Yes. The phases of the action are the same whether the ball is being seamed or spun, and the report names what is specific to the delivery you filmed. Pace, release height, stride and alignment all come back either way.',
   },
-  {
-    q: 'What about batting clips?',
-    a: 'Batting is covered too. Film square of the wicket with the whole stance and stride in frame, and the shot comes back broken into trigger movement, backlift, stride, bat path and head position at contact.',
-  },
+  // TODO: For Future
+  // {
+  //   q: 'What about batting clips?',
+  //   a: 'Batting is covered too. Film square of the wicket with the whole stance and stride in frame, and the shot comes back broken into trigger movement, backlift, stride, bat path and head position at contact.',
+  // },
   {
     q: 'What if a number looks wrong?',
     a: 'Every measurement carries a confidence note, and where the footage cannot support a figure CricLab says so rather than printing a convincing one. If a delivery comes back light on detail, it is almost always the framing — re-film against the guide and try it again.',
@@ -210,7 +211,7 @@ export function HowItWorksPage() {
       >
         <Reveal delay={120}>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Button to="/app" size="lg">
+            <Button to="/app/action" size="lg">
               Start Analyzing
               <span aria-hidden>→</span>
             </Button>
@@ -634,13 +635,14 @@ export function HowItWorksPage() {
                   action is doing.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>
-                  <Button to="/pricing" variant="secondary" size="lg">
+                  {/* TODO: For Future */}
+                  {/* <Button to="/pricing" variant="secondary" size="lg">
                     View pricing
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

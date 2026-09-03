@@ -289,7 +289,7 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
             </Link>
           ) : !inAdmin ? (
             <>
-              <Link to="/app" className={APP_LINK}>
+              <Link to="/app/action" className={APP_LINK}>
                 New Action clip
               </Link>
               <Link to="/app/ball-flight" className={APP_LINK}>

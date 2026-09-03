@@ -498,7 +498,7 @@ export function CareersPage() {
                   it.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Try CricLab
                     <span aria-hidden>→</span>
                   </Button>

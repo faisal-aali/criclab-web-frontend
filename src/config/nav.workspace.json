@@ -1,0 +1,85 @@
+[
+  {
+    "id": "leaderboard",
+    "path": "/app/leaderboard",
+    "name": "Leaderboard",
+    "hint": "Top 20 throws",
+    "icon": "trophy",
+    "hidden": false,
+    "end": false,
+    "mobileTab": true,
+    "mobileName": "Leaders",
+    "accountMenu": false
+  },
+  {
+    "id": "action",
+    "path": "/app/action",
+    "name": "Action",
+    "hint": "Side-on mechanics",
+    "icon": "action",
+    "hidden": false,
+    "end": true,
+    "childPrefixes": ["/app/processing", "/app/results"],
+    "mobileTab": true,
+    "mobileName": "Action",
+    "accountMenu": false
+  },
+  {
+    "id": "ball-flight",
+    "path": "/app/ball-flight",
+    "name": "Ball flight",
+    "hint": "Speed, line & length",
+    "icon": "flight",
+    "hidden": true,
+    "end": false,
+    "mobileTab": true,
+    "mobileName": "Flight",
+    "accountMenu": false
+  },
+  {
+    "id": "train",
+    "path": "/app/train",
+    "name": "Train",
+    "hint": "Drill library",
+    "icon": "train",
+    "hidden": false,
+    "end": false,
+    "mobileTab": false,
+    "accountMenu": false
+  },
+  {
+    "id": "coaching",
+    "path": "/app/coaching",
+    "name": "Coaching",
+    "hint": "Book a session",
+    "icon": "coaching",
+    "hidden": true,
+    "end": false,
+    "mobileTab": false,
+    "accountMenu": false
+  },
+  {
+    "id": "history",
+    "path": "/app/history",
+    "name": "History",
+    "hint": "Past sessions",
+    "icon": "history",
+    "hidden": false,
+    "end": false,
+    "mobileTab": true,
+    "mobileName": "History",
+    "accountMenu": true,
+    "accountMenuName": "Your sessions"
+  },
+  {
+    "id": "support",
+    "path": "/app/support",
+    "name": "Support",
+    "hint": "Ask for help",
+    "icon": "support",
+    "hidden": true,
+    "end": false,
+    "mobileTab": false,
+    "accountMenu": true
+  }
+]

@@ -7,6 +7,9 @@
  * the normal user experience" — the actual boundary is the `RequireAdmin`
  * guard plus every backend endpoint depending on `AdminUser`, not this file.
  *
+ * Sidebar items come from `src/config/nav.admin.json`. `hidden` drops a page
+ * from this list; the matching route guard refuses the URL.
+ *
  * Written dark-first with no `dark:` variants, same convention as the user
  * workspace shell — see "Workspace theming" in the memory bank. Light mode
  * is produced by the `.app-shell` token remap, so this layout carries that
@@ -15,20 +18,10 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
+import { fallbackAdminPath, fallbackWorkspacePath, itemCoversPath, visibleAdminNav } from '../../config/nav'
 import { CricLabMark } from '../site/SiteHeader'
 import { InstallAppButton } from '../site/InstallAppButton'
 import { ThemeToggle } from '../ThemeToggle'
-
-const NAV = [
-  { to: '/admin', label: 'Dashboard', end: true },
-  { to: '/admin/leaderboard', label: 'Leaderboard' },
-  { to: '/admin/users', label: 'Users' },
-  { to: '/admin/analyses', label: 'Analyses' },
-  { to: '/admin/drills', label: 'Drills' },
-  { to: '/admin/coaching', label: 'Coaching' },
-  { to: '/admin/tickets', label: 'Support' },
-  { to: '/admin/notifications', label: 'Notifications' },
-]
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
@@ -37,24 +30,26 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => setOpen(false), [location.pathname])
 
+  const home = fallbackAdminPath()
+  const navItems = visibleAdminNav()
+
   const nav = (
     <nav className="flex flex-col gap-1">
-      {NAV.map((l) => (
-        <NavLink
-          key={l.to}
-          to={l.to}
-          end={l.end}
-          className={({ isActive }) => {
-            const onReports = l.to === '/admin/analyses' && location.pathname.startsWith('/admin/reports')
-            const active = isActive || onReports
-            return `rounded-lg px-3.5 py-2.5 text-sm font-semibold transition ${
+      {navItems.map((item) => {
+        const active = itemCoversPath(item, location.pathname)
+        return (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            end={item.end === true}
+            className={`rounded-lg px-3.5 py-2.5 text-sm font-semibold transition ${
               active ? 'bg-lime/12 text-lime' : 'text-chalk/60 hover:bg-white/5 hover:text-chalk'
-            }`
-          }}
-        >
-          {l.label}
-        </NavLink>
-      ))}
+            }`}
+          >
+            {item.name}
+          </NavLink>
+        )
+      })}
     </nav>
   )
 
@@ -65,7 +60,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       }`}
     >
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/8 bg-charcoal/80 px-4 py-6 lg:flex">
-        <Link to="/admin" className="flex items-center gap-2 px-1 pb-8">
+        <Link to={home} className="flex items-center gap-2 px-1 pb-8">
           <CricLabMark />
           <span className="rounded-md border border-warn/30 bg-warn/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-warn">
             Admin
@@ -74,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         {nav}
         <div className="mt-auto flex flex-col gap-3 pt-6">
           <Link
-            to="/app"
+            to={fallbackWorkspacePath()}
             className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs font-semibold text-chalk/60 transition hover:border-lime/30 hover:text-chalk"
           >
             ← Back to CricLab
@@ -84,7 +79,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/8 bg-charcoal/85 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl lg:hidden">
-          <Link to="/admin" className="flex items-center gap-2">
+          <Link to={home} className="flex items-center gap-2">
             <CricLabMark />
             <span className="rounded-md border border-warn/30 bg-warn/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-warn">
               Admin

@@ -73,12 +73,13 @@ const MEASURE: Feature[] = [
     body: 'The delivery split at back-foot contact, front-foot contact, arm horizontal, release and follow-through — every phase timed, marked on the clip and named the way it is named in the nets.',
     icon: 'M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4M6 21v-5l3.5-4L11 6m-1.5 6 5 3 4.5-1',
   },
-  {
-    tag: 'Batting',
-    title: 'Batting analysis',
-    body: 'Trigger movement, backlift, front-foot stride, bat path through the line and head position at contact — the shot laid out from first movement to the finish of the swing.',
-    icon: 'm4 20 3-3m0 0 8.5-9.7a2.4 2.4 0 1 1 3.4 3.4L9.2 19.2 7 17Z',
-  },
+  // TODO: For Future
+  // {
+  //   tag: 'Batting',
+  //   title: 'Batting analysis',
+  //   body: 'Trigger movement, backlift, front-foot stride, bat path through the line and head position at contact — the shot laid out from first movement to the finish of the swing.',
+  //   icon: 'm4 20 3-3m0 0 8.5-9.7a2.4 2.4 0 1 1 3.4 3.4L9.2 19.2 7 17Z',
+  // },
   {
     tag: 'Consistency',
     title: 'Action analysis',
@@ -127,7 +128,8 @@ const MEASURED_WORDS = [
   'Trunk lean',
   'Front-foot contact',
   'Pitch point',
-  'Bat path',
+  // TODO: For Future
+  // 'Bat path',
   'Head at contact',
   'Timing splits',
 ]
@@ -197,7 +199,7 @@ export function FeaturesPage() {
       >
         <Reveal delay={120}>
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Button to="/app" size="lg">
+            <Button to="/app/action" size="lg">
               Start Analyzing
               <span aria-hidden>→</span>
             </Button>
@@ -210,7 +212,8 @@ export function FeaturesPage() {
         <Reveal delay={200}>
           <div className="flex flex-wrap gap-2 pt-4">
             <Chip tone="lime">Bowling</Chip>
-            <Chip tone="lime">Batting</Chip>
+            {/* TODO: For Future */}
+            {/* <Chip tone="lime">Batting</Chip> */}
             <Chip>Ball flight</Chip>
             <Chip>Movement</Chip>
             <Chip>Session history</Chip>
@@ -357,7 +360,8 @@ export function FeaturesPage() {
       </Section>
 
       {/* ============= SHOWCASE — BALL TRACKING (visual right) ============= */}
-      <Section tone="warm" className="py-24 sm:py-32">
+      {/* TODO: For Future */}
+      {/* <Section tone="warm" className="py-24 sm:py-32">
         <Container>
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
@@ -387,7 +391,7 @@ export function FeaturesPage() {
                     </li>
                   ))}
                 </ul>
-                <Button to="/app" variant="light" className="mt-2">
+                <Button to="/app/action" variant="light" className="mt-2">
                   Upload a delivery
                 </Button>
               </div>
@@ -435,7 +439,7 @@ export function FeaturesPage() {
             </Reveal>
           </div>
         </Container>
-      </Section>
+      </Section> */}
 
       {/* ========== SHOWCASE — MOVEMENT (visual left on desktop) ========== */}
       <Section tone="pitch" className="py-24 sm:py-32">
@@ -783,13 +787,14 @@ export function FeaturesPage() {
                   the next net session and see the lot come back.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>
-                  <Button to="/pricing" variant="secondary" size="lg">
+                  {/* TODO: For Future */}
+                  {/* <Button to="/pricing" variant="secondary" size="lg">
                     View pricing
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>

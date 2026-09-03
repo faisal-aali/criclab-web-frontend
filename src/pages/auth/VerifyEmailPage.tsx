@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { auth } from '../../api/auth'
 import { useAuth } from '../../auth/AuthProvider'
+import { postAuthLandingPath } from '../../config/nav'
 import { AuthAlert, AuthShell, OtpInput, ResendTimer, SubmitButton, useSubmit } from './AuthShell'
 
 export function VerifyEmailPage() {
@@ -22,8 +24,8 @@ export function VerifyEmailPage() {
 
   const { busy, error, setError, run } = useSubmit(async () => {
     const result = await auth.verifyEmail(email, code)
-    adopt(result)
-    navigate('/app', { replace: true })
+    flushSync(() => adopt(result))
+    navigate(postAuthLandingPath(result.user), { replace: true })
   })
 
   const resend = async () => {

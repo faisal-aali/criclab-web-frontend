@@ -212,7 +212,7 @@ export function TestimonialsPage() {
         lead="Coaches, academy directors, seamers, spinners, batters and analysts — the people who film a delivery on a Tuesday and have to say something useful about it by Wednesday. These are their words, attributed by role and club rather than by name."
       >
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Button to="/app" size="lg">
+          <Button to="/app/action" size="lg">
             Try it on your own delivery
             <span aria-hidden>→</span>
           </Button>
@@ -504,7 +504,7 @@ export function TestimonialsPage() {
                   hear about it.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start analysing
                     <span aria-hidden>→</span>
                   </Button>

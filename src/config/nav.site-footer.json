@@ -1,0 +1,128 @@
+[
+  {
+    "id": "product",
+    "title": "Product",
+    "links": [
+      {
+        "id": "features",
+        "path": "/features",
+        "name": "Features",
+        "hidden": false
+      },
+      {
+        "id": "how-it-works",
+        "path": "/how-it-works",
+        "name": "How It Works",
+        "hidden": false
+      },
+      {
+        "id": "record",
+        "path": "/record",
+        "name": "Record a Video",
+        "hidden": false
+      },
+      {
+        "id": "pricing",
+        "path": "/pricing",
+        "name": "Pricing",
+        "hidden": true
+      },
+      {
+        "id": "coaching",
+        "path": "/app/coaching",
+        "name": "Coaching",
+        "hidden": true
+      },
+      {
+        "id": "open-criclab",
+        "path": "/app/action",
+        "name": "Open CricLab",
+        "hidden": false
+      }
+    ]
+  },
+  {
+    "id": "company",
+    "title": "Company",
+    "links": [
+      {
+        "id": "about",
+        "path": "/about",
+        "name": "About Us",
+        "hidden": false
+      },
+      {
+        "id": "careers",
+        "path": "/careers",
+        "name": "Careers",
+        "hidden": true
+      },
+      {
+        "id": "testimonials",
+        "path": "/testimonials",
+        "name": "Testimonials",
+        "hidden": false
+      },
+      {
+        "id": "contact",
+        "path": "/contact",
+        "name": "Contact",
+        "hidden": true
+      }
+    ]
+  },
+  {
+    "id": "resources",
+    "title": "Resources",
+    "links": [
+      {
+        "id": "insights",
+        "path": "/resources",
+        "name": "Insights",
+        "hidden": false
+      },
+      {
+        "id": "faq",
+        "path": "/faq",
+        "name": "FAQ",
+        "hidden": false
+      },
+      {
+        "id": "filming-guide",
+        "path": "/record",
+        "name": "Filming Guide",
+        "hidden": false
+      },
+      {
+        "id": "drill-library",
+        "path": "/app/train",
+        "name": "Drill Library",
+        "hidden": false
+      },
+      {
+        "id": "support",
+        "path": "/app/support",
+        "name": "Support",
+        "hidden": true
+      }
+    ]
+  },
+  {
+    "id": "legal",
+    "title": "Legal",
+    "links": [
+      {
+        "id": "privacy",
+        "path": "/privacy",
+        "name": "Privacy Policy",
+        "hidden": false
+      },
+      {
+        "id": "terms",
+        "path": "/terms",
+        "name": "Terms of Service",
+        "hidden": false
+      }
+    ]
+  }
+]

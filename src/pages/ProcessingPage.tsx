@@ -87,7 +87,7 @@ export function ProcessingPage() {
         if (data.status === 'cancelled') {
           window.clearInterval(timer)
           untrackJob(data.id)
-          navigate('/app', { replace: true })
+          navigate('/app/action', { replace: true })
           return
         }
         if (data.status === 'failed') {
@@ -133,7 +133,7 @@ export function ProcessingPage() {
     try {
       await cancelJob(jobId)
       untrackJob(jobId)
-      navigate('/app', { replace: true })
+      navigate('/app/action', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not remove this clip from the queue')
       setCancelling(false)
@@ -382,7 +382,7 @@ export function ProcessingPage() {
           </p>
           <p className="mt-2 break-words text-sm leading-relaxed text-chalk/80">{error}</p>
           <div className="mt-4">
-            <Button to="/app" variant="secondary" size="sm">
+            <Button to="/app/action" variant="secondary" size="sm">
               Back to upload
             </Button>
           </div>

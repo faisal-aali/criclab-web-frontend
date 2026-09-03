@@ -13,7 +13,7 @@ The UI never invents km/h, angles, or drill YouTube IDs. Display what the API re
 
 | Mode | Route | Camera | Truth |
 |------|--------|--------|--------|
-| **Action** | `/` | Side-on full-body | Mechanics from pose. Ball km/h only when backend status is ok. |
+| **Action** | `/app/action` | Side-on full-body | Mechanics from pose. Ball km/h only when backend status is ok. |
 | **Ball flight** | `/ball-flight` | Behind non-striker + both stumps | Pitch-plane speed / line / length. Separate job — never paste onto Action. |
 
 ## Truth contract (UI)
@@ -33,6 +33,12 @@ workspace** under `/app`. They share one design system but not one chrome.
 | Marketing | `/`, `/features`, `/how-it-works`, `/record`, `/pricing`, `/about`, `/careers`, `/testimonials`, `/resources`, `/faq`, `/contact`, `/privacy`, `/terms` | `components/site/MarketingLayout` (floating header over a dark hero + full footer) |
 | Workspace | `/app`, … | `components/Layout` (sidebar shell; follows site light/dark theme) |
 
+**Bowling-first marketing:** Batting feature copy is **commented out** in source on
+Features, How It Works, and About so public pages stay bowling-first. Each block is tagged
+`TODO: For Future`. Full inventory is in **Deferred batting marketing copy** below (local
+changes; not committed/pushed as of 3 Sep 2026). Do not uncomment until batting analysis
+ships in the video pipeline.
+
 Light/dark is a first-class preference (`src/theme/ThemeProvider.tsx`). A sun/moon
 control lives in the marketing header, auth header, and workspace header. Preference
 is `localStorage` key `criclab-theme` (`light` | `dark` | `system`). Do not invent a
@@ -40,6 +46,94 @@ second theme mechanism or hardcode a night-only shell that ignores `html.dark`.
 
 Pre-`/app` links (`/results/:id`, `/train`, …) redirect in `App.tsx`. Keep those
 redirects when adding routes — they are the only thing holding old bookmarks.
+
+## Deferred batting marketing copy (commented in source)
+
+> **Status:** Batting is **out of scope for v1** (`productBrief.md`). Approved copy for a
+> future batting launch is **commented out** in three marketing pages — **not committed or
+> pushed** as of 3 Sep 2026. Uncomment when batting ships; do not delete or rewrite from
+> scratch.
+
+Each commented block is marked in source with **`// TODO: For Future`** (TS/JS arrays) or
+**`{/* TODO: For Future */}`** (JSX). Search the repo for that string to find every deferred
+block quickly. When restoring, remove the TODO line and uncomment the block beneath it.
+
+### Where it was commented out (batting)
+
+| File | Location | What was hidden |
+|------|----------|-----------------|
+| `src/pages/site/FeaturesPage.tsx` | `MEASURE` array (~L76–81) | Feature card — **tag:** `Batting` · **title:** Batting analysis · **body:** trigger movement, backlift, front-foot stride, bat path through the line, head position at contact · bat SVG icon |
+| `src/pages/site/FeaturesPage.tsx` | `MEASURED_WORDS` ticker (~L130) | Word `'Bat path'` |
+| `src/pages/site/FeaturesPage.tsx` | Hero chips (~L213) | `<Chip tone="lime">Batting</Chip>` |
+| `src/pages/site/HowItWorksPage.tsx` | FAQ array (~L186–189) | **Q:** What about batting clips? · **A:** Batting is covered too — film square of the wicket; shot broken into trigger movement, backlift, stride, bat path, head position at contact |
+| `src/pages/site/AboutPage.tsx` | `MILESTONES` timeline entry (~L150–154) | **year:** 2025 · **title:** Batting joins bowling · **body:** trigger movement, backlift, front-foot stride, bat path, head position at contact — same single clip, square of the wicket |
+
+### Other deferred marketing blocks (same TODO marker)
+
+These are also commented out with `TODO: For Future` — not batting, but held back for the same
+“restore later” workflow:
+
+| File | Location | What was hidden |
+|------|----------|-----------------|
+| `src/pages/site/FeaturesPage.tsx` | Ball tracking showcase (~L363+) | Full `<Section tone="warm">` — “Follow the ball from the hand to the pitch point” visual + metrics demo |
+| `src/pages/site/RecordVideoPage.tsx` | Framing section (~L611+) | Full `<Section tone="dark">` — elevation framing diagram, ball-flight camera diagram, `FLIGHT_NOTES` cards |
+| `src/pages/site/AboutPage.tsx` | `MILESTONES` const + timeline UI (~L134–166, ~L456–511) | Full “How we got here” milestone rail — `MILESTONES` array and `<Section tone="night">` timeline section |
+
+### Shared batting vocabulary (restore as-is)
+
+- **Phases:** trigger movement, backlift, front-foot stride, bat path (through the line), head position at contact
+- **Filming:** square of the wicket; whole stance and stride in frame; same phone / single clip
+- **Positioning:** batting as a peer feature to bowling, not a separate product
+
+### Still live on the site (not commented)
+
+These mention batting but were **left active** on purpose:
+
+| File | Content | Intent |
+|------|---------|--------|
+| `FaqPage.tsx` | Quick answer “Batting or fielding?” → “Not yet. Bowling first…” | Scope honesty |
+| `FaqPage.tsx` | Full FAQ “Can I analyse batting or fielding too?” → batting is next, not shipped | Roadmap tease |
+| `TestimonialsPage.tsx` | Batter / wicketkeeper-batter quotes and “Batters” filter | Social proof placeholder |
+| `FeaturesPage.tsx` | `'Head at contact'` still in `MEASURED_WORDS` ticker | Bowling-adjacent — decide later if tightening bowling-only messaging |
+| `AboutPage.tsx` | Vision copy: “batting and bowling figures” | Generic cricket context, not a product claim |
+
+### Agent rules
+
+- Do **not** uncomment batting blocks until batting analysis exists in the video pipeline and API.
+- Do **not** delete commented blocks — they are the approved copy for launch.
+- Preserve **`TODO: For Future`** on any new deferred marketing blocks; use the same marker style (line comment vs JSX comment).
+- New marketing copy must sell **bowling + ball flight only** until this section is retired.
+- When batting ships: uncomment all rows in **Where it was commented out (batting)**, remove the TODO lines, then update `productBrief.md` out-of-scope list.
+
+## Sidebar chrome and access — JSON
+
+Player and admin sidebars are not hardcoded in the layout components. Labels,
+order, mobile tabs, and visibility live in two files:
+
+- Workspace (sidebar, mobile bottom tabs, account-menu extras):
+  `src/config/nav.workspace.json`
+- Admin sidebar: `src/config/nav.admin.json`
+- Marketing site header (Home, Features, …): `src/config/nav.site-header.json`
+- Marketing site footer (Product, Company, … columns): `src/config/nav.site-footer.json`
+
+Helpers in `src/config/nav.ts` filter `hidden !== true`. Icon SVGs stay in
+`src/config/navIcons.tsx` (JSON cannot hold JSX); the `icon` field is a key.
+
+`hidden: true` is both chrome and access: the link disappears, and
+`RequireVisibleWorkspacePage` / `RequireVisibleAdminPage` /
+`RequireVisibleSiteHeaderPage` redirect to the first visible item in that file
+(workspace → `/` if none remain; admin → `/app/action`; site header → `/`).
+Marketing pages not listed in `nav.site-header.json` (careers, FAQ, legal, …)
+are outside that guard’s JSON and stay reachable. `childPrefixes` belong to the
+same page — hide Action and `/app/processing` + `/app/results` are blocked;
+hide Analyses and `/admin/reports/*` is blocked. Action lives at `/app/action`
+(`end: true`); `/app` redirects there. `/app/settings` is not in the JSON and
+stays reachable. Do not add a `NAV` array back to `Layout.tsx`,
+`AdminLayout.tsx`, `SiteHeader.tsx`, or `SiteFooter.tsx`.
+
+Footer `hidden: true` only removes the link from footer columns; it does not
+block the route (unlike header/workspace/admin). Pages such as careers and FAQ
+are footer-only and never appear in `nav.site-header.json`.
 
 ## Design system (read before writing any UI)
 
@@ -152,10 +246,12 @@ experience to be "completely separate from the normal user experience," and
 sharing chrome would put "Users" / "Disable account" one click from a
 player's own delivery review. The actual boundary is `RequireAdmin` (frontend
 guard, hides UI) plus every backend route depending on `AdminUser`
-(enforces it) — not this file. Written dark-first with no `dark:` variants,
-same convention as the workspace (see "Workspace theming" below) — this is
-authenticated-app chrome, not marketing chrome, and inherits that surface's
-theming rule, not the marketing site's.
+(enforces it) — not this file. Sidebar items come from
+`src/config/nav.admin.json`, same `hidden` contract as the player workspace.
+Written dark-first with no `dark:` variants, same convention as the workspace
+(see "Workspace theming" below) — this is authenticated-app chrome, not
+marketing chrome, and inherits that surface's theming rule, not the
+marketing site's.
 
 Wired in `App.tsx` at `/admin`, `/admin/users`, `/admin/analyses`,
 `/admin/coaching`, `/admin/tickets`, `/admin/notifications`. The only way an

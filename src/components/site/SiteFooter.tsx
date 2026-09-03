@@ -1,49 +1,12 @@
 import { Link } from 'react-router-dom'
+import { visibleSiteFooterColumns } from '../../config/nav'
 import { CricLabMark } from './SiteHeader'
 import { Backdrop, Container } from './ui'
 import { PitchFloor } from './visuals'
 
-const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
-  {
-    title: 'Product',
-    links: [
-      { to: '/features', label: 'Features' },
-      { to: '/how-it-works', label: 'How It Works' },
-      { to: '/record', label: 'Record a Video' },
-      { to: '/pricing', label: 'Pricing' },
-      { to: '/app/coaching', label: 'Coaching' },
-      { to: '/app', label: 'Open CricLab' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { to: '/about', label: 'About Us' },
-      { to: '/careers', label: 'Careers' },
-      { to: '/testimonials', label: 'Testimonials' },
-      { to: '/contact', label: 'Contact' },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { to: '/resources', label: 'Insights' },
-      { to: '/faq', label: 'FAQ' },
-      { to: '/record', label: 'Filming Guide' },
-      { to: '/app/train', label: 'Drill Library' },
-      { to: '/app/support', label: 'Support' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { to: '/privacy', label: 'Privacy Policy' },
-      { to: '/terms', label: 'Terms of Service' },
-    ],
-  },
-]
-
 export function SiteFooter() {
+  const columns = visibleSiteFooterColumns()
+
   return (
     <footer className="relative overflow-hidden bg-night text-chalk">
       <Backdrop plate="turf" scrim="dark" parallax={0.05} />
@@ -72,19 +35,19 @@ export function SiteFooter() {
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            {COLUMNS.map((col) => (
-              <div key={col.title} className="flex flex-col gap-3.5">
+            {columns.map((col) => (
+              <div key={col.id} className="flex flex-col gap-3.5">
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-lime/80">
                   {col.title}
                 </h3>
                 <ul className="flex flex-col gap-2.5">
-                  {col.links.map((l) => (
-                    <li key={l.to + l.label}>
+                  {col.links.map((link) => (
+                    <li key={link.id}>
                       <Link
-                        to={l.to}
+                        to={link.path}
                         className="text-sm text-chalk/60 transition hover:text-chalk"
                       >
-                        {l.label}
+                        {link.name}
                       </Link>
                     </li>
                   ))}

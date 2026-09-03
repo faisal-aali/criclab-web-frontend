@@ -6,6 +6,12 @@ import { NotificationBell } from './app/NotificationBell'
 import { ProcessingIndicator } from './app/ProcessingIndicator'
 import { ThemeToggle } from './ThemeToggle'
 import { InstallAppButton } from './site/InstallAppButton'
+import {
+  itemCoversPath,
+  visibleWorkspaceNav,
+  workspaceMobileTabs,
+} from '../config/nav'
+import { navIcon } from '../config/navIcons'
 
 /**
  * Application shell.
@@ -20,94 +26,9 @@ import { InstallAppButton } from './site/InstallAppButton'
  * people sit in during a session, so the footage is the brightest thing on
  * screen and the chrome recedes. Same palette, type and motion language as the
  * public pages, so moving between them does not feel like two products.
+ *
+ * Sidebar items, mobile tabs, and labels come from `src/config/nav.workspace.json`.
  */
-
-const NAV = [
-  {
-    to: '/app/leaderboard',
-    label: 'Leaderboard',
-    hint: 'Top 20 throws',
-    icon: (
-      <path
-        d="M8 21h8M12 17v4M7 4h10v5a5 5 0 1 1-10 0V4Zm-3 2h3v4a3 3 0 0 1-3-3V6Zm16 0h-3v4a3 3 0 0 0 3-3V6Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app',
-    label: 'Action',
-    hint: 'Side-on mechanics',
-    icon: (
-      <path
-        d="M12 3.5v5m0 0-3 3.5m3-3.5 3 3.5M7.5 20l2-5.5m7 5.5-2-5.5M12 3.5a1.5 1.5 0 1 0 0-.01Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app/ball-flight',
-    label: 'Ball flight',
-    hint: 'Speed, line & length',
-    icon: (
-      <path
-        d="M3 17c4-9 11-12 18-12M6 20h.01M9.5 20h.01M13 20h.01"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app/train',
-    label: 'Train',
-    hint: 'Drill library',
-    icon: (
-      <path
-        d="M4 9v6m16-6v6M7 7v10m10-10v10M10 12h4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app/coaching',
-    label: 'Coaching',
-    hint: 'Book a session',
-    icon: (
-      <path
-        d="M8 3v3m8-3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Zm5.5 8 1.5 1.5 3-3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app/history',
-    label: 'History',
-    hint: 'Past sessions',
-    icon: (
-      <path
-        d="M12 7v5l3 2m6-2a9 9 0 1 1-3.2-6.9M21 3v4h-4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    to: '/app/support',
-    label: 'Support',
-    hint: 'Ask for help',
-    icon: (
-      <path
-        d="M12 3a7 7 0 0 0-7 7v4a3 3 0 0 0 3 3h1v-6H7v-1a5 5 0 0 1 10 0v1h-2v6h1a3 3 0 0 0 3-3v-4a7 7 0 0 0-7-7Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-]
 
 const TITLES: [string, string][] = [
   ['/app/processing', 'Processing'],
@@ -120,30 +41,24 @@ const TITLES: [string, string][] = [
   ['/app/train', 'Train'],
   ['/app/leaderboard', 'Leaderboard'],
   ['/app/history', 'History'],
+  ['/app/action', 'Action'],
   ['/app/settings', 'Account'],
 ]
 
-const TABS = [
-  { to: '/app/leaderboard', label: 'Leaders', end: false },
-  { to: '/app', label: 'Action', end: true },
-  { to: '/app/ball-flight', label: 'Flight', end: false },
-  { to: '/app/history', label: 'History', end: false },
-]
-
-function tabActive(to: string, pathname: string) {
-  if (to === '/app') {
-    return (
-      pathname === '/app' ||
-      pathname.startsWith('/app/processing') ||
-      pathname.startsWith('/app/results')
-    )
-  }
-  return pathname === to || pathname.startsWith(`${to}/`)
+const MOBILE_NAV_COLS: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const [open, setOpen] = useState(false)
+  const navItems = visibleWorkspaceNav()
+  const tabs = workspaceMobileTabs()
+  const tabColumns = Math.min(5, Math.max(1, tabs.length + 1))
 
   useEffect(() => {
     const match = TITLES.find(([prefix]) => location.pathname.startsWith(prefix))
@@ -154,44 +69,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const nav = (
     <nav className="flex flex-col gap-1.5">
-      {NAV.map((l) => (
-        <NavLink
-          key={l.to}
-          to={l.to}
-          end={l.to === '/app'}
-          className={({ isActive }) =>
-            `group relative flex items-center gap-3 rounded-xl px-3.5 py-3 transition ${
-              isActive
+      {navItems.map((item) => {
+        const active = itemCoversPath(item, location.pathname)
+        return (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            end={item.end === true}
+            className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-3 transition ${
+              active
                 ? 'bg-lime/12 text-lime'
                 : 'text-chalk/60 hover:bg-white/5 hover:text-chalk'
-            }`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <span
-                className={`absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-lime transition-all duration-300 ${
-                  isActive ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                className="h-5 w-5 shrink-0"
-                aria-hidden
-              >
-                {l.icon}
-              </svg>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-sm font-semibold leading-tight">{l.label}</span>
-                <span className="truncate text-[11px] text-current/55">{l.hint}</span>
-              </span>
-            </>
-          )}
-        </NavLink>
-      ))}
+            }`}
+          >
+            <span
+              className={`absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-lime transition-all duration-300 ${
+                active ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              className="h-5 w-5 shrink-0"
+              aria-hidden
+            >
+              {navIcon(item.icon)}
+            </svg>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-sm font-semibold leading-tight">{item.name}</span>
+              <span className="truncate text-[11px] text-current/55">{item.hint}</span>
+            </span>
+          </NavLink>
+        )
+      })}
     </nav>
   )
 
@@ -264,25 +176,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </main>
 
         <nav
-          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-charcoal/95 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden"
+          className={`fixed inset-x-0 bottom-0 z-40 grid ${MOBILE_NAV_COLS[tabColumns]} border-t border-white/10 bg-charcoal/95 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden`}
           aria-label="Primary"
         >
-          {TABS.map((t) => {
-            const item = NAV.find((n) => n.to === t.to)
-            const active = tabActive(t.to, location.pathname)
+          {tabs.map((item) => {
+            const active = itemCoversPath(item, location.pathname)
             return (
               <NavLink
-                key={t.to}
-                to={t.to}
-                end={t.end}
+                key={item.id}
+                to={item.path}
+                end={item.end === true}
                 className={`flex min-h-12 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-semibold ${
                   active ? 'text-lime' : 'text-chalk/50'
                 }`}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden>
-                  {item?.icon}
+                  {navIcon(item.icon)}
                 </svg>
-                {t.label}
+                {item.mobileName ?? item.name}
               </NavLink>
             )
           })}

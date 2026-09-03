@@ -47,7 +47,7 @@ const TIERS: Tier[] = [
     name: 'Player',
     who: 'For the bowler who films their own nets and wants the honest read.',
     price: { monthly: 9, yearly: 90 },
-    cta: { label: 'Start with Player', to: '/app' },
+    cta: { label: 'Start with Player', to: '/app/action' },
     features: [
       '12 delivery analyses a month',
       'Marked-up slow-motion review clip',
@@ -63,7 +63,7 @@ const TIERS: Tier[] = [
     name: 'Coach',
     who: 'For coaches running nets across a group of seamers and spinners.',
     price: { monthly: 29, yearly: 290 },
-    cta: { label: 'Choose Coach', to: '/app' },
+    cta: { label: 'Choose Coach', to: '/app/action' },
     featured: true,
     features: [
       'Everything in Player, plus:',
@@ -713,7 +713,7 @@ export function PricingPage() {
                   take, and see what comes back.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Button to="/app" size="lg">
+                  <Button to="/app/action" size="lg">
                     Start Analyzing
                     <span aria-hidden>→</span>
                   </Button>

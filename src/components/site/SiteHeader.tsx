@@ -1,19 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
+import { visibleSiteHeaderNav } from '../../config/nav'
 import { Button } from './ui'
 import { ThemeToggle } from '../ThemeToggle'
 import { InstallAppButton } from './InstallAppButton'
-
-const NAV = [
-  { to: '/', label: 'Home' },
-  { to: '/features', label: 'Features' },
-  { to: '/how-it-works', label: 'How It Works' },
-  { to: '/record', label: 'Record a Video' },
-  { to: '/pricing', label: 'Pricing' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
-]
 
 export function CricLabMark({ compact = false }: { compact?: boolean }) {
   return (
@@ -41,6 +32,7 @@ export function SiteHeader() {
   const { status, user } = useAuth()
   const signedIn = status === 'authenticated' && Boolean(user)
   const authReady = status !== 'loading'
+  const navItems = visibleSiteHeaderNav()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16)
@@ -73,11 +65,11 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
-            {NAV.map((l) => (
+            {navItems.map((item) => (
               <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.to === '/'}
+                key={item.id}
+                to={item.path}
+                end={item.end === true}
                 className={({ isActive }) =>
                   `relative rounded-full px-3.5 py-2 text-sm font-semibold transition ${
                     isActive ? 'text-lime' : 'text-chalk/70 hover:text-chalk'
@@ -86,7 +78,7 @@ export function SiteHeader() {
               >
                 {({ isActive }) => (
                   <>
-                    {l.label}
+                    {item.name}
                     <span
                       className={`absolute inset-x-3.5 -bottom-0.5 h-px origin-left bg-lime transition-transform duration-300 ${
                         isActive ? 'scale-x-100' : 'scale-x-0'
@@ -112,7 +104,7 @@ export function SiteHeader() {
                     Admin
                   </Link>
                 ) : null}
-                <Button to="/app" size="sm" className="hidden sm:inline-flex">
+                <Button to="/app/action" size="sm" className="hidden sm:inline-flex">
                   Open workspace
                 </Button>
               </>
@@ -178,11 +170,11 @@ export function SiteHeader() {
           }`}
         >
           <nav className="flex flex-col gap-1">
-            {NAV.map((l, i) => (
+            {navItems.map((item, i) => (
               <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.to === '/'}
+                key={item.id}
+                to={item.path}
+                end={item.end === true}
                 style={{ transitionDelay: open ? `${60 + i * 40}ms` : '0ms' }}
                 className={({ isActive }) =>
                   `rounded-xl px-4 py-3.5 text-lg font-semibold transition-all duration-300 ${
@@ -190,7 +182,7 @@ export function SiteHeader() {
                   } ${isActive ? 'bg-lime/10 text-lime' : 'text-chalk/80 hover:bg-white/5'}`
                 }
               >
-                {l.label}
+                {item.name}
               </NavLink>
             ))}
           </nav>
@@ -203,7 +195,7 @@ export function SiteHeader() {
             {authReady ? (
               signedIn ? (
               <>
-                <Button to="/app" size="lg">
+                <Button to="/app/action" size="lg">
                   Open workspace
                 </Button>
                 {user?.role === 'admin' ? (

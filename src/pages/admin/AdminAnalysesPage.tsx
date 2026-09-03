@@ -3,11 +3,13 @@ import { admin, adminResultHref, fmtKmh, type AdminAnalysisRow } from '../../api
 import { OpenReportButton } from '../../components/admin/OpenReportButton'
 import { Card, Chip, Reveal } from '../../components/site/ui'
 
-const PIPELINE_FILTERS = [
-  { key: '', label: 'All' },
-  { key: 'action', label: 'Action' },
-  { key: 'ball_flight', label: 'Ball flight' },
-]
+// TODO: For Future
+// const PIPELINE_FILTERS = [
+//   { key: '', label: 'All' },
+//   { key: 'action', label: 'Action' },
+//   { key: 'ball_flight', label: 'Ball flight' },
+// ]
+
 const STATUS_FILTERS = [
   { key: '', label: 'Any status' },
   { key: 'completed', label: 'Completed' },
@@ -37,7 +39,8 @@ function threwLine(a: AdminAnalysisRow) {
 export function AdminAnalysesPage() {
   const [items, setItems] = useState<AdminAnalysisRow[] | null>(null)
   const [total, setTotal] = useState(0)
-  const [pipeline, setPipeline] = useState('')
+  // TODO: For Future
+  // const [pipeline, setPipeline] = useState('')
   const [status, setStatus] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -45,13 +48,15 @@ export function AdminAnalysesPage() {
 
   const load = useCallback(() => {
     admin
-      .analyses({ pipeline: pipeline || undefined, status: status || undefined, search: search || undefined, page, pageSize })
+      .analyses({ pipeline: 'action', status: status || undefined, search: search || undefined, page, pageSize })
+      // TODO: For Future — both pipelines: pipeline: pipeline || undefined
       .then((r) => {
         setItems(r.items)
         setTotal(r.total)
       })
       .catch(() => setItems([]))
-  }, [pipeline, status, search, page])
+  }, [status, search, page])
+  // TODO: For Future — include pipeline in deps when restored: [pipeline, status, search, page]
 
   useEffect(() => {
     load()
@@ -89,7 +94,8 @@ export function AdminAnalysesPage() {
     <div className="flex flex-col gap-6">
       <Reveal>
         <h1 className="font-display text-3xl font-extrabold text-chalk">Analyses</h1>
-        <p className="pt-1.5 text-sm text-chalk/55">{total} analyses across both pipelines.</p>
+        <p className="pt-1.5 text-sm text-chalk/55">{total} action analyses.</p>
+        {/* TODO: For Future — both pipelines: {total} analyses across both pipelines. */}
       </Reveal>
 
       <Reveal delay={40}>
@@ -103,6 +109,7 @@ export function AdminAnalysesPage() {
             placeholder="Search by player name…"
             className="field field-dark w-full max-w-xs"
           />
+          {/* TODO: For Future
           <div className="flex flex-wrap gap-1.5">
             {PIPELINE_FILTERS.map((f) => (
               <button
@@ -122,6 +129,7 @@ export function AdminAnalysesPage() {
               </button>
             ))}
           </div>
+          */}
           <select
             value={status}
             onChange={(e) => {
@@ -157,9 +165,12 @@ export function AdminAnalysesPage() {
                     <div className="min-w-0">
                       <p className="font-display text-base font-bold text-chalk">{a.player_name ?? '—'}</p>
                       <p className="truncate text-xs text-chalk/40">{a.user ? a.user.name : 'Unattributed'}</p>
+                      <p className="pt-1 text-xs capitalize text-chalk/55">{threwLine(a)}</p>
+                      {/* TODO: For Future
                       <p className="pt-1 text-xs capitalize text-chalk/55">
                         {a.pipeline === 'action' ? 'Action' : 'Ball flight'} · {threwLine(a)}
                       </p>
+                      */}
                       <div className="flex flex-wrap items-center gap-2 pt-2">
                         <Chip tone={statusTone(a.status)}>{a.status}</Chip>
                         <span className="text-xs font-semibold text-chalk">{fmtKmh(a.ball_speed_kmh)}</span>
@@ -225,8 +236,11 @@ export function AdminAnalysesPage() {
                           )}
                         </td>
                         <td className="px-5 py-3 text-chalk/60">
+                          <p className="capitalize">{threwLine(a)}</p>
+                          {/* TODO: For Future
                           <p>{a.pipeline === 'action' ? 'Action' : 'Ball flight'}</p>
                           <p className="text-xs capitalize text-chalk/40">{threwLine(a)}</p>
+                          */}
                         </td>
                         <td className="px-5 py-3 font-semibold text-chalk">{fmtKmh(a.ball_speed_kmh)}</td>
                         <td className="px-5 py-3">

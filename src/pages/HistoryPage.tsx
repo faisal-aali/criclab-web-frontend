@@ -83,7 +83,7 @@ export function HistoryPage() {
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-3">
-                <Button to="/app" size="md">
+                <Button to="/app/action" size="md">
                   Analyse a clip
                   <span aria-hidden>→</span>
                 </Button>
