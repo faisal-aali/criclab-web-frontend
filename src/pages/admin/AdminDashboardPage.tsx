@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { admin, adminResultHref, fmtKmh, type DashboardRange, type DashboardSummary } from '../../api/admin'
 import { OpenReportButton } from '../../components/admin/OpenReportButton'
-import { BarList, Donut, TrendLine } from '../../components/admin/charts'
+import { BarList, TrendLine } from '../../components/admin/charts'
+// TODO: For Future — coaching donut card: import { Donut } from '../../components/admin/charts'
 import { Card, Chip, Reveal } from '../../components/site/ui'
 
 const RANGES: { key: DashboardRange; label: string }[] = [

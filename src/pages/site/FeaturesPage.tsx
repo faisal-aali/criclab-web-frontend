@@ -25,7 +25,8 @@ import {
   PitchFloor,
   SeamBall,
   StadiumAtmosphere,
-  TrajectoryArc,
+  // TODO: For Future — ball tracking showcase section
+  // TrajectoryArc,
 } from '../../components/site/visuals'
 
 /**

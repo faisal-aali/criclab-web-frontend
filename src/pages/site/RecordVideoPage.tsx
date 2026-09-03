@@ -18,10 +18,11 @@ import {
 } from '../../components/site/ui'
 import {
   PhotoFrame,
-  PitchFloor,
   SeamBall,
   StadiumAtmosphere,
-  TrajectoryArc,
+  // TODO: For Future — framing / ball-flight section
+  // PitchFloor,
+  // TrajectoryArc,
 } from '../../components/site/visuals'
 
 /* ===========================================================================
@@ -129,7 +130,8 @@ function ActionCameraDiagram() {
   )
 }
 
-/** Plan view: behind the bowler's end for the Ball flight clip. */
+// TODO: For Future — ball-flight camera diagram (framing section)
+/*
 function BallFlightCameraDiagram() {
   return (
     <svg
@@ -149,16 +151,13 @@ function BallFlightCameraDiagram() {
         </linearGradient>
       </defs>
 
-      {/* Field of view down the pitch */}
       <polygon points="92,134 500,52 500,216" fill="url(#recCone2)" />
       <line x1="92" y1="134" x2="500" y2="52" stroke="rgba(182,242,74,0.3)" strokeWidth="1.5" strokeDasharray="6 5" />
       <line x1="92" y1="134" x2="500" y2="216" stroke="rgba(182,242,74,0.3)" strokeWidth="1.5" strokeDasharray="6 5" />
 
-      {/* Pitch */}
       <rect x="118" y="86" width="360" height="96" rx="4" fill="url(#recPlanPitch2)" stroke="rgba(255,255,255,0.14)" />
       <line x1="92" y1="134" x2="470" y2="134" stroke="rgba(182,242,74,0.35)" strokeWidth="1.5" strokeDasharray="5 6" />
 
-      {/* Both sets of stumps, ringed */}
       <circle cx="138" cy="134" r="18" fill="none" stroke="rgba(182,242,74,0.6)" strokeWidth="1.8" />
       <circle cx="458" cy="134" r="18" fill="none" stroke="rgba(182,242,74,0.6)" strokeWidth="1.8" />
       {[126, 134, 142].map((y) => (
@@ -168,13 +167,11 @@ function BallFlightCameraDiagram() {
         <circle key={`f${y}`} cx="458" cy={y} r="3.2" fill="rgba(246,249,247,0.9)" />
       ))}
 
-      {/* Caption badge */}
       <rect x="158" y="30" width="228" height="30" rx="15" fill="rgba(5,9,10,0.85)" stroke="rgba(182,242,74,0.35)" />
       <text x="272" y="50" textAnchor="middle" fill="#b6f24a" fontSize="14" fontWeight="700">
         both sets of stumps in shot
       </text>
 
-      {/* Camera behind the non-striker's end */}
       <circle cx="93" cy="134" r="3.5" fill="#b6f24a" />
       <rect x="34" y="115" width="58" height="38" rx="7" fill="#0b1113" stroke="#b6f24a" strokeWidth="2" />
       <rect x="41" y="121" width="44" height="26" rx="3" fill="rgba(182,242,74,0.14)" />
@@ -187,8 +184,10 @@ function BallFlightCameraDiagram() {
     </svg>
   )
 }
+*/
 
-/** Elevation: what the frame should hold, and how high to hold the phone. */
+// TODO: For Future — elevation framing diagram (framing section)
+/*
 function FramingDiagram() {
   return (
     <svg
@@ -208,7 +207,6 @@ function FramingDiagram() {
         WHOLE BODY IN FRAME
       </text>
 
-      {/* The video frame */}
       <rect x="40" y="48" width="344" height="193" rx="8" fill="rgba(182,242,74,0.03)" stroke="rgba(182,242,74,0.5)" strokeWidth="2" strokeDasharray="8 6" />
       {[
         [40, 48, 1, 1],
@@ -226,10 +224,8 @@ function FramingDiagram() {
         />
       ))}
 
-      {/* Ground */}
       <line x1="52" y1="214" x2="372" y2="214" stroke="rgba(246,249,247,0.25)" strokeWidth="1.5" />
 
-      {/* Bowler in the delivery stride */}
       <g stroke="url(#recBone)" strokeWidth="4" strokeLinecap="round" fill="none">
         <path d="M172 120 L218 117" />
         <path d="M172 120 L152 100 L146 76" />
@@ -254,7 +250,6 @@ function FramingDiagram() {
       ))}
       <circle cx="146" cy="70" r="6.5" fill="#b91c1c" stroke="#f6f2e6" strokeWidth="1.2" />
 
-      {/* Camera height */}
       <line x1="252" y1="157" x2="404" y2="157" stroke="rgba(182,242,74,0.5)" strokeWidth="1.6" strokeDasharray="6 5" />
       <rect x="268" y="145" width="98" height="26" rx="13" fill="rgba(5,9,10,0.85)" stroke="rgba(182,242,74,0.35)" />
       <text x="317" y="163" textAnchor="middle" fill="#b6f24a" fontSize="14" fontWeight="700">
@@ -270,6 +265,7 @@ function FramingDiagram() {
     </svg>
   )
 }
+*/
 
 /* ===========================================================================
    Content
@@ -294,6 +290,8 @@ const ACTION_NOTES = [
   },
 ]
 
+// TODO: For Future — ball-flight filming notes (framing section)
+/*
 const FLIGHT_NOTES = [
   {
     title: 'Behind the non-striker',
@@ -308,6 +306,7 @@ const FLIGHT_NOTES = [
     body: 'Bowler’s run-up first, safety always. Set the phone on a bag or a stump-height stand rather than standing in the line yourself.',
   },
 ]
+*/
 
 const DOS_AND_DONTS = [
   {
