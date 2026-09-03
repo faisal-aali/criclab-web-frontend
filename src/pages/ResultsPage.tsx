@@ -47,7 +47,9 @@ function ReliabilityBanner({ data }: { data: Delivery }) {
     accent = 'text-bad'
     msg =
       (viewNote || 'This camera angle cannot yield a truthful km/h.') +
-      ' Film side-on for Action, or use Ball flight (behind the bowler, both wickets) for ICC-style speed.'
+      ' Film side-on for Action.'
+      // TODO: For Future
+      // ' Film side-on for Action, or use Ball flight (behind the bowler, both wickets) for ICC-style speed.'
   } else if (poseOk && calibrated && ballOk) {
     tone = 'border-ok/30 bg-ok/10'
     dot = 'bg-ok'
@@ -57,13 +59,17 @@ function ReliabilityBanner({ data }: { data: Delivery }) {
         ? 'The body read as an angled camera, but the tracked ball crosses the image — speeds come from that flight and are still a flat-image floor. '
         : 'Body mechanics from this clip. Speeds come from the body and ball in frame plus your height. ') +
       (slowMo ? 'Capture rate was recovered from the ball’s fall. ' : '') +
-      'Bowling style (spin/pace) is coaching only, not a speed lookup. For broadcast-style speed, line and length, use Ball flight.'
+      'Bowling style (spin/pace) is coaching only, not a speed lookup.'
+      // TODO: For Future
+      // 'For broadcast-style speed, line and length, use Ball flight.'
   } else if (poseOk && calibrated && !ballOk) {
     tone = 'border-warn/30 bg-warn/10'
     dot = 'bg-warn'
     accent = 'text-warn'
     msg =
-      'Height scale is in use for arm speed and release height. Ball km/h needs a visible in-air path. For ICC-style speed, line and length, use Ball flight.'
+      'Height scale is in use for arm speed and release height. Ball km/h needs a visible in-air path.'
+      // TODO: For Future
+      // 'Ball km/h needs a visible in-air path. For broadcast-style speed, line and length, use Ball flight.'
   } else if (poseOk && !calibrated) {
     tone = 'border-warn/30 bg-warn/10'
     dot = 'bg-warn'
@@ -292,9 +298,10 @@ export function ResultsPage({ deliveryId: deliveryIdProp }: { deliveryId?: strin
               <Link to="/app/action" className={APP_LINK}>
                 New Action clip
               </Link>
-              <Link to="/app/ball-flight" className={APP_LINK}>
+              {/* TODO: For Future */}
+              {/* <Link to="/app/ball-flight" className={APP_LINK}>
                 Ball flight
-              </Link>
+              </Link> */}
             </>
           ) : null}
           {pdfHref ? (
