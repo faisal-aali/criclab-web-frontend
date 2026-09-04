@@ -26,9 +26,11 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-017 | Train / drills | Done | Closed YouTube catalog + DrillShelf + `/train` library |
 | FEAT-031 | **Daily video quota** | Done | Processing page shows expected start; cancel queued clips |
 | FEAT-034 | **Action clip gates** | Done | 120/240 fps, landscape 1080p, ≤10 s, ≤100 MB, MP4/MOV before upload |
+| FEAT-035 | **Action in-app trim** | Done | Lossless mp4box sample copy on Action upload (always offered when duration is readable) |
 
 ## Change log
 
+- **4 Sep 2026 (FEAT-035):** Action upload always offers in-browser trim when duration is readable (not only when size/duration fail). mp4box sample copy, no re-encode. 4K still fails the 100 MB cap if a few seconds is already too heavy.
 - **4 Sep 2026 (FEAT-034):** Action upload requires tagged 120/240 fps, landscape 1080p, ≤10 s, ≤100 MB, MP4/MOV. Ball flight unchanged.
 - Initial greenfield build under `CricLabMLReview` with working upload → analysis → PDF path
 - Replaced Notera Memory Bank with Cric-Lab product context

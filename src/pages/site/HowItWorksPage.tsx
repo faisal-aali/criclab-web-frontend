@@ -148,7 +148,7 @@ const FILMING = [
   },
   {
     t: 'One delivery per clip',
-    d: 'Trim to a single ball, 10 seconds or less, under 100 MB. A whole over in one file is rejected.',
+    d: 'Trim to a single ball, 10 seconds or less, under 100 MB. The Action upload page can cut any clip in the browser without re-encoding. A whole over in one file is rejected until you trim it.',
   },
   {
     t: 'Slow-mo 120 or 240 fps',
@@ -181,7 +181,7 @@ const FAQS = [
   },
   {
     q: 'Can I upload a whole over or a full net session?',
-    a: 'Upload one delivery at a time. A single ball, trimmed from the last strides of the run-up to the end of the follow-through, gives the cleanest read and keeps your session list easy to compare ball by ball.',
+    a: 'Upload one delivery at a time. A single ball, trimmed from the last strides of the run-up to the end of the follow-through, gives the cleanest read. Trim on the Action upload page whenever you want a tighter cut — including clips that already fit 10 s / 100 MB. That cut copies the original frames and does not re-encode.',
   },
   {
     q: 'Does it work for spinners as well as seamers?',

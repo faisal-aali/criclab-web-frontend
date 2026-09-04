@@ -128,7 +128,7 @@ const GETTING_STARTED = [
 const FILMING = [
   {
     q: 'What footage actually works best?',
-    a: 'Side-on, roughly level with the crease, camera about waist height, and the whole body in frame from a couple of strides before the jump through to the follow-through. Keep the phone steady — a small tripod or a mate who will not flinch — film in landscape 1080p or higher, and use the phone’s slow-mo at 120 or 240 fps. Clips must be a single delivery, 10 seconds or less, under 100 MB, as an MP4 or MOV. Standard 30 or 60 fps files are rejected. Good light beats good kit every time.',
+    a: 'Side-on, roughly level with the crease, camera about waist height, and the whole body in frame from a couple of strides before the jump through to the follow-through. Keep the phone steady — a small tripod or a mate who will not flinch — film in landscape 1080p or higher, and use the phone’s slow-mo at 120 or 240 fps. Clips must be a single delivery, 10 seconds or less, under 100 MB, as an MP4 or MOV. Standard 30 or 60 fps files are rejected. You can trim any take on the Action upload page (lossless — it does not re-encode). A short 4K 240 fps file can still miss 100 MB; shoot 1080p if size is the issue. Good light beats good kit every time.',
   },
   {
     q: 'Indoor nets or outdoors — does it matter?',
@@ -152,7 +152,7 @@ const FILMING = [
   },
   {
     q: 'One ball per clip, or a whole over?',
-    a: 'One ball per clip is cleanest and easiest to compare later. If you film a whole over in one take, trim it down before uploading — a tight clip of a single delivery is read more reliably than a long one where the bowler walks back twice.',
+    a: 'One ball per clip is cleanest and easiest to compare later. If you film a whole over in one take, trim it on the Action upload page — that cut copies the original frames, with no re-encode. A tight clip of a single delivery is read more reliably than a long one where the bowler walks back twice.',
   },
 ]
 

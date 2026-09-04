@@ -370,7 +370,7 @@ const SETTINGS = [
   {
     tag: 'Length',
     title: 'One delivery, 10 seconds or less',
-    body: 'Start recording as the bowler turns at the top of the mark, stop after the follow-through. Six seconds is plenty; anything over ten is rejected. Keep the file under 100 MB — shoot 1080p 120/240, not 4K, if size is the problem.',
+    body: 'Start recording as the bowler turns at the top of the mark, stop after the follow-through. Six seconds is plenty; anything over ten is rejected unless you trim it on the Action upload page. You can trim any take there — even a clip that already fits — to isolate one delivery. Keep the file under 100 MB — shoot 1080p 120/240, not 4K, if size is the problem. Trimming copies frames; it cannot shrink a short 4K clip that is already over 100 MB.',
   },
   {
     tag: 'File',
@@ -428,7 +428,7 @@ const TROUBLESHOOTING = [
   },
   {
     q: 'My clip is very large',
-    a: 'Trim it before you upload, and shoot 1080p 120/240 rather than 4K. The Action cap is 100 MB and 10 seconds. Most phones let you drag the ends of a clip in the photo gallery — cut it to the single delivery. Do not re-export as 30 fps to shrink the file; that file will be rejected.',
+    a: 'Trim it on the Action upload page — we copy the original frames, no re-encode, so fps and quality stay the same. The cap is still 100 MB and 10 seconds. A few seconds of 4K 240 fps can still be over 100 MB; shoot 1080p 120/240 if size is the problem. Do not re-export as 30 fps to shrink the file; that file will be rejected.',
   },
   {
     q: 'My phone only shoots 30fps',

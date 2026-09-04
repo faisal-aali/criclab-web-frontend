@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { uploadVideo, type ClipUploadProgress } from '../api/client'
+import { ActionTrimPanel } from '../components/app/ActionTrimPanel'
 import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
 import { useProcessingJobs } from '../components/app/ProcessingJobs'
 import { evaluateClip, RULES, type ClipVerdict } from '../lib/clipSpec'
 import { inspectActionClip } from '../lib/probeClip'
+import { shouldOfferActionTrim, trimClip } from '../lib/trimClip'
 import { Backdrop, Button, Card, Chip, Eyebrow, Reveal, TiltCard } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
@@ -24,6 +26,7 @@ const WHY_FIELDS = [
 const FILMING = [
   'Side-on camera, tripod or stable phone',
   'Landscape 1080p, tagged 120 or 240 fps slow-mo, one delivery ≤10 s, under 100 MB',
+  'Trim on this page to one delivery — we copy the original frames, no re-encode. Short 4K 240 fps can still be too heavy; shoot 1080p.',
   'Full body in frame from run-up through follow-through',
   'Ball visible in the air after it leaves the hand (needed for a ball-speed estimate)',
 ]
@@ -60,11 +63,80 @@ function loadProfile(): SavedProfile {
   }
 }
 
+function formatClock(s: number): string {
+  const t = Math.max(0, s)
+  const m = Math.floor(t / 60)
+  const sec = t - m * 60
+  return `${m}:${sec.toFixed(1).padStart(4, '0')}`
+}
+
+function ClipPreview({
+  src,
+  startS,
+  endS,
+  label,
+}: {
+  src: string
+  startS?: number
+  endS?: number
+  label: string
+}) {
+  const ref = useRef<HTMLVideoElement | null>(null)
+  const windowed = startS != null && endS != null && endS > startS
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const start = startS ?? 0
+    const end = endS
+    const seekIn = () => {
+      if (!windowed) return
+      if (el.currentTime + 0.12 < start) el.currentTime = start
+    }
+    const onTime = () => {
+      if (!windowed || end == null) return
+      if (el.currentTime >= end - 0.05) {
+        el.pause()
+        el.currentTime = start
+      }
+    }
+    seekIn()
+    el.addEventListener('loadedmetadata', seekIn)
+    el.addEventListener('loadeddata', seekIn)
+    el.addEventListener('timeupdate', onTime)
+    el.addEventListener('seeking', seekIn)
+    return () => {
+      el.removeEventListener('loadedmetadata', seekIn)
+      el.removeEventListener('loadeddata', seekIn)
+      el.removeEventListener('timeupdate', onTime)
+      el.removeEventListener('seeking', seekIn)
+    }
+  }, [src, startS, endS, windowed])
+
+  return (
+    <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-night">
+      <div className="border-b border-white/10 bg-white/[0.04] px-3 py-2">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-chalk/50">{label}</p>
+        {windowed && startS != null && endS != null ? (
+          <p className="mt-1 text-[11px] font-medium leading-snug text-chalk/55">
+            Playing {formatClock(startS)}–{formatClock(endS)} of the original (
+            {(endS - startS).toFixed(1)} s). Analyze still uploads the trimmed file.
+          </p>
+        ) : null}
+      </div>
+      <video ref={ref} className="aspect-video w-full object-contain" src={src} controls playsInline preload="metadata" />
+    </div>
+  )
+}
+
 export function UploadPage() {
   const navigate = useNavigate()
   const { trackJob } = useProcessingJobs()
   const [file, setFile] = useState<File | null>(null)
+  const [sourceFile, setSourceFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
+  const [sourcePreviewUrl, setSourcePreviewUrl] = useState('')
+  const [sourceDurationS, setSourceDurationS] = useState<number | null>(null)
   const [profile, setProfile] = useState<SavedProfile>(emptyProfile)
   const [metersPerPixel, setMetersPerPixel] = useState('')
   const [busy, setBusy] = useState(false)
@@ -72,6 +144,10 @@ export function UploadPage() {
   const [error, setError] = useState<string | null>(null)
   const [clipChecking, setClipChecking] = useState(false)
   const [clipVerdict, setClipVerdict] = useState<ClipVerdict | null>(null)
+  const [trimBusy, setTrimBusy] = useState(false)
+  const [trimError, setTrimError] = useState<string | null>(null)
+  const [trimWindow, setTrimWindow] = useState<{ startS: number; endS: number } | null>(null)
+  const [trimOpen, setTrimOpen] = useState(false)
   const probeGen = useRef(0)
 
   useEffect(() => {
@@ -87,6 +163,16 @@ export function UploadPage() {
     setPreviewUrl(url)
     return () => URL.revokeObjectURL(url)
   }, [file])
+
+  useEffect(() => {
+    if (!sourceFile) {
+      setSourcePreviewUrl('')
+      return
+    }
+    const url = URL.createObjectURL(sourceFile)
+    setSourcePreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [sourceFile])
 
   const heightM = useMemo(() => {
     const ft = Number(profile.heightFt)
@@ -111,30 +197,45 @@ export function UploadPage() {
   if (!['pace', 'spin', 'medium'].includes(profile.bowlingStyle)) blockers.push('bowling style')
   if (!file) blockers.push('a bowling video')
   else if (clipChecking) blockers.push('the clip check to finish')
+  else if (trimBusy) blockers.push('the trim to finish')
   else if (clipVerdict && !clipVerdict.ok) blockers.push('a clip that meets 120/240 fps, 1080p, 10 s, 100 MB')
 
   const ready = blockers.length === 0
   const clipOk = Boolean(file && clipVerdict?.ok && !clipChecking)
+  const canTrim = Boolean(sourceFile && sourcePreviewUrl && shouldOfferActionTrim(sourceDurationS))
+  const trimRequired = Boolean(
+    clipVerdict && (clipVerdict.failed.has('size') || clipVerdict.failed.has('duration')),
+  )
+  const showTrimPanel = Boolean(canTrim && (trimRequired || trimOpen || trimBusy))
+  const previewingTrimmed = Boolean(sourceFile && file && file !== sourceFile)
 
   function setField<K extends keyof SavedProfile>(key: K, value: SavedProfile[K]) {
     setProfile((p) => ({ ...p, [key]: value }))
   }
 
-  async function onPickClip(next: File | null) {
+  async function onPickClip(next: File | null, opts?: { fromTrim?: boolean }) {
     probeGen.current += 1
     const gen = probeGen.current
     setFile(next)
     setClipVerdict(null)
     setError(null)
+    if (!opts?.fromTrim) {
+      setSourceFile(next)
+      setSourceDurationS(null)
+      setTrimError(null)
+      setTrimWindow(null)
+      setTrimOpen(false)
+    }
     if (!next) {
       setClipChecking(false)
       return
     }
     setClipChecking(true)
     try {
-      const { verdict } = await inspectActionClip(next)
+      const { probe, verdict } = await inspectActionClip(next)
       if (gen !== probeGen.current) return
       setClipVerdict(verdict)
+      if (!opts?.fromTrim) setSourceDurationS(probe.durationS)
     } catch {
       if (gen !== probeGen.current) return
       setClipVerdict(
@@ -156,6 +257,21 @@ export function UploadPage() {
     }
   }
 
+  async function onApplyTrim(startS: number, endS: number) {
+    if (!sourceFile) return
+    setTrimBusy(true)
+    setTrimError(null)
+    try {
+      const trimmed = await trimClip(sourceFile, startS, endS)
+      setTrimWindow({ startS, endS })
+      await onPickClip(trimmed, { fromTrim: true })
+    } catch (err) {
+      setTrimError(err instanceof Error ? err.message : 'Could not trim this clip.')
+    } finally {
+      setTrimBusy(false)
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (!file) {
@@ -172,9 +288,9 @@ export function UploadPage() {
     }
     setBusy(true)
     setError(null)
-    setUploadProgress({ phase: 'upload', loaded: 0, total: file.size || 1 })
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(profile))
+      setUploadProgress({ phase: 'upload', loaded: 0, total: file.size || 1 })
       const res = await uploadVideo(
         {
           file,
@@ -218,16 +334,17 @@ export function UploadPage() {
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-chalk/65">
           Body mechanics from a <span className="font-semibold text-chalk">side-on</span> clip. Ball
-          km/h here is estimated from one camera view plus your height — not a speed gun. For
-          broadcast-style speed, line and length, use{' '}
+          km/h here is estimated from one camera view plus your height — not a speed gun.
+          {/* TODO:For Future. For broadcast-style speed, line and length, use
           <Link
             className="font-semibold text-lime underline decoration-lime/40 underline-offset-4 transition hover:text-chalk"
             to="/app/ball-flight"
           >
             Ball flight
           </Link>
-          .
+          . */}
         </p>
+   
         <div className="flex flex-wrap items-center gap-2">
           <Chip tone="lime">Side-on camera</Chip>
           <Chip>One delivery</Chip>
@@ -443,7 +560,8 @@ export function UploadPage() {
                 {file ? file.name : 'Drop your clip here, or tap to browse'}
               </span>
               <span className="text-[11px] text-chalk/45">
-                MP4 or MOV · landscape 1080p · 120 or 240 fps · ≤10 s · ≤100 MB
+                MP4 or MOV · landscape 1080p · 120 or 240 fps · ≤10 s · ≤100 MB. Trim any clip
+                here — original frames, no re-encode.
               </span>
             </div>
 
@@ -484,13 +602,50 @@ export function UploadPage() {
               </ul>
             ) : null}
 
-            {previewUrl ? (
-              <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-night">
-                <p className="border-b border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-chalk/50">
-                  Before · your upload
-                </p>
-                <video className="aspect-video w-full object-contain" src={previewUrl} controls playsInline />
-              </div>
+            {canTrim && !trimRequired ? (
+              <button
+                type="button"
+                className="mt-4 flex w-full items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-left text-sm font-semibold text-chalk/80 transition hover:border-lime/30 hover:text-lime"
+                aria-expanded={showTrimPanel}
+                onClick={() => setTrimOpen((open) => !open)}
+              >
+                Trim (optional)
+                <span
+                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/15 text-base leading-none text-lime transition-transform duration-300 ${
+                    showTrimPanel ? 'rotate-45' : ''
+                  }`}
+                  aria-hidden
+                >
+                  +
+                </span>
+              </button>
+            ) : null}
+
+            {showTrimPanel && sourceFile && sourceDurationS != null ? (
+              <ActionTrimPanel
+                previewUrl={sourcePreviewUrl}
+                durationS={sourceDurationS}
+                sourceBytes={sourceFile.size}
+                sourceKey={`${sourceFile.name}-${sourceFile.size}-${sourceFile.lastModified}`}
+                busy={trimBusy || clipChecking}
+                required={trimRequired}
+                applied={trimWindow}
+                error={trimError}
+                onApply={(start, end) => void onApplyTrim(start, end)}
+              />
+            ) : null}
+
+            {!showTrimPanel && previewingTrimmed && sourcePreviewUrl ? (
+              <ClipPreview
+                src={sourcePreviewUrl}
+                startS={trimWindow?.startS}
+                endS={trimWindow?.endS}
+                label={trimWindow ? 'Trimmed window · review the cut' : 'Original · review before Analyze'}
+              />
+            ) : null}
+
+            {previewUrl && !showTrimPanel && !previewingTrimmed ? (
+              <ClipPreview src={previewUrl} label="Before · your upload" />
             ) : null}
           </div>
 
@@ -530,7 +685,7 @@ export function UploadPage() {
             </p>
           ) : null}
 
-          <Button type="submit" size="lg" disabled={busy || !ready} className="mt-5 w-full">
+          <Button type="submit" size="lg" disabled={busy || trimBusy || !ready} className="mt-5 w-full">
             {busy
               ? uploadProgress?.phase === 'upload'
                 ? 'Uploading clip…'
@@ -563,7 +718,8 @@ export function UploadPage() {
           </TiltCard>
           </Reveal>
 
-          <Reveal delay={90}>
+          {/* TODO: For Future */}
+          {/* <Reveal delay={90}>
           <Card interactive={false} className="p-5 ring-1 ring-warn/25">
             <p className="font-display text-base font-bold text-warn">Two cameras, two truths</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk/65">
@@ -572,7 +728,7 @@ export function UploadPage() {
               clip filmed for mechanics.
             </p>
           </Card>
-          </Reveal>
+          </Reveal> */}
 
           <Reveal delay={180}>
           <TiltCard>

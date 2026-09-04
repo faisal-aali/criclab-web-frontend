@@ -21,8 +21,15 @@ The UI never invents km/h, angles, or drill YouTube IDs. Display what the API re
 Action (`/app/action`) refuses the file **before** S3 unless it is `.mp4`/`.mov`,
 landscape 1080p (short side ≥ 1080), tagged container **120 or 240 fps** (±3;
 not 30/60/480/960), ≤10 s, ≤100 MiB. Probe: `src/lib/probeClip.ts` (mp4box;
-HTML `<video>` is display fallback only — never invent fps). Ball flight
-upload is unchanged. Spec KEEP IN SYNC with both Python `clip_spec.py` files.
+HTML `<video>` is display fallback only — never invent fps). Lossless trim
+(`src/lib/trimClip.ts`) is always *available* when duration is readable: mp4box
+sample copy, RAP snap, window ≤10 s, no ffmpeg.wasm. If **size** or **duration**
+fails, the trim panel stays open until Apply produces a fitting clip. If the
+clip already passes, a **Trim (optional)** control discloses the same panel.
+A short 4K clip over 100 MB still fails — trim only cuts time. After Apply, the
+player in the trim panel is the **original**; Analyze uploads `_trim.mp4`. Trim
+window end uses requested `endS`, not mp4box `seek().time`. Ball flight upload
+is unchanged. Spec KEEP IN SYNC with both Python `clip_spec.py` files.
 
 ## Truth contract (UI)
 

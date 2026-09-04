@@ -201,7 +201,7 @@ export function AdminDashboardPage() {
                 <BarList
                   rows={[
                     { label: 'Action', value: data.videos.by_pipeline.action },
-                    { label: 'Ball flight', value: data.videos.by_pipeline.ball_flight, tone: '#d9743c' },
+                    // TODO: For Future — both pipelines: { label: 'Ball flight', value: data.videos.by_pipeline.ball_flight, tone: '#d9743c' },
                   ]}
                 />
               </Card>
