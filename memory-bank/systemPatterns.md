@@ -16,6 +16,14 @@ The UI never invents km/h, angles, or drill YouTube IDs. Display what the API re
 | **Action** | `/app/action` | Side-on full-body | Mechanics from pose. Ball km/h only when backend status is ok. |
 | **Ball flight** | `/ball-flight` | Behind non-striker + both stumps | Pitch-plane speed / line / length. Separate job — never paste onto Action. |
 
+## Action clip gates (upload)
+
+Action (`/app/action`) refuses the file **before** S3 unless it is `.mp4`/`.mov`,
+landscape 1080p (short side ≥ 1080), tagged container **120 or 240 fps** (±3;
+not 30/60/480/960), ≤10 s, ≤100 MiB. Probe: `src/lib/probeClip.ts` (mp4box;
+HTML `<video>` is display fallback only — never invent fps). Ball flight
+upload is unchanged. Spec KEEP IN SYNC with both Python `clip_spec.py` files.
+
 ## Truth contract (UI)
 
 - Metric cards gate on `metricReady` in `src/api/client.ts`: `value != null` AND `status === 'ok'`

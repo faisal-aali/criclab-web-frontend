@@ -72,7 +72,7 @@ const QUICK_ANSWERS = [
   },
   {
     q: 'Seamers or spinners?',
-    a: 'Both. Film a spinner closer and at the highest frame rate you have.',
+    a: 'Both. Film a spinner closer, in landscape 1080p, at 120 or 240 fps slow-mo.',
     tag: 'Bowling',
   },
   {
@@ -113,7 +113,7 @@ const GETTING_STARTED = [
   },
   {
     q: 'Does it work for spinners as well as seamers?',
-    a: 'Yes. The delivery is broken into the same phases and the arm path reads the same way whichever pace you bowl at. The one difference is wrist detail: a leg-break and a googly separate over a handful of frames, so film a spinner a little closer and at the highest frame rate your phone offers.',
+    a: 'Yes. The delivery is broken into the same phases and the arm path reads the same way whichever pace you bowl at. The one difference is wrist detail: a leg-break and a googly separate over a handful of frames, so film a spinner a little closer in 120 or 240 fps slow-mo.',
   },
   {
     q: 'Can I analyse batting or fielding too?',
@@ -128,7 +128,7 @@ const GETTING_STARTED = [
 const FILMING = [
   {
     q: 'What footage actually works best?',
-    a: 'Side-on, roughly level with the crease, camera about waist height, and the whole body in frame from a couple of strides before the jump through to the follow-through. Keep the phone steady — a small tripod or a mate who will not flinch — film in landscape, and use 60 frames per second or better. Good light beats good kit every time.',
+    a: 'Side-on, roughly level with the crease, camera about waist height, and the whole body in frame from a couple of strides before the jump through to the follow-through. Keep the phone steady — a small tripod or a mate who will not flinch — film in landscape 1080p or higher, and use the phone’s slow-mo at 120 or 240 fps. Clips must be a single delivery, 10 seconds or less, under 100 MB, as an MP4 or MOV. Standard 30 or 60 fps files are rejected. Good light beats good kit every time.',
   },
   {
     q: 'Indoor nets or outdoors — does it matter?',
@@ -372,7 +372,7 @@ export function FaqPage() {
                   {[
                     'Camera level with the crease, waist height',
                     'Whole body in frame, landscape',
-                    '60 frames per second or better',
+                    '120 or 240 fps slow-mo (not 30/60)',
                     'The ball pitching kept in shot',
                   ].map((t) => (
                     <li key={t} className="flex items-start gap-3 text-sm text-chalk/70">

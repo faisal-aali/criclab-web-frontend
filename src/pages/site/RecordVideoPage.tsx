@@ -349,13 +349,13 @@ const DOS_AND_DONTS = [
 const SETTINGS = [
   {
     tag: 'Frame rate',
-    title: 'The highest your phone offers',
-    body: 'Slow-motion is ideal — 120 or 240 fps if it is there. The faster the capture, the more of the arm coming over survives on screen instead of smearing into one frame.',
+    title: '120 or 240 fps slow-mo',
+    body: 'Action only accepts clips tagged 120 or 240 fps. Turn on the phone’s slow-motion mode and keep that file — do not re-export as 30 fps or “Most Compatible”. 30, 60, 480 and 960 fps are rejected.',
   },
   {
     tag: 'Orientation',
-    title: 'Landscape',
-    body: 'Turn the phone sideways. A bowler in the delivery stride is a wide shape, and portrait cuts off exactly the bits that matter.',
+    title: 'Landscape 1080p',
+    body: 'Turn the phone sideways. The short side of the frame must be at least 1080 pixels (1920×1080 or 4K). Portrait is rejected.',
   },
   {
     tag: 'Focus',
@@ -369,8 +369,13 @@ const SETTINGS = [
   },
   {
     tag: 'Length',
-    title: 'One delivery per clip',
-    body: 'Start recording as the bowler turns at the top of the mark, stop after the follow-through. Six seconds is plenty.',
+    title: 'One delivery, 10 seconds or less',
+    body: 'Start recording as the bowler turns at the top of the mark, stop after the follow-through. Six seconds is plenty; anything over ten is rejected. Keep the file under 100 MB — shoot 1080p 120/240, not 4K, if size is the problem.',
+  },
+  {
+    tag: 'File',
+    title: 'MP4 or MOV',
+    body: 'Upload the camera-roll original. WebM, AVI and MKV are not accepted for Action.',
   },
   {
     tag: 'Release',
@@ -388,7 +393,7 @@ const STEPS = [
   {
     n: '02',
     title: 'Set the phone',
-    body: 'Slow-motion on, landscape, lens wiped. Prop it at waist height on a kit bag or a stand so nobody has to hold it steady.',
+    body: 'Slow-motion on at 120 or 240 fps, landscape 1080p, lens wiped. Prop it at waist height on a kit bag or a stand so nobody has to hold it steady.',
   },
   {
     n: '03',
@@ -415,19 +420,19 @@ const STEPS = [
 const TROUBLESHOOTING = [
   {
     q: 'The ball is a blur',
-    a: 'That is a light and shutter problem, not a you problem. Move to the brightest part of the ground, switch to the highest frame rate your phone has, and if it offers a slow-motion mode use that instead of standard video. Indoors, a blurred ball usually means the nets are simply too dark for the phone to freeze it.',
+    a: 'That is a light and shutter problem, not a you problem. Move to the brightest part of the ground and use 120 or 240 fps slow-mo — standard video will not upload. Indoors, a blurred ball usually means the nets are simply too dark for the phone to freeze it.',
   },
   {
     q: 'Indoor nets are dark',
-    a: 'Get everything you can on your side: film down the lit lane rather than across it, keep the bowler between you and the brightest lights, and pick a lane whose back netting is dark so the ball stands out. Slow-motion in a dim hall can look worse than normal video — if the clip comes out murky, drop back to the standard frame rate and keep the light instead.',
+    a: 'Get everything you can on your side: film down the lit lane rather than across it, keep the bowler between you and the brightest lights, and pick a lane whose back netting is dark so the ball stands out. If slow-mo in a dim hall comes out murky, add light — do not drop to 30 or 60 fps; those clips are rejected.',
   },
   {
     q: 'My clip is very large',
-    a: 'Trim it before you upload. Most phones let you drag the ends of a clip in the photo gallery — cut it to the single delivery and the file usually shrinks to a fraction of the size. Six seconds at the highest frame rate beats a two-minute over at a lower one, every time.',
+    a: 'Trim it before you upload, and shoot 1080p 120/240 rather than 4K. The Action cap is 100 MB and 10 seconds. Most phones let you drag the ends of a clip in the photo gallery — cut it to the single delivery. Do not re-export as 30 fps to shrink the file; that file will be rejected.',
   },
   {
     q: 'My phone only shoots 30fps',
-    a: 'You will still get a read. The fastest part of the action — the arm coming over and the moment of release — is thinner on screen at 30fps, so expect release timings to come back with lower confidence and treat ball speed as a guide rather than a gun reading. Everything about the run-up, the stride and the follow-through holds up fine.',
+    a: 'Action will not accept 30 or 60 fps. Use a phone that can record slow-motion at 120 or 240 fps, keep that original file, and do not export it as “Most Compatible” 30 fps. Until then, the clip will be rejected on upload.',
   },
   {
     q: 'The bowler is left-arm',
@@ -521,10 +526,10 @@ export function RecordVideoPage() {
                   <Stat value={8} suffix="–12 m" label="Camera distance" tone="light" />
                 </Reveal>
                 <Reveal delay={160}>
-                  <Stat value={240} suffix=" fps" label="Ideal frame rate" tone="light" />
+                  <Stat value={240} suffix=" fps" label="Required slow-mo" tone="light" />
                 </Reveal>
                 <Reveal delay={240}>
-                  <Stat value={6} suffix=" sec" label="Clip length" tone="light" />
+                  <Stat value={10} suffix=" sec" label="Maximum clip length" tone="light" />
                 </Reveal>
               </div>
               <Reveal delay={300}>

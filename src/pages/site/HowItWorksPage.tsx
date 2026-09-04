@@ -148,7 +148,11 @@ const FILMING = [
   },
   {
     t: 'One delivery per clip',
-    d: 'Trim to a single ball. A whole over in one file makes it harder to line deliveries up against each other later.',
+    d: 'Trim to a single ball, 10 seconds or less, under 100 MB. A whole over in one file is rejected.',
+  },
+  {
+    t: 'Slow-mo 120 or 240 fps',
+    d: 'Landscape 1080p MP4 or MOV, tagged 120 or 240 fps. Standard 30/60 fps and re-exported slow-mo are rejected.',
   },
   {
     t: 'Give it light',
@@ -173,7 +177,7 @@ const FAQS = [
   },
   {
     q: 'Do I need a high-speed camera?',
-    a: 'No. A recent phone at its normal setting is enough for the full report. If your phone shoots at 120 or 240 fps, use it — the release moment and the timing splits sharpen up — but it is an upgrade, not a requirement.',
+    a: 'You need the phone’s slow-motion mode at 120 or 240 fps. A normal 30 or 60 fps clip is rejected on upload. Landscape 1080p, one delivery of 10 seconds or less, under 100 MB, as an MP4 or MOV. You do not need a cinema camera — the slow-mo already in a recent phone is the requirement.',
   },
   {
     q: 'Can I upload a whole over or a full net session?',

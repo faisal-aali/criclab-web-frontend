@@ -154,9 +154,9 @@ const PRICING_FAQ = [
     q: 'Is a phone enough, or do I need a proper camera?',
     a: (
       <>
-        A recent phone filming side-on at 60 frames per second is enough for the full
-        read. A higher frame rate sharpens the timing splits, and better light helps
-        more than better kit does. The{' '}
+        A recent phone filming side-on in slow-mo at 120 or 240 fps, landscape
+        1080p, is what Action needs. Standard 30 or 60 fps clips are rejected.
+        Better light still helps more than a bigger camera. The{' '}
         <Link to="/record" className="font-semibold text-pitch dark:text-lime underline underline-offset-2">
           filming guide
         </Link>{' '}

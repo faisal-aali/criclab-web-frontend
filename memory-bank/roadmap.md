@@ -25,9 +25,11 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-019 | **Delivery type & throwing screen** | Done | Pace band + ICC 15° screening cards; `—` unless backend status is ok |
 | FEAT-017 | Train / drills | Done | Closed YouTube catalog + DrillShelf + `/train` library |
 | FEAT-031 | **Daily video quota** | Done | Processing page shows expected start; cancel queued clips |
+| FEAT-034 | **Action clip gates** | Done | 120/240 fps, landscape 1080p, ≤10 s, ≤100 MB, MP4/MOV before upload |
 
 ## Change log
 
+- **4 Sep 2026 (FEAT-034):** Action upload requires tagged 120/240 fps, landscape 1080p, ≤10 s, ≤100 MB, MP4/MOV. Ball flight unchanged.
 - Initial greenfield build under `CricLabMLReview` with working upload → analysis → PDF path
 - Replaced Notera Memory Bank with Cric-Lab product context
 - **SpinLab-parity rebuild:** switched the measurement engine from ball tracking

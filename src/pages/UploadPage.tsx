@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { uploadVideo, type ClipUploadProgress } from '../api/client'
 import { ClipUploadOverlay } from '../components/app/ClipUploadOverlay'
 import { useProcessingJobs } from '../components/app/ProcessingJobs'
+import { evaluateClip, RULES, type ClipVerdict } from '../lib/clipSpec'
+import { inspectActionClip } from '../lib/probeClip'
 import { Backdrop, Button, Card, Chip, Eyebrow, Reveal, TiltCard } from '../components/site/ui'
 
 const PROFILE_KEY = 'criclab.playerProfile'
@@ -21,6 +23,7 @@ const WHY_FIELDS = [
 
 const FILMING = [
   'Side-on camera, tripod or stable phone',
+  'Landscape 1080p, tagged 120 or 240 fps slow-mo, one delivery ≤10 s, under 100 MB',
   'Full body in frame from run-up through follow-through',
   'Ball visible in the air after it leaves the hand (needed for a ball-speed estimate)',
 ]
@@ -67,6 +70,9 @@ export function UploadPage() {
   const [busy, setBusy] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<ClipUploadProgress | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [clipChecking, setClipChecking] = useState(false)
+  const [clipVerdict, setClipVerdict] = useState<ClipVerdict | null>(null)
+  const probeGen = useRef(0)
 
   useEffect(() => {
     setProfile(loadProfile())
@@ -104,17 +110,60 @@ export function UploadPage() {
   if (profile.bowlingArm !== 'left' && profile.bowlingArm !== 'right') blockers.push('bowling arm')
   if (!['pace', 'spin', 'medium'].includes(profile.bowlingStyle)) blockers.push('bowling style')
   if (!file) blockers.push('a bowling video')
+  else if (clipChecking) blockers.push('the clip check to finish')
+  else if (clipVerdict && !clipVerdict.ok) blockers.push('a clip that meets 120/240 fps, 1080p, 10 s, 100 MB')
 
   const ready = blockers.length === 0
+  const clipOk = Boolean(file && clipVerdict?.ok && !clipChecking)
 
   function setField<K extends keyof SavedProfile>(key: K, value: SavedProfile[K]) {
     setProfile((p) => ({ ...p, [key]: value }))
+  }
+
+  async function onPickClip(next: File | null) {
+    probeGen.current += 1
+    const gen = probeGen.current
+    setFile(next)
+    setClipVerdict(null)
+    setError(null)
+    if (!next) {
+      setClipChecking(false)
+      return
+    }
+    setClipChecking(true)
+    try {
+      const { verdict } = await inspectActionClip(next)
+      if (gen !== probeGen.current) return
+      setClipVerdict(verdict)
+    } catch {
+      if (gen !== probeGen.current) return
+      setClipVerdict(
+        evaluateClip({
+          filename: next.name,
+          sizeBytes: next.size,
+          durationS: null,
+          width: 0,
+          height: 0,
+          fps: null,
+          fpsUnreadable: true,
+          variableFrameRate: false,
+          hasVideoTrack: false,
+          rotationDeg: null,
+        }),
+      )
+    } finally {
+      if (gen === probeGen.current) setClipChecking(false)
+    }
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (!file) {
       setError('Choose a bowling video first.')
+      return
+    }
+    if (clipChecking || !clipVerdict?.ok) {
+      setError(clipVerdict?.errors[0] || 'Wait for the clip check, or pick a 120/240 fps landscape 1080p clip.')
       return
     }
     if (!ready) {
@@ -354,7 +403,15 @@ export function UploadPage() {
               <label className={LABEL} htmlFor="bowling-video">
                 Bowling video
               </label>
-              {file ? <Chip tone="ok">Clip selected</Chip> : null}
+              {clipChecking ? (
+                <Chip>Checking clip</Chip>
+              ) : clipOk ? (
+                <Chip tone="ok">Clip approved</Chip>
+              ) : file && clipVerdict && !clipVerdict.ok ? (
+                <Chip tone="bad">Clip rejected</Chip>
+              ) : file ? (
+                <Chip>Clip selected</Chip>
+              ) : null}
             </div>
 
             <div className="relative mt-2 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/[0.03] px-4 py-8 text-center transition hover:border-lime/50 hover:bg-lime/5 focus-within:border-lime/60">
@@ -362,9 +419,9 @@ export function UploadPage() {
                 id="bowling-video"
                 required
                 type="file"
-                accept="video/mp4,video/quicktime,video/webm,video/x-msvideo,.mp4,.mov,.webm,.avi,.mkv"
+                accept="video/mp4,video/quicktime,.mp4,.mov"
                 className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => void onPickClip(e.target.files?.[0] ?? null)}
               />
               <span className="grid h-11 w-11 place-items-center rounded-xl border border-lime/25 bg-lime/10 text-lime">
                 <svg
@@ -386,9 +443,46 @@ export function UploadPage() {
                 {file ? file.name : 'Drop your clip here, or tap to browse'}
               </span>
               <span className="text-[11px] text-chalk/45">
-                MP4, MOV, or WebM · one delivery, side-on
+                MP4 or MOV · landscape 1080p · 120 or 240 fps · ≤10 s · ≤100 MB
               </span>
             </div>
+
+            {file ? (
+              <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
+                {RULES.map((rule) => {
+                  const failed = clipVerdict?.failed.has(rule.id) ?? false
+                  const pending = clipChecking || !clipVerdict
+                  return (
+                    <li
+                      key={rule.id}
+                      className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-[11px] font-semibold ${
+                        pending
+                          ? 'border-white/10 bg-white/[0.03] text-chalk/45'
+                          : failed
+                            ? 'border-bad/25 bg-bad/10 text-bad'
+                            : 'border-ok/25 bg-ok/10 text-ok'
+                      }`}
+                    >
+                      <span aria-hidden>{pending ? '…' : failed ? '×' : '✓'}</span>
+                      {rule.label}
+                    </li>
+                  )
+                })}
+              </ul>
+            ) : null}
+
+            {clipVerdict && !clipVerdict.ok ? (
+              <ul className="mt-3 flex flex-col gap-1.5">
+                {clipVerdict.errors.map((msg) => (
+                  <li
+                    key={msg}
+                    className="rounded-xl border border-bad/25 bg-bad/10 px-3 py-2 text-xs font-medium leading-relaxed text-bad"
+                  >
+                    {msg}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
             {previewUrl ? (
               <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-night">
@@ -441,9 +535,11 @@ export function UploadPage() {
               ? uploadProgress?.phase === 'upload'
                 ? 'Uploading clip…'
                 : 'Starting analysis…'
-              : ready
-                ? 'Analyze delivery'
-                : 'Complete player details to continue'}
+              : clipChecking
+                ? 'Checking clip…'
+                : ready
+                  ? 'Analyze delivery'
+                  : 'Complete player details to continue'}
           </Button>
         </form>
 

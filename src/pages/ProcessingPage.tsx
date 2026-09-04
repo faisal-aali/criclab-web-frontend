@@ -46,7 +46,7 @@ const TIPS = [
   },
   {
     tag: 'Did you know',
-    body: 'A higher frame rate catches the moment of release more precisely, so the timings come back tighter.',
+    body: 'A higher frame rate is not optional for Action: upload a tagged 120 or 240 fps slow-mo clip, landscape 1080p, one delivery.',
   },
   {
     tag: 'Filming tip',
