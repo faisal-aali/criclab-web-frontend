@@ -413,6 +413,16 @@ stage key. Say "CricLab measures / tracks / reports".
 Field names inside API payloads are not user-visible text and are exempt; any
 string that reaches the screen is not.
 
+## Logging
+
+- **There is no logging framework here** — no sentry, no analytics shim, no
+  `logger` util. `console.error` is acceptable for genuinely unexpected
+  failures (failed fetch, broken URL state); `console.log`/`console.warn` do not
+  belong in committed code — remove debug logs before finishing a task.
+- **Log values, not secrets**: never log tokens, auth headers, or signed URLs.
+- A user-facing failure is surfaced through the design system's error/empty
+  states, not through the console.
+
 ## Anti-patterns (do not introduce)
 
 - Using the LLM (or inventing values) as the motion engine in the UI
