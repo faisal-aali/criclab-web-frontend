@@ -40,6 +40,7 @@
     "path": "/admin/coaching",
     "name": "Coaching",
     "hidden": true,
+    "todo": "For Future",
     "end": false
   },
   {
@@ -47,6 +48,7 @@
     "path": "/admin/tickets",
     "name": "Support",
     "hidden": true,
+    "todo": "For Future",
     "end": false
   },
   {

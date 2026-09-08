@@ -23,6 +23,8 @@ export type NavItemBase = {
   path: string
   name: string
   hidden: boolean
+  /** Present when `hidden` is a deferred feature (`TODO: For Future`). */
+  todo?: string
   end?: boolean
   childPrefixes?: string[]
 }

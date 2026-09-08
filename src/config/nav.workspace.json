@@ -31,6 +31,7 @@
     "hint": "Speed, line & length",
     "icon": "flight",
     "hidden": true,
+    "todo": "For Future",
     "end": false,
     "mobileTab": true,
     "mobileName": "Flight",
@@ -54,6 +55,7 @@
     "hint": "Book a session",
     "icon": "coaching",
     "hidden": true,
+    "todo": "For Future",
     "end": false,
     "mobileTab": false,
     "accountMenu": false
@@ -78,6 +80,7 @@
     "hint": "Ask for help",
     "icon": "support",
     "hidden": true,
+    "todo": "For Future",
     "end": false,
     "mobileTab": false,
     "accountMenu": true
