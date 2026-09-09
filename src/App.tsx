@@ -62,6 +62,7 @@ const BallFlightResultsPage = lazy(() =>
 )
 const TrainPage = lazy(() => import('./pages/TrainPage').then((m) => ({ default: m.TrainPage })))
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then((m) => ({ default: m.HistoryPage })))
+const TrainingPage = lazy(() => import('./pages/app/TrainingPage').then((m) => ({ default: m.TrainingPage })))
 const LeaderboardPage = lazy(() =>
   import('./pages/LeaderboardPage').then((m) => ({ default: m.LeaderboardPage })),
 )
@@ -206,7 +207,8 @@ export default function App() {
                     element={<AppShell><BallFlightResultsPage /></AppShell>}
                   />
                   <Route path="/app/coaching" element={<AppShell><CoachingPage /></AppShell>} />
-                <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
+                  <Route path="/app/train" element={<AppShell><TrainPage /></AppShell>} />
+                  <Route path="/app/training" element={<AppShell><TrainingPage /></AppShell>} />
                   <Route path="/app/history" element={<AppShell><HistoryPage /></AppShell>} />
                   <Route path="/app/leaderboard" element={<AppShell><LeaderboardPage /></AppShell>} />
                 </Route>
@@ -249,6 +251,7 @@ export default function App() {
               <Route path="/results/:deliveryId" element={<Navigate to="/app/action" replace />} />
               <Route path="/ball-flight/*" element={<Navigate to="/app/ball-flight" replace />} />
               <Route path="/train" element={<Navigate to="/app/train" replace />} />
+              <Route path="/training" element={<Navigate to="/app/training" replace />} />
               <Route path="/history" element={<Navigate to="/app/history" replace />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />

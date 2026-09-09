@@ -19,7 +19,7 @@ High-level features. Detail lives in `tasks/`.
 | FEAT-013 | History & compare | Done (basic) | History list + compare delta in agent report |
 | FEAT-014 | Ball tracking (Action) | Done | In-air flight lock; headline ball speed when the path leaves the hand |
 | FEAT-014b | **Ball flight (stumps)** | Done | Behind-bowler + both wickets; pitch-plane speed/line/length UI |
-| FEAT-015 | Coaching memory | Planned | Embeddings via `nomic-embed-text` + semantic search |
+| FEAT-015 | Coaching memory | In progress (deterministic MVP) | `/app/training` page with Action trend charts + AI plan. Semantic embeddings deferred. |
 | FEAT-016 | Validation | Planned | Radar / ground-truth checks; multi-view for true rotation speed |
 | FEAT-018 | **Capture-rate recovery** | Done | Results show measured fps when the file understated slow-mo |
 | FEAT-019 | **Delivery type & throwing screen** | Done | Pace band + ICC 15° screening cards; `—` unless backend status is ok |

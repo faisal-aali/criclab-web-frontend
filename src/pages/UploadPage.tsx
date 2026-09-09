@@ -213,16 +213,18 @@ export function UploadPage() {
     setProfile((p) => ({ ...p, [key]: value }))
   }
 
-  async function onPickClip(next: File | null, opts?: { fromTrim?: boolean }) {
+  async function onPickClip(next: File | null, opts?: { fromTrim?: boolean; becomeSource?: boolean }) {
     probeGen.current += 1
     const gen = probeGen.current
     setFile(next)
     setClipVerdict(null)
     setError(null)
-    if (!opts?.fromTrim) {
+    if (!opts?.fromTrim || opts?.becomeSource) {
       setSourceFile(next)
       setSourceDurationS(null)
       setTrimError(null)
+    }
+    if (!opts?.fromTrim) {
       setTrimWindow(null)
       setTrimOpen(false)
     }
@@ -235,7 +237,7 @@ export function UploadPage() {
       const { probe, verdict } = await inspectActionClip(next)
       if (gen !== probeGen.current) return
       setClipVerdict(verdict)
-      if (!opts?.fromTrim) setSourceDurationS(probe.durationS)
+      if (!opts?.fromTrim || opts?.becomeSource) setSourceDurationS(probe.durationS)
     } catch {
       if (gen !== probeGen.current) return
       setClipVerdict(
@@ -264,7 +266,7 @@ export function UploadPage() {
     try {
       const trimmed = await trimClip(sourceFile, startS, endS)
       setTrimWindow({ startS, endS })
-      await onPickClip(trimmed, { fromTrim: true })
+      await onPickClip(trimmed, { fromTrim: true, becomeSource: true })
     } catch (err) {
       setTrimError(err instanceof Error ? err.message : 'Could not trim this clip.')
     } finally {
@@ -645,7 +647,10 @@ export function UploadPage() {
             ) : null}
 
             {previewUrl && !showTrimPanel && !previewingTrimmed ? (
-              <ClipPreview src={previewUrl} label="Before · your upload" />
+              <ClipPreview
+                src={previewUrl}
+                label={trimWindow ? 'Trimmed clip · this will be analyzed' : 'Before · your upload'}
+              />
             ) : null}
           </div>
 

@@ -54,6 +54,13 @@ const NAV_ICONS: Record<string, ReactNode> = {
       strokeLinejoin="round"
     />
   ),
+  training: (
+    <path
+      d="M3 18h3l4-7 5 5 5-13v0M4 12h4l4-4 3 3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
 }
 
 export function navIcon(name: string): ReactNode {

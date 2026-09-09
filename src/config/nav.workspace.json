@@ -61,6 +61,18 @@
     "accountMenu": false
   },
   {
+    "id": "training",
+    "path": "/app/training",
+    "name": "Training",
+    "hint": "Your trends and plan",
+    "icon": "training",
+    "hidden": false,
+    "end": false,
+    "mobileTab": true,
+    "mobileName": "Training",
+    "accountMenu": true
+  },
+  {
     "id": "history",
     "path": "/app/history",
     "name": "History",

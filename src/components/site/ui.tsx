@@ -7,6 +7,7 @@
  * looking like a system.
  */
 import { Link } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import {
   createElement,
   useEffect,
@@ -178,6 +179,7 @@ export function Button({
   className = '',
   children,
   disabled,
+  title,
 }: {
   to?: string
   href?: string
@@ -188,24 +190,25 @@ export function Button({
   className?: string
   children: ReactNode
   disabled?: boolean
+  title?: string
 }) {
   const cls = `${BUTTON_BASE} ${BUTTON_VARIANTS[variant]} ${BUTTON_SIZES[size]} ${className}`
   if (to) {
     return (
-      <Link to={to} className={cls}>
+      <Link to={to} className={cls} title={title}>
         {children}
       </Link>
     )
   }
   if (href) {
     return (
-      <a href={href} className={cls}>
+      <a href={href} className={cls} title={title}>
         {children}
       </a>
     )
   }
   return (
-    <button type={type} onClick={onClick} className={cls} disabled={disabled}>
+    <button type={type} onClick={onClick} className={cls} disabled={disabled} title={title}>
       {children}
     </button>
   )
@@ -413,9 +416,11 @@ export function Stat({
 export function Chip({
   children,
   tone = 'neutral',
+  className = '',
 }: {
   children: ReactNode
   tone?: 'neutral' | 'ok' | 'warn' | 'bad' | 'lime'
+  className?: string
 }) {
   const tones = {
     neutral: 'border-white/15 bg-white/5 text-chalk/70',
@@ -426,10 +431,75 @@ export function Chip({
   }
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${tones[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${tones[tone]} ${className}`}
     >
       {children}
     </span>
+  )
+}
+
+/** Portal tooltip — renders to document.body so it escapes overflow-hidden parents. */
+export function Tooltip({
+  children,
+  content,
+  show = true,
+}: {
+  children: ReactNode
+  content: ReactNode
+  show?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
+  const [pos, setPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 })
+
+  const updatePos = () => {
+    if (!anchor) return
+    const rect = anchor.getBoundingClientRect()
+    setPos({
+      left: rect.left + rect.width / 2,
+      top: rect.bottom + 8,
+    })
+  }
+
+  useEffect(() => {
+    if (!open) return
+    updatePos()
+    const onScroll = () => updatePos()
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [open, anchor])
+
+  const handleEnter = () => {
+    updatePos()
+    setOpen(true)
+  }
+
+  return (
+    <>
+      <div
+        ref={setAnchor}
+        className="inline-flex"
+        onMouseEnter={handleEnter}
+        onMouseLeave={() => setOpen(false)}
+      >
+        {children}
+      </div>
+      {show && open && content
+        ? createPortal(
+            <div
+              className="pointer-events-none fixed z-[100] -translate-x-1/2 rounded-lg border border-white/10 bg-night/95 px-3 py-1.5 text-center text-xs text-chalk shadow-lg"
+              style={{ left: pos.left, top: pos.top }}
+            >
+              {content}
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
   )
 }
 
