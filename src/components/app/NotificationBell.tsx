@@ -38,6 +38,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [unread, setUnread] = useState(0)
   const [items, setItems] = useState<Notification[] | null>(null)
+  const [listError, setListError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const panelRef = useRef<HTMLDivElement | null>(null)
 
@@ -68,8 +69,10 @@ export function NotificationBell() {
       const r = await api.list({ limit: 15 })
       setItems(r.items)
       setUnread(r.unread)
-    } catch {
+      setListError(null)
+    } catch (err) {
       setItems([])
+      setListError(err instanceof Error ? err.message : 'Could not load notifications')
     } finally {
       setBusy(false)
     }
@@ -160,6 +163,8 @@ export function NotificationBell() {
                   </div>
                 ))}
               </div>
+            ) : listError ? (
+              <p role="alert" className="px-6 py-8 text-center text-sm text-bad">{listError}</p>
             ) : items && items.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-white/5 text-lg">🏏</span>

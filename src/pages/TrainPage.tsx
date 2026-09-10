@@ -45,6 +45,7 @@ export function TrainPage() {
   const [tags, setTags] = useState<string[]>([])
   const [active, setActive] = useState<string>('all')
   const [error, setError] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     listDrills()
@@ -53,6 +54,7 @@ export function TrainPage() {
         setTags(res.tags)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Could not load drills'))
+      .finally(() => setLoaded(true))
   }, [])
 
   const filtered = useMemo(() => {
@@ -76,7 +78,9 @@ export function TrainPage() {
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
   }, [filtered, active])
 
-  const loading = items.length === 0 && !error
+  // Loading ends when the request settles, not when items arrive — an empty
+  // catalogue used to leave this page on the skeleton forever.
+  const loading = !loaded && !error
 
   return (
     <div className="space-y-7">
@@ -171,6 +175,16 @@ export function TrainPage() {
             ))}
           </div>
         </div>
+      ) : items.length === 0 && !error ? (
+        <TiltCard>
+        <Card interactive={false} className="ring-glow p-8 text-center sm:p-10">
+          <p className="font-display text-lg font-bold text-chalk">No drills in the library yet</p>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-chalk/55">
+            The drill catalogue is empty right now. Your next analysis will still explain what to
+            work on; drill videos appear here as soon as they are published.
+          </p>
+        </Card>
+        </TiltCard>
       ) : groups.length === 0 ? (
         <TiltCard>
         <Card interactive={false} className="ring-glow p-8 text-center sm:p-10">

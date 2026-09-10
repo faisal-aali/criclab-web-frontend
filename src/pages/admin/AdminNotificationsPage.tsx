@@ -22,6 +22,8 @@ export function AdminNotificationsPage() {
   const [hits, setHits] = useState<AdminUserRow[]>([])
   const [selected, setSelected] = useState<AdminUserRow[]>([])
   const [history, setHistory] = useState<Broadcast[] | null>(null)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [searchError, setSearchError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const confirm = useConfirm()
   const toast = useToast()
@@ -29,8 +31,14 @@ export function AdminNotificationsPage() {
   const loadHistory = () => {
     admin
       .broadcastHistory()
-      .then((r) => setHistory(r.items))
-      .catch(() => setHistory([]))
+      .then((r) => {
+        setHistory(r.items)
+        setHistoryError(null)
+      })
+      .catch((err) => {
+        setHistory([])
+        setHistoryError(err instanceof Error ? err.message : 'Could not load the broadcast history')
+      })
   }
 
   useEffect(() => {
@@ -45,8 +53,14 @@ export function AdminNotificationsPage() {
     const handle = window.setTimeout(() => {
       admin
         .users({ search: search.trim(), page: 1, pageSize: 8 })
-        .then((r) => setHits(r.items.filter((u) => !selected.some((s) => s.id === u.id))))
-        .catch(() => setHits([]))
+        .then((r) => {
+          setHits(r.items.filter((u) => !selected.some((s) => s.id === u.id)))
+          setSearchError(null)
+        })
+        .catch((err) => {
+          setHits([])
+          setSearchError(err instanceof Error ? err.message : 'Could not search users')
+        })
     }, 250)
     return () => window.clearTimeout(handle)
   }, [search, audience, selected])
@@ -159,6 +173,9 @@ export function AdminNotificationsPage() {
                 placeholder="Search by name or email…"
                 className="field field-dark max-w-sm"
               />
+              {searchError ? (
+                <p role="alert" className="pt-2 text-xs text-bad">{searchError}</p>
+              ) : null}
               {hits.length ? (
                 <ul className="mt-2 overflow-hidden rounded-xl border border-white/10">
                   {hits.map((u) => (
@@ -195,6 +212,8 @@ export function AdminNotificationsPage() {
         <Card tone="dark" interactive={false} className="overflow-hidden p-0">
           {history === null ? (
             <div className="h-24 animate-pulse bg-white/5" />
+          ) : historyError ? (
+            <p role="alert" className="px-5 py-8 text-center text-sm text-bad">{historyError}</p>
           ) : history.length === 0 ? (
             <p className="px-5 py-8 text-center text-sm text-chalk/40">Nothing sent yet.</p>
           ) : (

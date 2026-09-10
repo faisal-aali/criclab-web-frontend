@@ -28,11 +28,19 @@ function UserDetailPanel({
   onChanged: (row: AdminUserRow) => void
 }) {
   const [detail, setDetail] = useState<AdminUserDetail | null>(null)
+  const [detailError, setDetailError] = useState<string | null>(null)
   const confirm = useConfirm()
   const toast = useToast()
 
   useEffect(() => {
-    admin.userDetail(id).then(setDetail).catch(() => setDetail(null))
+    setDetailError(null)
+    admin
+      .userDetail(id)
+      .then(setDetail)
+      .catch((err) => {
+        setDetail(null)
+        setDetailError(err instanceof Error ? err.message : 'Could not load that account')
+      })
   }, [id])
 
   const toggle = async () => {
@@ -60,7 +68,16 @@ function UserDetailPanel({
   if (!detail) {
     return (
       <Card tone="dark" interactive={false} className="p-6">
-        <div className="h-40 animate-pulse rounded-xl bg-white/5" />
+        {detailError ? (
+          <div className="flex items-start justify-between gap-4">
+            <div role="alert" className="text-sm text-bad">{detailError}</div>
+            <button type="button" onClick={onClose} className="text-xs font-semibold text-chalk/60 hover:text-chalk">
+              Close
+            </button>
+          </div>
+        ) : (
+          <div className="h-40 animate-pulse rounded-xl bg-white/5" />
+        )}
       </Card>
     )
   }
@@ -177,6 +194,7 @@ function UserDetailPanel({
 
 export function AdminUsersPage() {
   const [items, setItems] = useState<AdminUserRow[] | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
@@ -190,8 +208,12 @@ export function AdminUsersPage() {
       .then((r) => {
         setItems(r.items)
         setTotal(r.total)
+        setLoadError(null)
       })
-      .catch(() => setItems([]))
+      .catch((err) => {
+        setItems([])
+        setLoadError(err instanceof Error ? err.message : 'Could not load users')
+      })
   }, [search, status, page])
 
   useEffect(() => {
@@ -251,6 +273,11 @@ export function AdminUsersPage() {
       ) : null}
 
       <Reveal delay={80}>
+        {loadError ? (
+          <div role="alert" className="mb-3 rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
+            {loadError}
+          </div>
+        ) : null}
         <Card tone="dark" interactive={false} className="overflow-hidden p-0">
           <div className="scroll-slim overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">

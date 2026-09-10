@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { assistant, type AssistantSource, type ChatTurn } from '../../api/assistant'
 import { Markdown } from './Markdown'
+import { isWorkspacePathHidden } from '../../config/nav'
 
 type Message = ChatTurn & {
   id: number
@@ -265,7 +266,7 @@ export function AssistantWidget() {
                       ) : (
                         <p className="whitespace-pre-wrap break-words">{m.content}</p>
                       )}
-                      {m.escalate && !m.streaming ? (
+                      {m.escalate && !m.streaming && !isWorkspacePathHidden('/app/support') ? (
                         <Link
                           to="/app/support"
                           className="mt-2 inline-block text-[11px] font-semibold text-lime hover:underline"

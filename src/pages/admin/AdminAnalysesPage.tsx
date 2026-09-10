@@ -38,6 +38,7 @@ function threwLine(a: AdminAnalysisRow) {
 
 export function AdminAnalysesPage() {
   const [items, setItems] = useState<AdminAnalysisRow[] | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   // TODO: For Future
   // const [pipeline, setPipeline] = useState('')
@@ -53,8 +54,12 @@ export function AdminAnalysesPage() {
       .then((r) => {
         setItems(r.items)
         setTotal(r.total)
+        setLoadError(null)
       })
-      .catch(() => setItems([]))
+      .catch((err) => {
+        setItems([])
+        setLoadError(err instanceof Error ? err.message : 'Could not load analyses')
+      })
   }, [status, search, page])
   // TODO: For Future — include pipeline in deps when restored: [pipeline, status, search, page]
 
@@ -148,6 +153,11 @@ export function AdminAnalysesPage() {
       </Reveal>
 
       <Reveal delay={80}>
+        {loadError ? (
+          <div role="alert" className="mb-3 rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
+            {loadError}
+          </div>
+        ) : null}
         {/* Mobile: stacked cards so Open stays reachable without sideways scroll. */}
         <div className="flex flex-col gap-3 md:hidden">
           {items === null ? (

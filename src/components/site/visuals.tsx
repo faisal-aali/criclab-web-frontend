@@ -332,3 +332,28 @@ export function PitchFloor({ className = '' }: { className?: string }) {
     </div>
   )
 }
+
+/** A bat, as a flat glyph — the fallback for the 3D model. */
+export function BatGlyph({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 120 260" className={className} aria-hidden>
+      <defs>
+        <linearGradient id="batWillow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#d9b877" />
+          <stop offset="55%" stopColor="#e9d09a" />
+          <stop offset="100%" stopColor="#cfa964" />
+        </linearGradient>
+      </defs>
+      <g transform="rotate(-14 60 130)">
+        <rect x="52" y="8" width="16" height="70" rx="7" fill="#182620" />
+        {[24, 40, 56].map((y) => (
+          <rect key={y} x="50" y={y} width="20" height="3" rx="1.5" fill="#b6f24a" />
+        ))}
+        <path d="M40 78 L80 78 L84 96 L84 232 Q84 252 60 252 Q36 252 36 232 L36 96 Z" fill="url(#batWillow)" />
+        <path d="M60 96 L60 236" stroke="rgba(0,0,0,0.12)" strokeWidth="1.5" />
+        <rect x="44" y="120" width="32" height="26" rx="4" fill="#b6f24a" />
+        <rect x="47" y="131" width="26" height="4" rx="2" fill="#05090a" />
+      </g>
+    </svg>
+  )
+}

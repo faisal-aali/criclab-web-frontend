@@ -42,6 +42,163 @@
   --radius-pill: 999px;
 }
 
+/* ============================================================================
+   Semantic tokens
+   One vocabulary for both themes. Every value below is a *role* — surface,
+   text level, border, state — and each role is defined once for light and
+   once for dark. Components written in these roles need no `dark:` pairs.
+
+   The dark set is purpose-built, not an inversion: surfaces step *up* in
+   luminance as they come forward (bg → surface → elevated) and carry the
+   pitch-green cast of the brand, borders are pale hairlines rather than
+   darkened greys, and accent text is the bright lime the palette was tuned
+   around. The light set keeps the same structure with ink on chalk and the
+   darkened lime/pitch that stays legible on white.
+   ========================================================================= */
+
+@theme inline {
+  --color-primary: var(--t-primary);
+  --color-primary-strong: var(--t-primary-strong);
+  --color-primary-ink: var(--t-primary-ink);
+  --color-primary-contrast: var(--t-primary-contrast);
+  --color-secondary: var(--t-secondary);
+  --color-secondary-soft: var(--t-secondary-soft);
+  --color-accent: var(--t-accent);
+  --color-accent-ink: var(--t-accent-ink);
+
+  --color-bg: var(--t-bg);
+  --color-bg-alt: var(--t-bg-alt);
+  --color-surface: var(--t-surface);
+  --color-surface-alt: var(--t-surface-alt);
+  --color-elevated: var(--t-elevated);
+  --color-overlay: var(--t-overlay);
+
+  --color-fg: var(--t-fg);
+  --color-fg-muted: var(--t-fg-muted);
+  --color-fg-subtle: var(--t-fg-subtle);
+  --color-fg-faint: var(--t-fg-faint);
+
+  --color-line: var(--t-line);
+  --color-line-strong: var(--t-line-strong);
+  --color-divider: var(--t-divider);
+
+  --color-success: var(--t-success);
+  --color-success-soft: var(--t-success-soft);
+  --color-warning: var(--t-warning);
+  --color-warning-soft: var(--t-warning-soft);
+  --color-error: var(--t-error);
+  --color-error-soft: var(--t-error-soft);
+  --color-info: var(--t-info);
+  --color-info-soft: var(--t-info-soft);
+
+  --color-hover: var(--t-hover);
+  --color-active: var(--t-active);
+  --color-focus: var(--t-focus);
+  --color-disabled: var(--t-disabled);
+
+  --shadow-card: var(--t-shadow-card);
+  --shadow-elevated: var(--t-shadow-elevated);
+  --shadow-glow: var(--t-shadow-glow);
+}
+
+:root {
+  color-scheme: light;
+  --t-primary: #b6f24a;
+  --t-primary-strong: #cfff6a;
+  --t-primary-ink: #2c6e10;
+  --t-primary-contrast: #05090a;
+  --t-secondary: #0b3d2e;
+  --t-secondary-soft: #12513c;
+  --t-accent: #d9743c;
+  --t-accent-ink: #a8521f;
+
+  --t-bg: #f6f9f7;
+  --t-bg-alt: #edf3ef;
+  --t-surface: #ffffff;
+  --t-surface-alt: #f1f6f2;
+  --t-elevated: #ffffff;
+  --t-overlay: rgba(5, 9, 10, 0.55);
+
+  --t-fg: #0d1512;
+  --t-fg-muted: rgba(13, 21, 18, 0.7);
+  --t-fg-subtle: rgba(13, 21, 18, 0.52);
+  --t-fg-faint: rgba(13, 21, 18, 0.36);
+
+  --t-line: rgba(11, 61, 46, 0.12);
+  --t-line-strong: rgba(11, 61, 46, 0.24);
+  --t-divider: rgba(11, 61, 46, 0.08);
+
+  --t-success: #14713a;
+  --t-success-soft: rgba(20, 113, 58, 0.1);
+  --t-warning: #8a5a06;
+  --t-warning-soft: rgba(138, 90, 6, 0.1);
+  --t-error: #a41b1b;
+  --t-error-soft: rgba(164, 27, 27, 0.1);
+  --t-info: #1d5fae;
+  --t-info-soft: rgba(29, 95, 174, 0.1);
+
+  --t-hover: rgba(11, 61, 46, 0.06);
+  --t-active: rgba(11, 61, 46, 0.11);
+  --t-focus: #8fd12b;
+  --t-disabled: rgba(13, 21, 18, 0.35);
+
+  --t-shadow-card: 0 12px 34px -18px rgba(11, 61, 46, 0.35);
+  --t-shadow-elevated: 0 24px 60px -24px rgba(11, 61, 46, 0.4);
+  --t-shadow-glow: 0 18px 40px -14px rgba(143, 209, 43, 0.55);
+}
+
+html.dark,
+.on-night,
+.theme-dark {
+  color-scheme: dark;
+  --t-primary: #b6f24a;
+  --t-primary-strong: #d4ff78;
+  --t-primary-ink: #b6f24a;
+  --t-primary-contrast: #05090a;
+  --t-secondary: #12513c;
+  --t-secondary-soft: #0b3d2e;
+  --t-accent: #e0844d;
+  --t-accent-ink: #f0a071;
+
+  --t-bg: #070c0d;
+  --t-bg-alt: #0b1214;
+  --t-surface: #0f1719;
+  --t-surface-alt: #131d20;
+  --t-elevated: #182428;
+  --t-overlay: rgba(3, 6, 7, 0.72);
+
+  --t-fg: #f2f6f3;
+  --t-fg-muted: rgba(242, 246, 243, 0.7);
+  --t-fg-subtle: rgba(242, 246, 243, 0.5);
+  --t-fg-faint: rgba(242, 246, 243, 0.32);
+
+  --t-line: rgba(255, 255, 255, 0.09);
+  --t-line-strong: rgba(255, 255, 255, 0.17);
+  --t-divider: rgba(255, 255, 255, 0.07);
+
+  --t-success: #4ade80;
+  --t-success-soft: rgba(74, 222, 128, 0.12);
+  --t-warning: #fbbf24;
+  --t-warning-soft: rgba(251, 191, 36, 0.12);
+  --t-error: #f87171;
+  --t-error-soft: rgba(248, 113, 113, 0.12);
+  --t-info: #6cb8ff;
+  --t-info-soft: rgba(108, 184, 255, 0.12);
+
+  --t-hover: rgba(255, 255, 255, 0.05);
+  --t-active: rgba(182, 242, 74, 0.13);
+  --t-focus: #b6f24a;
+  --t-disabled: rgba(242, 246, 243, 0.35);
+
+  --t-shadow-card: 0 18px 44px -22px rgba(0, 0, 0, 0.7);
+  --t-shadow-elevated: 0 30px 70px -28px rgba(0, 0, 0, 0.85);
+  --t-shadow-glow: 0 18px 44px -14px rgba(182, 242, 74, 0.6);
+}
+
+/* The dark workspace in light mode is remapped by `.app-shell` (below); the
+   semantic roles follow the *page* theme there, which is what a component
+   written in roles wants. */
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 html {
@@ -69,7 +226,7 @@ body {
 
 html.dark body {
   color: var(--color-chalk);
-  background: var(--color-night);
+  background: var(--t-bg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -718,4 +875,53 @@ html.dark .bg-chalk-warm {
 .word-rise.is-visible > span {
   opacity: 1;
   transform: none;
+}
+
+
+/* ===========================================================================
+   Motion system helpers
+   Framer Motion drives entrances, transitions and presence; these are the
+   few pieces that stay in CSS because they run on the compositor with no
+   JavaScript (shimmer skeletons, the 3D stage's chrome).
+   ======================================================================== */
+
+/* Skeleton: a surface-toned block with a slow highlight sweep. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: var(--t-hover);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, var(--t-line) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* A 3D stage's container: the canvas is absolutely positioned inside it and
+   the fallback (an SVG) sits in flow, so the box always has a height. */
+.scene-3d {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+}
+.scene-3d canvas {
+  display: block;
+  outline: none;
+  touch-action: pan-y;
+}
+
+/* Text on the new semantic roles inside the light workspace stays readable —
+   the remap only touches the legacy chalk/charcoal tokens. */
+html.light .app-shell .text-primary-ink { color: var(--t-primary-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .marquee-track,
+  .shimmer-text {
+    animation: none !important;
+  }
 }

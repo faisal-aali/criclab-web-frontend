@@ -19,6 +19,7 @@ export function AdminPlayerHistoryPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [items, setItems] = useState<PlayerHistoryItem[] | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId) return
@@ -28,8 +29,12 @@ export function AdminPlayerHistoryPage() {
         setName(r.user.name)
         setEmail(r.user.email)
         setItems(r.items)
+        setLoadError(null)
       })
-      .catch(() => setItems([]))
+      .catch((err) => {
+        setItems([])
+        setLoadError(err instanceof Error ? err.message : 'Could not load this history')
+      })
   }, [userId])
 
   return (
@@ -46,6 +51,11 @@ export function AdminPlayerHistoryPage() {
       </Reveal>
 
       <Reveal delay={40}>
+        {loadError ? (
+          <div role="alert" className="mb-3 rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
+            {loadError}
+          </div>
+        ) : null}
         <div className="flex flex-col gap-3">
           {items === null ? (
             [0, 1, 2].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/5" />)

@@ -156,12 +156,27 @@ export function BallFlightResultsPage() {
         {/* ---------------- Headline delivery ---------------- */}
         <aside className="flex min-w-0 flex-col gap-3">
           <h2 className="font-display text-base font-bold text-chalk">Headline delivery</h2>
+          {data.error ? (
+            <div role="alert" className="rounded-xl border border-bad/30 bg-bad/10 px-3.5 py-3 text-xs leading-relaxed text-bad">
+              This session did not finish: {data.error}
+            </div>
+          ) : null}
+          {deliveries.length === 0 ? (
+            <Card interactive={false} className="p-5 text-center">
+              <p className="font-display text-base font-bold text-chalk">No ball found in this session</p>
+              <p className="mt-2 text-xs leading-relaxed text-chalk/55">
+                Nothing in the clip read as a ball travelling from the bowler toward the batter, so
+                there is no speed, line or length to show. Film from behind the bowler with both
+                stump sets in frame and try again.
+              </p>
+            </Card>
+          ) : null}
           <div className="grid gap-3">
             <MetricCard label="Ball speed" metric={first?.speed_kmh} />
             <MetricCard label="Line" metric={first?.line_m} />
             <MetricCard label="Length" metric={first?.length_m} />
           </div>
-          {!metricReady(first?.speed_kmh) ? (
+          {deliveries.length > 0 && !metricReady(first?.speed_kmh) ? (
             <p className="rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-chalk/55">
               Speed stays hidden unless the ball’s path clearly reads as a delivery travelling
               toward the batter.

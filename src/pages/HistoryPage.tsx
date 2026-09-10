@@ -15,11 +15,13 @@ import { BowlerSkeleton, SeamBall } from '../components/site/visuals'
 export function HistoryPage() {
   const [items, setItems] = useState<Delivery[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     listDeliveries()
       .then((res) => setItems(res.items))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load history'))
+      .finally(() => setLoaded(true))
   }, [])
 
   return (
@@ -62,8 +64,23 @@ export function HistoryPage() {
         </div>
       ) : null}
 
+      {/* ---------------- Loading ---------------- */}
+      {!loaded && !error ? (
+        <div className="space-y-3" aria-busy="true">
+          <p className="text-sm text-chalk/50">Loading your deliveries…</p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-44 animate-pulse rounded-[var(--radius-card)] border border-white/10 bg-white/[0.04]"
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {/* ---------------- Empty state ---------------- */}
-      {items.length === 0 && !error ? (
+      {loaded && items.length === 0 && !error ? (
         <Reveal>
           <Card interactive={false} className="ring-glow relative overflow-hidden p-8 text-center sm:p-12">
             <div className="pointer-events-none absolute inset-0 bg-grid-tech opacity-[0.35]" aria-hidden />

@@ -103,3 +103,20 @@ High-level features. Detail lives in `tasks/`.
 - **2 Sep 2026 (TASK-003 / FEAT-031):** Processing pages and the header ring
   show when a queued clip is expected to start. Owners can remove a clip that
   has not started yet.
+
+- **10 Sep 2026 (TASK-004, audit):** Cross-system audit pass. Every async
+  screen now tells "loading", "empty" and "failed" apart: the drill library
+  no longer sits on its skeleton when the catalogue is empty (loading ends
+  when the request settles, not when items arrive); History shows a
+  skeleton instead of "No deliveries yet" while the list loads; a ball-flight
+  session with no tracked ball, or a failed one, says so instead of three
+  `—` cards. Failed requests that were rendered as empty tables (admin
+  users/analyses/player history/broadcast history/recipient search, account
+  sessions, the notification list) now show the error, and the admin user
+  detail panel no longer spins forever on a failure. In-app links to pages
+  hidden `For Future` (assistant → `/app/support`, dashboard → `/admin/tickets`)
+  render only when the target is visible. The global `/jobs/active` poll
+  pauses while the tab is hidden and refreshes when it is shown. Removed the
+  unused `components/Logo.tsx`; `.env.example` no longer ships a loopback
+  `VITE_API_BASE`. Blockers recorded in TASK-004: root-owned `node_modules`
+  (builds run from a copy), a Vercel OIDC token in the untracked `.env.local`.

@@ -75,6 +75,20 @@ Open http://localhost:5173.
 | `VITE_BACKEND_URL` | Dev proxy target (default `http://127.0.0.1:8000`) |
 | `VITE_API_BASE` | Leave unset for local `/api` proxy; absolute URL for split prod |
 
+## Checks
+
+```bash
+npx tsc --noEmit -p tsconfig.app.json   # types
+npm run lint                            # oxlint
+npm run build                           # tsc -b && vite build
+```
+
+`tsconfig.app.json` is not `strict` (no `strictNullChecks`), so nullable API
+fields are not enforced by the compiler. There are no unit tests in this repo.
+If `node_modules/` is owned by root (it was on the dev Mac after a `sudo npm`),
+`npm ci` fails with EACCES; fix with `sudo chown -R "$(id -un)" node_modules`
+or build from a copy of the tree.
+
 ## Constraints
 
 - Frontend is **Vite + React**, not Next.js

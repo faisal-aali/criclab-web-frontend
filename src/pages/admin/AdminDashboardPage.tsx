@@ -5,6 +5,8 @@ import { OpenReportButton } from '../../components/admin/OpenReportButton'
 import { BarList, TrendLine } from '../../components/admin/charts'
 // TODO: For Future — coaching donut card: import { Donut } from '../../components/admin/charts'
 import { Card, Chip, Reveal } from '../../components/site/ui'
+import type { ReactNode } from 'react'
+import { isAdminPathHidden } from '../../config/nav'
 
 const RANGES: { key: DashboardRange; label: string }[] = [
   { key: 'today', label: 'Today' },
@@ -34,6 +36,16 @@ function HealthRow({
       </div>
       <p className={`font-display text-xl font-extrabold ${color}`}>{value}</p>
     </div>
+  )
+}
+
+/** A dashboard tile that only navigates when its target page is enabled in the admin nav. */
+function TileLink({ to, className, children }: { to: string; className: string; children: ReactNode }) {
+  if (isAdminPathHidden(to)) return <div className={className}>{children}</div>
+  return (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
   )
 }
 
@@ -160,7 +172,7 @@ export function AdminDashboardPage() {
                       {data.videos.failed_range} failed in range · {data.videos.failed_total} ever
                     </p>
                   </div>
-                  <Link
+                  <TileLink
                     to="/admin/tickets"
                     className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-lime/30"
                   >
@@ -169,7 +181,7 @@ export function AdminDashboardPage() {
                       {data.support.open}
                     </p>
                     <p className="pt-1 text-xs text-chalk/45">{data.support.resolved} resolved</p>
-                  </Link>
+                  </TileLink>
                 </div>
               </div>
             ) : (
@@ -244,9 +256,11 @@ export function AdminDashboardPage() {
               <Card tone="dark" interactive={false} className="p-5">
                 <div className="flex items-center justify-between pb-2">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-chalk/40">Support mix</p>
-                  <Link to="/admin/tickets" className="text-[11px] font-bold uppercase tracking-[0.12em] text-lime">
-                    Queue
-                  </Link>
+                  {isAdminPathHidden('/admin/tickets') ? null : (
+                    <Link to="/admin/tickets" className="text-[11px] font-bold uppercase tracking-[0.12em] text-lime">
+                      Queue
+                    </Link>
+                  )}
                 </div>
                 <div className="flex h-[148px] items-end gap-3 pt-4">
                   <div className="flex flex-1 flex-col items-center gap-2">
