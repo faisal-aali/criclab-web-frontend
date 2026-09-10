@@ -64,6 +64,7 @@ export function AccountSettingsPage() {
   const [pwMsg, setPwMsg] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null)
 
   const [sessions, setSessions] = useState<Session[] | null>(null)
+  const [sessionsError, setSessionsError] = useState<string | null>(null)
 
   useEffect(() => setName(user?.name ?? ''), [user?.name])
 
@@ -71,8 +72,10 @@ export function AccountSettingsPage() {
     try {
       const r = await auth.sessions()
       setSessions(r.items)
-    } catch {
+      setSessionsError(null)
+    } catch (err) {
       setSessions([])
+      setSessionsError(err instanceof Error ? err.message : 'Could not load your sessions')
     }
   }, [])
 
@@ -255,6 +258,8 @@ export function AccountSettingsPage() {
                   <div key={i} className="h-14 animate-pulse rounded-xl bg-white/5" />
                 ))}
               </div>
+            ) : sessionsError ? (
+              <p role="alert" className="text-sm text-bad">{sessionsError}</p>
             ) : sessions.length === 0 ? (
               <p className="text-sm text-chalk/45">No other active sessions.</p>
             ) : (
