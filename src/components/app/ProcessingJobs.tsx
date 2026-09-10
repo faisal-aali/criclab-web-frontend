@@ -2,8 +2,10 @@
  * Tracks in-flight video jobs for the whole workspace.
  *
  * Processing runs on criclab-video-service workers, not in the tab. This
- * provider only polls status (including while the tab is hidden) so the
- * header ring stays live if the user leaves the processing page.
+ * provider only polls status so the header ring stays live if the user
+ * leaves the processing page. The poll pauses while the tab is hidden and
+ * refreshes the moment it is shown again — a background tab has nothing to
+ * paint, and every hidden tab was otherwise a request every two seconds.
  */
 import {
   createContext,
@@ -53,8 +55,17 @@ export function ProcessingJobsProvider({ children }: { children: ReactNode }) {
       return
     }
     void refresh()
-    const id = window.setInterval(() => void refresh(), POLL_MS)
-    return () => window.clearInterval(id)
+    const id = window.setInterval(() => {
+      if (!document.hidden) void refresh()
+    }, POLL_MS)
+    const onVisible = () => {
+      if (!document.hidden) void refresh()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [status, refresh])
 
   const trackJob = useCallback((job: Pick<Job, 'id' | 'kind'>) => {

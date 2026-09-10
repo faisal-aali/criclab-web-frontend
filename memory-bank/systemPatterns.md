@@ -402,6 +402,26 @@ instead of staying a rim. Toning down the gradient's opacity did not fix this;
 the actual fix was forcing the inner card opaque (`!bg-charcoal`) so only the
 padding gap shows colour.
 
+## Async screens: three states, never two
+
+- **Loading ends when the request settles**, not when data arrives. A flag
+  like `items.length === 0 && !error` is a skeleton that never ends on an
+  empty result (that was the drill library) and an empty state that flashes
+  before the data (that was History). Keep a `loaded` flag set in
+  `.finally`, or a `null`-until-loaded array.
+- **A failed request is not an empty list.** `.catch(() => setItems([]))`
+  paints "No users match" over a 500 and, on a detail panel, a skeleton that
+  spins forever. Keep an error string beside the data and render it.
+- **A backend error field is for showing.** `BalltrackSession.error` and a
+  zero-delivery session both have their own copy on the results page.
+- **Links to `For Future` pages are gated on nav visibility**
+  (`isWorkspacePathHidden` / `isAdminPathHidden` from `config/nav.ts`) so a
+  hidden page never has a live button pointing at it — the guard would only
+  bounce the user to the fallback page.
+- **Polls stop when nobody is looking.** `ProcessingJobs` and
+  `NotificationBell` both check `document.hidden` and refresh on
+  `visibilitychange`.
+
 ## Privacy rule — never expose how the analysis works
 
 Public copy and workspace copy describe **what the user gets**, never how it is
